@@ -1,6 +1,6 @@
 # 대학생 개인화 진로 로드맵
 
-P3 로컬 웹앱입니다. Node.js 20.9 이상과 Python 3이 필요합니다. 별도의 AI 키나 DB 서비스는 필요하지 않습니다.
+P4 로컬 웹앱입니다. Node.js 20.9 이상과 Python 3이 필요합니다. 별도의 AI 키나 DB 서비스는 필요하지 않습니다.
 
 먼저 API 가상환경과 문서 파싱 라이브러리를 설치합니다.
 
@@ -51,3 +51,18 @@ http://localhost:3000 에서 새 계획을 만들거나 이어서 작성할 수 
 PDF, DOCX, UTF-8 TXT를 계획당 최대 10개, 파일당 최대 10MiB까지 업로드할 수 있습니다. PDF는 최대 100페이지, DOCX는 압축 해제 크기 30MiB와 1,000개 항목까지 허용합니다. 추출 텍스트는 최대 100만 문자이며 잘린 경우 일부 추출로 표시합니다. 이 제한들은 처리 안전을 위한 로컬 기본값입니다.
 
 원본은 `ROADMAP_FILE_STORAGE_PATH` 아래 서버가 만든 식별자 이름으로 비공개 저장하고, 텍스트·위치와 버전은 SQLite에 보관합니다. 서버 시작 시 함께 실행되는 로컬 워커가 대기 작업과 삭제 정리를 처리하며, 중단된 작업은 lease 만료 후 재개합니다. 이미지·스캔의 OCR은 제공하지 않습니다. 일부 문서에서 이미지, 머리글·바닥글, 각주나 포함 개체 등은 읽히지 않을 수 있으며 확인된 제한은 화면에 표시합니다. 문서를 삭제하면 즉시 목록에서 제외하고 원본과 추출 이력을 정리합니다. 정리 실패는 기록되어 재시도합니다.
+
+## 외부 자료 수집: 내부 fixture 검증
+
+현재 실제 채용·공모전·대외활동 출처와 접근 정책은 정해지지 않았습니다. 연결된 운영 사이트와 네트워크 수집 기능은 없으며, 다음 명령은 가상 도메인 `fixtures.invalid`과 저장소 안의 가상 데이터만 사용합니다. 사용자 화면이나 공개 API에서 수집을 실행하지 않습니다.
+
+```sh
+apps/api/.venv/bin/python apps/api/app/scripts/external_collect.py init-fixtures
+apps/api/.venv/bin/python apps/api/app/scripts/external_collect.py enqueue fixture-jobs --fixture-set v1 --job-key example-1
+apps/api/.venv/bin/python apps/api/app/scripts/external_collect.py work --drain
+apps/api/.venv/bin/python apps/api/app/scripts/external_collect.py inspect fixture-jobs
+```
+
+`enqueue`가 반환한 작업 ID는 `status <작업 ID>`로 조회하고, 실패 또는 부분 작업은 `retry <작업 ID>`로 다시 대기시킨 뒤 `work`를 실행합니다. 같은 출처·작업 키·범위의 재등록은 기존 작업을 반환하며, 같은 키에 다른 범위를 사용하면 거부합니다. `work`는 기본적으로 한 건, `--drain`은 대기 중인 전체 작업을 처리하고 실패한 작업이 있으면 종료 코드 1을 반환합니다. 실행 중 중단된 작업은 120초 점유 기한이 지난 뒤 다음 `work`에서 다시 처리됩니다.
+
+다른 fixture 출처는 `fixture-activities`, `fixture-pdf`입니다. `fixture-jobs`의 `--fixture-set`은 `v1`, `v2`, `empty`, `partial`, `failure`를 지원합니다. PDF는 페이지별 일반 텍스트만 추출하며 명시 필드를 자동 분류하지 않아 작업 상태가 부분 확보로 남습니다. HTML fixture는 제목·문단·목록 태그의 명시 필드만 보관합니다. fixture 원문은 건당 2MiB, 작업당 100건으로 제한하고 PDF는 100페이지까지 읽습니다. 기한·시간대나 조건이 불명확하면 추정하지 않습니다. 실제 출처를 연결하려면 해당 기관의 공식 접근 방식과 이용 조건·범위·요청 제한을 확인하고 별도 어댑터와 설정을 구현해야 합니다.
