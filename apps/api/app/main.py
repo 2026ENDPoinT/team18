@@ -1,4 +1,5 @@
 """P1 API: anonymous session ownership and persistent basic plan input."""
+import os
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
@@ -288,6 +289,11 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     migrate()
+    # This application is a local development MVP. Seed only an empty reference
+    # database; deployments can disable fictional data explicitly.
+    if os.environ.get('ROADMAP_AUTO_SEED_DEV', '1') == '1':
+        from scripts.seed_dev import seed
+        seed(only_if_empty=True)
     stop_worker = start_worker()
     server = ThreadingHTTPServer((API_HOST, API_PORT), Handler)
     print(f'API listening on {API_HOST}:{API_PORT}', flush=True)

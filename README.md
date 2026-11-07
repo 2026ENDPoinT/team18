@@ -9,7 +9,7 @@ python3 -m venv apps/api/.venv
 apps/api/.venv/bin/pip install -r apps/api/requirements.txt
 ```
 
-과목 화면에 사용할 가상 개발용 기준 데이터를 한 번 적재합니다. 실제 대학이나 교육과정 자료가 아닙니다.
+API 서버는 학교 데이터가 전혀 없는 DB에 가상 개발용 기준 데이터를 자동으로 적재합니다. 실제 대학이나 교육과정 자료가 아닙니다. 서버 시작 전에 수동으로 적재하려면 다음을 실행합니다.
 
 ```sh
 python3 apps/api/app/scripts/seed_dev.py
@@ -44,6 +44,7 @@ PYTHONPATH=apps/api/app apps/api/.venv/bin/python -c 'from repositories.p1 impor
 | 환경변수 | 기본값 | 용도 |
 |---|---|---|
 | `ROADMAP_DB_PATH` | `apps/api/var/roadmap.sqlite3` | SQLite DB 파일 위치 |
+| `ROADMAP_AUTO_SEED_DEV` | `1` | 학교 테이블이 비어 있으면 가상 개발용 기준 데이터를 자동 적재. 실제 자료를 사용하는 환경에서는 `0`으로 비활성화 |
 | `ROADMAP_API_HOST` / `ROADMAP_API_PORT` | `127.0.0.1` / `8000` | API 바인드 주소와 포트 |
 | `ROADMAP_API_ORIGIN` | `http://127.0.0.1:8000` | Next.js의 서버 측 API 프록시 대상. Next 빌드·실행 환경에 설정 |
 | `ROADMAP_APP_ORIGIN` | `http://localhost:3000` | 쓰기 요청의 허용 Origin. 브라우저에서 접근하는 정확한 출처와 일치해야 함 |
