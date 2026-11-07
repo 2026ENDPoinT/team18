@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+from hashlib import sha256
 import sqlite3
 import tempfile
 import unittest
@@ -34,7 +36,11 @@ class ExternalCollectionTest(unittest.TestCase):
             first_item=self.rows('SELECT * FROM external_items')[0]
             version=self.rows('SELECT * FROM external_item_versions')[0]
             self.assertEqual(version['version_no'],1);self.assertEqual(version['content_type'],'text/html; charset=utf-8')
-            self.assertIn(b'<html',version['raw_content']);facts=json.loads(version['source_facts']);segments=json.loads(version['segments'])
+            self.assertIn(b'<html',version['raw_content']);self.assertEqual(sha256(version['raw_content']).hexdigest(),version['content_hash'])
+            self.assertEqual(version['collection_job_id'],job);self.assertEqual(version['source_url'],first_item['canonical_url'])
+            self.assertIsNotNone(datetime.fromisoformat(version['collected_at']).tzinfo);self.assertIsNotNone(datetime.fromisoformat(version['confirmed_at']).tzinfo)
+            self.assertEqual(first_item['latest_validation_job_id'],job)
+            facts=json.loads(version['source_facts']);segments=json.loads(version['segments'])
             self.assertEqual(facts['required_skills'][0]['text'],'필수: Python 사용 경험')
             self.assertEqual(facts['preferred_skills'][0]['text'],'우대: 데이터베이스 경험')
             for seg in segments:self.assertEqual(version['source_text'][seg['start']:seg['end']],seg['excerpt'])

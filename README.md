@@ -1,6 +1,6 @@
 # 대학생 개인화 진로 로드맵
 
-P4 로컬 웹앱입니다. Node.js 20.9 이상과 Python 3이 필요합니다. 별도의 AI 키나 DB 서비스는 필요하지 않습니다.
+P0~P5 비AI 기능을 검수한 로컬 웹앱입니다. Node.js 20.9 이상과 Python 3이 필요합니다. 별도의 AI 키나 DB 서비스는 필요하지 않습니다.
 
 먼저 API 가상환경과 문서 파싱 라이브러리를 설치합니다.
 
@@ -28,6 +28,16 @@ npm run dev
 ```
 
 http://localhost:3000 에서 새 계획을 만들거나 이어서 작성할 수 있습니다. 최초 실행 시 `apps/api/var/roadmap.sqlite3`에 마이그레이션이 적용됩니다. 입력은 이 파일에 보관되므로 삭제하지 않으면 서버 재시작 후에도 유지됩니다. 세션은 30일 동안 유효하며 쿠키 삭제·만료 시 해당 세션의 계획에 다시 접근할 수 없습니다.
+
+## DB 초기화와 마이그레이션
+
+API 시작과 가상 과목 데이터 적재 시 `apps/api/migrations`의 미적용 SQL을 순서대로 적용하고 `schema_migrations`에 기록합니다. 기존 DB는 자동 삭제하지 않습니다. 서버를 시작하지 않고 마이그레이션만 적용할 수도 있습니다.
+
+```sh
+PYTHONPATH=apps/api/app apps/api/.venv/bin/python -c 'from repositories.p1 import migrate; migrate()'
+```
+
+기본 DB는 `apps/api/var/roadmap.sqlite3`, 문서 원본은 `apps/api/var/files`입니다. 다른 DB를 사용하려면 모든 관련 명령에서 `ROADMAP_DB_PATH`를 동일하게 지정하고, 문서 복원에는 해당 파일 저장 경로도 함께 보존해야 합니다. 파일 저장소는 공개 정적 디렉터리가 아니며 저장 경로를 직접 웹에 노출하지 않습니다. 마이그레이션에는 자동 롤백 명령이 없으므로 기존 데이터를 지우지 않고 백업과 새 마이그레이션으로 관리합니다.
 
 ## 설정
 
@@ -66,3 +76,44 @@ apps/api/.venv/bin/python apps/api/app/scripts/external_collect.py inspect fixtu
 `enqueue`가 반환한 작업 ID는 `status <작업 ID>`로 조회하고, 실패 또는 부분 작업은 `retry <작업 ID>`로 다시 대기시킨 뒤 `work`를 실행합니다. 같은 출처·작업 키·범위의 재등록은 기존 작업을 반환하며, 같은 키에 다른 범위를 사용하면 거부합니다. `work`는 기본적으로 한 건, `--drain`은 대기 중인 전체 작업을 처리하고 실패한 작업이 있으면 종료 코드 1을 반환합니다. 실행 중 중단된 작업은 120초 점유 기한이 지난 뒤 다음 `work`에서 다시 처리됩니다.
 
 다른 fixture 출처는 `fixture-activities`, `fixture-pdf`입니다. `fixture-jobs`의 `--fixture-set`은 `v1`, `v2`, `empty`, `partial`, `failure`를 지원합니다. PDF는 페이지별 일반 텍스트만 추출하며 명시 필드를 자동 분류하지 않아 작업 상태가 부분 확보로 남습니다. HTML fixture는 제목·문단·목록 태그의 명시 필드만 보관합니다. fixture 원문은 건당 2MiB, 작업당 100건으로 제한하고 PDF는 100페이지까지 읽습니다. 기한·시간대나 조건이 불명확하면 추정하지 않습니다. 실제 출처를 연결하려면 해당 기관의 공식 접근 방식과 이용 조건·범위·요청 제한을 확인하고 별도 어댑터와 설정을 구현해야 합니다.
+
+## 통합 검증
+
+다음 명령은 저장소 루트에서 실행합니다.
+
+```sh
+apps/api/.venv/bin/python -m unittest discover -s apps/api/tests/integration -p 'test_*.py' -v
+npm run build --prefix apps/web
+npm run check --prefix apps/web
+node --check apps/web/tests/e2e/p5-flow.mjs
+```
+
+웹은 JavaScript 프로젝트이며 별도 TypeScript 타입 검사나 ESLint 설정·스크립트는 현재 없습니다. `npm run check`는 Next 설정 파일의 구문 검사이고 `npm run build`는 웹 컴파일을 확인합니다. 개발 서버와 빌드를 동시에 실행하면 같은 `.next`를 사용하므로, 빌드 전 개발 서버를 종료하거나 빌드 후 다시 시작하세요.
+
+실제 브라우저 사용자 흐름은 Node.js 22 이상의 내장 WebSocket과 다음의 별도 DB·파일 저장소·포트로 확인할 수 있습니다. 테스트용 계획과 문서를 만들며 브라우저에는 Brave 기본 경로를 사용합니다. 다른 Chromium 계열 브라우저는 `P5_BROWSER`로 실행 파일 경로를 지정하세요.
+
+```sh
+mkdir -p /tmp/roadmap-p5
+ROADMAP_DB_PATH=/tmp/roadmap-p5/roadmap.sqlite3 apps/api/.venv/bin/python apps/api/app/scripts/seed_dev.py
+```
+
+첫 번째 터미널:
+
+```sh
+ROADMAP_DB_PATH=/tmp/roadmap-p5/roadmap.sqlite3 ROADMAP_FILE_STORAGE_PATH=/tmp/roadmap-p5/files ROADMAP_INSECURE_LOCAL_COOKIE=1 ROADMAP_API_PORT=19100 ROADMAP_APP_ORIGIN=http://localhost:15100 apps/api/.venv/bin/python apps/api/app/main.py
+```
+
+두 번째 터미널:
+
+```sh
+cd apps/web
+ROADMAP_API_ORIGIN=http://127.0.0.1:19100 npm run dev -- --port 15100
+```
+
+세 번째 터미널의 저장소 루트:
+
+```sh
+node apps/web/tests/e2e/p5-flow.mjs
+```
+
+테스트는 실제 파일 업로드와 두 브라우저 세션, 두 탭의 충돌, 저장 실패·복구, 새로고침과 이어서 작성, 과목 선택과 AI 준비 화면을 확인합니다. 학교·과목과 외부 자료는 가상 fixture입니다. 브라우저 주소와 디버깅 포트는 각각 `P5_WEB_ORIGIN`, `P5_CDP_PORT`로 바꿀 수 있습니다. AI 연동을 위한 현재 데이터 경계와 미확정 사항은 [AI 연동 준비 문서](docs/ai-integration-contract.md)를 참고하세요.

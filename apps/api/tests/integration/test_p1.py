@@ -134,6 +134,12 @@ class ApiTest(unittest.TestCase):
         status,empty=self.upload_document(rid,cookie,'empty.txt',b'   \n',listing['input_revision']);self.assertEqual(status,201);self.assertTrue(run_once())
         listing=self.request('GET',base,cookie=cookie)[1];self.assertEqual(next(d for d in listing['documents'] if d['document_id']==empty['document']['document_id'])['extraction_status'],'failed')
         self.assertFalse(listing['analysis_eligible'])
+        retry=self.request('POST',base+'/'+empty['document']['document_id']+'/retry-extraction',{'expected_input_revision':listing['input_revision']},cookie)
+        self.assertEqual((retry[0],retry[1]['extraction_revision']),(202,2));self.assertTrue(run_once())
+        latest=self.request('GET',base,cookie=cookie)[1]
+        self.assertEqual(next(d for d in latest['documents'] if d['document_id']==empty['document']['document_id'])['extraction_status'],'failed')
+        previous=self.request('GET',base+'/'+empty['document']['document_id']+'/extractions/1',cookie=cookie)
+        self.assertEqual(previous[1]['extraction_status'],'failed')
 
     def test_p3_limits_and_lease_claim(self):
         from api.routes import documents as routes
@@ -226,6 +232,29 @@ class ApiTest(unittest.TestCase):
         lst=self.request('GET',base,cookie=cookie)[1];self.assertEqual(next(d for d in lst['documents'] if d['document_id']==blank['document']['document_id'])['extraction_status'],'failed')
         self.assertEqual(self.upload_document(rid,cookie,'bad.docx',b'not a zip',lst['input_revision'])[0],422)
         self.assertEqual(self.upload_document(rid,cookie,'bad.pdf',b'%PDF-not-valid',lst['input_revision'])[0],422)
+
+    def test_p5_cross_session_writes_and_no_ai_runs(self):
+        from worker.documents import run_once
+        seed_spec=importlib.util.spec_from_file_location('seed_p5', Path(__file__).resolve().parents[2] / 'app' / 'scripts' / 'seed_dev.py')
+        seed=importlib.util.module_from_spec(seed_spec);seed_spec.loader.exec_module(seed);seed.seed()
+        rid,cookie=self.create();_,other=self.create();base='/roadmap-inputs/'+rid
+        self.assertEqual(self.patch(rid,cookie,0,{'career_goal':'진로','university_id':seed.U,'department_id':seed.D,'catalog_id':seed.C1})[0],200)
+        status,doc=self.upload_document(rid,cookie,'document.txt',b'project input',1);self.assertEqual(status,201)
+        did=doc['document']['document_id'];self.assertTrue(run_once())
+        before=self.request('GET',base,cookie=cookie)[1]
+        self.assertEqual(self.upload_document(rid,other,'attack.txt',b'other session',before['input_revision'])[0],404)
+        changes={'catalog_id':seed.C1,'expected_selection_revision':1,'changes':[{'course_id':seed.rows[0][0],'is_completed':True}]}
+        self.assertEqual(self.request('PATCH',base+'/course-selections',changes,other)[0],404)
+        review={'catalog_id':seed.C1,'expected_selection_revision':1,'expected_input_revision':before['input_revision'],'reported_missing_courses':False}
+        self.assertEqual(self.request('POST',base+'/course-selection-review',review,other)[0],404)
+        self.assertEqual(self.request('POST',base+'/documents/'+did+'/retry-extraction',{'expected_input_revision':before['input_revision']},other)[0],404)
+        self.assertEqual(self.request('GET',base+'/documents/'+did+'/extractions/1',cookie=other)[0],404)
+        self.assertEqual(self.request('POST',base+'/runs',{},cookie)[0],404)
+        self.assertEqual(self.request('POST',base+'/analysis-jobs',{},cookie)[0],404)
+        self.assertEqual(self.request('GET',base,cookie=cookie)[1],before)
+        with api.closing(api.connect()) as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('roadmap_runs','analysis_jobs','analysis_items')").fetchone()[0],0)
+            self.assertEqual(db.execute('SELECT count(*) FROM input_course_states WHERE request_id=?',(rid,)).fetchone()[0],0)
 
     def test_p2_course_lifecycle(self):
         seed_spec=importlib.util.spec_from_file_location('seed_dev', Path(__file__).resolve().parents[2] / 'app' / 'scripts' / 'seed_dev.py')
