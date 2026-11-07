@@ -1,2 +1,2 @@
-import { Stepper, Heading, Footer } from '../../../components/layout/Shell';
-export default function Page() { return <><Stepper current={1}/><Heading number="03" title="프로젝트 문서" description="프로젝트에서 맡은 역할과 활동이 담긴 문서를 등록하는 단계입니다."/><div className="columns"><section className="wire-box"><h3>프로젝트 문서 등록</h3><div className="upload-box"><strong>문서 업로드를 준비 중입니다</strong><p>파일 등록과 문서 읽기 기능은 아직 사용할 수 없습니다.</p><button disabled>파일 선택</button></div><p className="field-help">프로젝트 목적, 본인 역할과 수행 내용이 담긴 문서를 준비해 주세요.</p></section><section className="wire-box"><h3>등록한 문서</h3><table><thead><tr><th>파일명</th><th>처리 상태</th><th>관리</th></tr></thead><tbody><tr><td colSpan="3" className="muted">등록된 문서가 없습니다.</td></tr></tbody></table></section></div><Footer previous="/input/basic" next="/input/courses" nextLabel="다음: 이수 과목" note="문서는 아직 업로드하거나 저장할 수 없습니다."/></>; }
+import Documents from '../../../features/intake/Documents';
+export default function Page(){ return <Documents/>; }
