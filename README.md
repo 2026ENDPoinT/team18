@@ -1,6 +1,13 @@
 # 대학생 개인화 진로 로드맵
 
-P2 로컬 웹앱입니다. Node.js 20.9 이상과 Python 3이 필요합니다. 별도의 AI 키나 DB 서비스는 필요하지 않습니다.
+P3 로컬 웹앱입니다. Node.js 20.9 이상과 Python 3이 필요합니다. 별도의 AI 키나 DB 서비스는 필요하지 않습니다.
+
+먼저 API 가상환경과 문서 파싱 라이브러리를 설치합니다.
+
+```sh
+python3 -m venv apps/api/.venv
+apps/api/.venv/bin/pip install -r apps/api/requirements.txt
+```
 
 과목 화면에 사용할 가상 개발용 기준 데이터를 한 번 적재합니다. 실제 대학이나 교육과정 자료가 아닙니다.
 
@@ -11,7 +18,7 @@ python3 apps/api/app/scripts/seed_dev.py
 이후 터미널 두 개에서 각각 실행합니다.
 
 ```sh
-ROADMAP_INSECURE_LOCAL_COOKIE=1 python3 apps/api/app/main.py
+ROADMAP_INSECURE_LOCAL_COOKIE=1 apps/api/.venv/bin/python apps/api/app/main.py
 ```
 
 ```sh
@@ -31,8 +38,16 @@ http://localhost:3000 에서 새 계획을 만들거나 이어서 작성할 수 
 | `ROADMAP_API_ORIGIN` | `http://127.0.0.1:8000` | Next.js의 서버 측 API 프록시 대상. Next 빌드·실행 환경에 설정 |
 | `ROADMAP_APP_ORIGIN` | `http://localhost:3000` | 쓰기 요청의 허용 Origin. 브라우저에서 접근하는 정확한 출처와 일치해야 함 |
 | `ROADMAP_INSECURE_LOCAL_COOKIE` | 미설정 | 로컬 HTTP 테스트에서만 `1`로 설정. 기본 쿠키에는 Secure 속성이 적용됨 |
-| `ROADMAP_FILE_STORAGE_PATH` | `apps/api/var/files` | 향후 문서 저장을 위한 예약 설정. P1에서는 사용하지 않음 |
+| `ROADMAP_FILE_STORAGE_PATH` | `apps/api/var/files` | 비공개 원본 파일 저장 경로 |
+| `ROADMAP_MAX_DOCUMENT_BYTES` / `ROADMAP_MAX_DOCUMENTS` | `10485760` / `10` | 파일당 바이트와 계획당 문서 개수 제한 |
+| `ROADMAP_PROXY_MAX_BODY_BYTES` | `11534336` | Next.js 프록시 본문 상한. 파일 크기 제한과 multipart 여유를 합친 값 이상으로 설정 |
 
 세션 토큰은 서버가 안전한 난수로 만들고 DB에는 해시만 저장하므로 별도 서명 비밀키는 사용하지 않습니다. 향후 필요한 비밀은 환경의 비밀 저장소에서 주입하고 저장소에 커밋하지 않습니다. 운영 HTTPS에서는 `ROADMAP_INSECURE_LOCAL_COOKIE`를 설정하지 않습니다. 현재 서버와 SQLite는 로컬 개발용이며 클라우드용 DB 어댑터, 마이그레이션, 파일 저장소, HTTPS 및 배포 구성을 별도로 마련해야 합니다. DB 접근은 `apps/api/app/repositories/p1.py`, 환경 설정은 `apps/api/app/config.py`, 웹 API 주소는 `apps/web/next.config.mjs`에 분리되어 있습니다.
 
-`apps/web`에서 `npm run build`, `npm start`로 프로덕션 빌드를 확인할 수 있습니다. 백엔드 통합 테스트는 저장소 루트에서 `python3 -m unittest discover -s apps/api/tests/integration -p 'test_*.py' -v`로 실행합니다. 제공된 학교·학과·과목은 직접 만든 가상 개발용 데이터입니다. 문서 업로드와 분석은 준비 중입니다. [진행 문서](docs/non-ai-mvp-progress.md)를 참고하세요.
+`apps/web`에서 `npm run build`, `npm start`로 프로덕션 빌드를 확인할 수 있습니다. 백엔드 통합 테스트는 저장소 루트에서 `apps/api/.venv/bin/python -m unittest discover -s apps/api/tests/integration -p 'test_*.py' -v`로 실행합니다. 제공된 학교·학과·과목은 직접 만든 가상 개발용 데이터입니다. 문서 업로드와 일반 텍스트 추출을 사용할 수 있습니다. AI 분석은 준비 중입니다. [진행 문서](docs/non-ai-mvp-progress.md)를 참고하세요.
+
+## 문서 처리
+
+PDF, DOCX, UTF-8 TXT를 계획당 최대 10개, 파일당 최대 10MiB까지 업로드할 수 있습니다. PDF는 최대 100페이지, DOCX는 압축 해제 크기 30MiB와 1,000개 항목까지 허용합니다. 추출 텍스트는 최대 100만 문자이며 잘린 경우 일부 추출로 표시합니다. 이 제한들은 처리 안전을 위한 로컬 기본값입니다.
+
+원본은 `ROADMAP_FILE_STORAGE_PATH` 아래 서버가 만든 식별자 이름으로 비공개 저장하고, 텍스트·위치와 버전은 SQLite에 보관합니다. 서버 시작 시 함께 실행되는 로컬 워커가 대기 작업과 삭제 정리를 처리하며, 중단된 작업은 lease 만료 후 재개합니다. 이미지·스캔의 OCR은 제공하지 않습니다. 일부 문서에서 이미지, 머리글·바닥글, 각주나 포함 개체 등은 읽히지 않을 수 있으며 확인된 제한은 화면에 표시합니다. 문서를 삭제하면 즉시 목록에서 제외하고 원본과 추출 이력을 정리합니다. 정리 실패는 기록되어 재시도합니다.

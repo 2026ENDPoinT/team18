@@ -14,6 +14,8 @@ import uuid
 from config import APP_ORIGIN, SECURE_COOKIE, API_HOST, API_PORT
 from repositories.p1 import Repository, connect, migrate
 from repositories.p2 import CourseRepository
+from api.routes.documents import route as document_route
+from worker.documents import start_worker
 
 COOKIE = 'roadmap_session'
 FIELDS = ('career_goal', 'target_role', 'university_id', 'department_id', 'catalog_id', 'year_level', 'earned_credits', 'gpa', 'gpa_scale')
@@ -121,7 +123,7 @@ class Handler(BaseHTTPRequestHandler):
         if path == '/api/health' and method == 'GET':
             return self.respond(200, {'status': 'ok'})
         # SameSite is defense in depth; require the configured browser origin for writes.
-        if method in ('POST', 'PATCH') and self.headers.get('Origin', '').rstrip('/') != APP_ORIGIN:
+        if method in ('POST', 'PATCH', 'DELETE') and self.headers.get('Origin', '').rstrip('/') != APP_ORIGIN:
             raise Problem(403, 'invalid_origin', '요청 출처를 확인할 수 없습니다.')
         with closing(connect()) as db:
             repo = Repository(db)
@@ -143,6 +145,7 @@ class Handler(BaseHTTPRequestHandler):
                 support = 'unsupported' if not department['is_supported'] else 'supported' if catalogs else 'no_catalog'
                 return self.respond(200, {'catalogs': catalogs, 'support_status': support})
             owner = self.owner(repo)
+            if document_route(self, db, repo, owner, path, method, Problem): return
             if path == '/api/roadmap-inputs' and method == 'POST':
                 repo.begin()
                 cookie = None
@@ -274,16 +277,18 @@ class Handler(BaseHTTPRequestHandler):
             self.run_request(method)
         except Problem as error:
             self.respond(error.status, {'error': error.code, 'message': error.message})
-        except sqlite3.Error:
+        except (sqlite3.Error, OSError):
             self.respond(503, {'error': 'storage_unavailable', 'message': '저장소를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.'})
 
     def do_GET(self): self.handle_request('GET')
     def do_POST(self): self.handle_request('POST')
     def do_PATCH(self): self.handle_request('PATCH')
+    def do_DELETE(self): self.handle_request('DELETE')
 
 
 if __name__ == '__main__':
     migrate()
+    stop_worker = start_worker()
     server = ThreadingHTTPServer((API_HOST, API_PORT), Handler)
     print(f'API listening on {API_HOST}:{API_PORT}', flush=True)
     try:
@@ -291,4 +296,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     finally:
+        stop_worker.set()
         server.server_close()

@@ -12,6 +12,7 @@ import unittest
 TEMP = tempfile.TemporaryDirectory()
 os.environ['ROADMAP_DB_PATH'] = str(Path(TEMP.name) / 'test.sqlite3')
 os.environ['ROADMAP_INSECURE_LOCAL_COOKIE'] = '1'
+os.environ['ROADMAP_FILE_STORAGE_PATH'] = str(Path(TEMP.name) / 'files')
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'app'))
 spec = importlib.util.spec_from_file_location('roadmap_api', Path(__file__).resolve().parents[2] / 'app' / 'main.py')
 api = importlib.util.module_from_spec(spec)
@@ -108,6 +109,123 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(sorted(results),[200,409])
         result=self.request('GET','/roadmap-inputs/'+rid,cookie=cookie)[1]
         self.assertEqual(result['selection_revision'],1)
+
+    def upload_document(self, rid, cookie, filename, data, revision):
+        boundary='roadmap-test-boundary'
+        parts=(b'--'+boundary.encode()+b'\r\nContent-Disposition: form-data; name="expected_input_revision"\r\n\r\n'+str(revision).encode()+b'\r\n--'+boundary.encode()+b'\r\nContent-Disposition: form-data; name="file"; filename="'+filename.encode()+b'"\r\nContent-Type: application/octet-stream\r\n\r\n'+data+b'\r\n--'+boundary.encode()+b'--\r\n')
+        conn=http.client.HTTPConnection('127.0.0.1',self.server.server_port,timeout=10)
+        conn.request('POST','/api/roadmap-inputs/'+rid+'/documents',body=parts,headers={'Origin':'http://localhost:3000','Cookie':cookie,'Content-Type':'multipart/form-data; boundary='+boundary})
+        response=conn.getresponse(); result=(response.status,json.loads(response.read()));conn.close();return result
+
+    def test_p3_scan_and_empty_text_status(self):
+        from io import BytesIO
+        from pypdf import PdfWriter
+        from pypdf.generic import NameObject,DecodedStreamObject,DictionaryObject,NumberObject
+        from worker.documents import run_once
+        rid,cookie=self.create();base='/roadmap-inputs/'+rid+'/documents'
+        pdf=PdfWriter();page=pdf.add_blank_page(100,100)
+        image=DecodedStreamObject();image.set_data(bytes([255,0,0]));image.update({NameObject('/Type'):NameObject('/XObject'),NameObject('/Subtype'):NameObject('/Image'),NameObject('/Width'):NumberObject(1),NameObject('/Height'):NumberObject(1),NameObject('/ColorSpace'):NameObject('/DeviceRGB'),NameObject('/BitsPerComponent'):NumberObject(8)})
+        page[NameObject('/Resources')]=DictionaryObject({NameObject('/XObject'):DictionaryObject({NameObject('/Im1'):pdf._add_object(image)})})
+        stream=DecodedStreamObject();stream.set_data(b'q 100 0 0 100 0 0 cm /Im1 Do Q');page[NameObject('/Contents')]=pdf._add_object(stream)
+        output=BytesIO();pdf.write(output)
+        status,scan=self.upload_document(rid,cookie,'scan.pdf',output.getvalue(),0);self.assertEqual(status,201);self.assertTrue(run_once())
+        listing=self.request('GET',base,cookie=cookie)[1];self.assertEqual(listing['documents'][0]['extraction_status'],'needs_ocr')
+        self.assertEqual(self.request('POST',base+'/'+scan['document']['document_id']+'/retry-extraction',{'expected_input_revision':listing['input_revision']},cookie)[0],422)
+        status,empty=self.upload_document(rid,cookie,'empty.txt',b'   \n',listing['input_revision']);self.assertEqual(status,201);self.assertTrue(run_once())
+        listing=self.request('GET',base,cookie=cookie)[1];self.assertEqual(next(d for d in listing['documents'] if d['document_id']==empty['document']['document_id'])['extraction_status'],'failed')
+        self.assertFalse(listing['analysis_eligible'])
+
+    def test_p3_limits_and_lease_claim(self):
+        from api.routes import documents as routes
+        from worker.documents import run_once, claim
+        rid,cookie=self.create();base='/roadmap-inputs/'+rid+'/documents'
+        old_count,old_bytes=routes.MAX_DOCUMENTS,routes.MAX_DOCUMENT_BYTES
+        try:
+            routes.MAX_DOCUMENT_BYTES=20;routes.MAX_DOCUMENTS=1
+            self.assertEqual(self.upload_document(rid,cookie,'large.txt',b'x'*21,0)[0],413)
+            self.assertEqual(self.upload_document(rid,cookie,'fake.txt',b'%PDF-1.4',0)[0],422)
+            status,doc=self.upload_document(rid,cookie,'ok.txt',b'valid text',0);self.assertEqual(status,201)
+            self.assertEqual(self.upload_document(rid,cookie,'second.txt',b'text',0)[0],409)
+            self.assertEqual(self.upload_document(rid,cookie,'second.txt',b'text',1)[0],422)
+            job=claim();self.assertIsNotNone(job)
+            self.assertFalse(run_once())  # a live lease cannot be claimed again
+            with api.closing(api.connect()) as db: db.execute("UPDATE project_documents SET extraction_lease_until='2000-01-01' WHERE document_id=?",(doc['document']['document_id'],))
+            self.assertTrue(run_once())
+            self.assertFalse(run_once())
+            self.assertEqual(self.request('GET',base,cookie=cookie)[1]['documents'][0]['extraction_status'],'ready')
+        finally: routes.MAX_DOCUMENTS=old_count;routes.MAX_DOCUMENT_BYTES=old_bytes
+
+    def test_p3_text_retry_ownership_and_cleanup(self):
+        from worker.documents import run_once
+        from providers.document_storage import LocalDocumentStorage
+        rid,cookie=self.create();_,other=self.create();base='/roadmap-inputs/'+rid+'/documents'
+        status,result=self.upload_document(rid,cookie,'project.txt','실제 텍스트\n둘째 줄'.encode(),0)
+        self.assertEqual(status,201);did=result['document']['document_id']
+        self.assertEqual(self.upload_document(rid,cookie,'bad.txt',b'%PDF-1.4\x00',1)[0],422)
+        self.assertEqual(self.request('GET',base,cookie=other)[0],404)
+        self.assertFalse(self.request('GET',base,cookie=cookie)[1]['analysis_eligible'])
+        self.assertTrue(run_once())
+        listing=self.request('GET',base,cookie=cookie)[1];self.assertTrue(listing['analysis_eligible']);self.assertEqual(listing['documents'][0]['extraction_status'],'ready')
+        version=base+'/'+did+'/extractions/1'
+        result=self.request('GET',version,cookie=cookie)[1]
+        self.assertEqual(result['extracted_text'],'실제 텍스트\n둘째 줄');self.assertEqual(result['segments'][0]['start'],0)
+        self.assertEqual(self.request('GET',version,cookie=other)[0],404)
+        self.assertEqual(self.request('POST',base+'/'+did+'/retry-extraction',{'expected_input_revision':0},cookie)[0],409)
+        retry=self.request('POST',base+'/'+did+'/retry-extraction',{'expected_input_revision':listing['input_revision']},cookie)
+        self.assertEqual((retry[0],retry[1]['extraction_revision']),(202,2))
+        self.assertEqual(self.request('POST',base+'/'+did+'/retry-extraction',{'expected_input_revision':retry[1]['input_revision']},cookie)[0],409)
+        self.assertTrue(run_once()); listing=self.request('GET',base,cookie=cookie)[1]
+        self.assertEqual(self.request('GET',version,cookie=cookie)[1]['extracted_text'],'실제 텍스트\n둘째 줄')
+        self.assertEqual(self.request('DELETE',base+'/'+did,{'expected_input_revision':listing['input_revision']},other)[0],404)
+        deleted=self.request('DELETE',base+'/'+did,{'expected_input_revision':listing['input_revision']},cookie)
+        self.assertEqual(deleted[0],200);self.assertFalse(self.request('GET',base,cookie=cookie)[1]['analysis_eligible'])
+        self.assertEqual(self.request('GET',version,cookie=cookie)[0],410)
+        class BrokenStorage:
+            def delete(self,key): raise OSError('injected')
+        self.assertTrue(run_once(BrokenStorage()))
+        with api.closing(api.connect()) as db:
+            row=db.execute('SELECT cleanup_status,storage_key FROM project_documents WHERE document_id=?',(did,)).fetchone();self.assertEqual(row['cleanup_status'],'failed')
+            self.assertTrue(LocalDocumentStorage().path(row['storage_key']).exists())
+            db.execute('UPDATE project_documents SET cleanup_lease_until=NULL WHERE document_id=?',(did,))
+        self.assertTrue(run_once())
+        with api.closing(api.connect()) as db:
+            self.assertEqual(db.execute('SELECT cleanup_status FROM project_documents WHERE document_id=?',(did,)).fetchone()[0],'succeeded')
+            self.assertEqual(db.execute('SELECT count(*) FROM document_extractions WHERE document_id=?',(did,)).fetchone()[0],0)
+        self.assertFalse(LocalDocumentStorage().path(did).exists())
+
+    def test_p3_formats_partial_review_and_recovery(self):
+        from io import BytesIO
+        from docx import Document
+        from pypdf import PdfWriter
+        from pypdf.generic import NameObject,DecodedStreamObject,DictionaryObject
+        from worker.documents import run_once
+        rid,cookie=self.create();base='/roadmap-inputs/'+rid+'/documents'
+        # A real DOCX with body text plus embedded image must be partial.
+        import base64
+        png=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lK0AAAAASUVORK5CYII=')
+        doc=Document();doc.add_paragraph('실제 본문');doc.add_picture(BytesIO(png));buf=BytesIO();doc.save(buf)
+        status,result=self.upload_document(rid,cookie,'sample.docx',buf.getvalue(),0);self.assertEqual(status,201);did=result['document']['document_id']
+        with api.closing(api.connect()) as db: db.execute("UPDATE project_documents SET extraction_lease_until='2000-01-01',extraction_lease_token='interrupted' WHERE document_id=?",(did,))
+        self.assertTrue(run_once());lst=self.request('GET',base,cookie=cookie)[1];self.assertEqual(lst['documents'][0]['extraction_status'],'partial');self.assertFalse(lst['analysis_eligible'])
+        endpoint=base+'/'+did+'/extractions/1';ex=self.request('GET',endpoint,cookie=cookie)[1];self.assertIn('실제 본문',ex['extracted_text']);self.assertTrue(ex['limitations'])
+        self.assertEqual(self.request('POST',endpoint+'/confirmation',{'expected_input_revision':0},cookie)[0],409)
+        response=self.request('POST',endpoint+'/confirmation',{'expected_input_revision':lst['input_revision']},cookie);self.assertTrue(response[1]['analysis_eligible'])
+        self.assertTrue(self.request('GET',base,cookie=cookie)[1]['analysis_eligible'])
+        # Proper PDF with text, followed by an empty page; missing text must not be ready.
+        pdf=PdfWriter();page=pdf.add_blank_page(width=100,height=100)
+        font=DictionaryObject({NameObject('/Type'):NameObject('/Font'),NameObject('/Subtype'):NameObject('/Type1'),NameObject('/BaseFont'):NameObject('/Helvetica')})
+        page[NameObject('/Resources')]=DictionaryObject({NameObject('/Font'):DictionaryObject({NameObject('/F1'):pdf._add_object(font)})})
+        stream=DecodedStreamObject();stream.set_data(b'BT /F1 12 Tf 10 50 Td (Hello PDF) Tj ET');page[NameObject('/Contents')]=pdf._add_object(stream)
+        pdf.add_blank_page(width=100,height=100);out=BytesIO();pdf.write(out)
+        revision=response[1]['input_revision'];status,pdfdoc=self.upload_document(rid,cookie,'sample.pdf',out.getvalue(),revision);self.assertEqual(status,201)
+        self.assertTrue(run_once());lst=self.request('GET',base,cookie=cookie)[1];pd=next(d for d in lst['documents'] if d['document_id']==pdfdoc['document']['document_id']);self.assertEqual(pd['extraction_status'],'partial')
+        detail=self.request('GET',base+'/'+pd['document_id']+'/extractions/1',cookie=cookie)[1];self.assertIn('Hello PDF',detail['extracted_text']);self.assertEqual(detail['segments'][0]['page'],1)
+        # A blank page without an image is a read failure, not an OCR claim.
+        pdf=PdfWriter();pdf.add_blank_page(width=100,height=100);out=BytesIO();pdf.write(out)
+        status,blank=self.upload_document(rid,cookie,'blank.pdf',out.getvalue(),lst['input_revision']);self.assertEqual(status,201);self.assertTrue(run_once())
+        lst=self.request('GET',base,cookie=cookie)[1];self.assertEqual(next(d for d in lst['documents'] if d['document_id']==blank['document']['document_id'])['extraction_status'],'failed')
+        self.assertEqual(self.upload_document(rid,cookie,'bad.docx',b'not a zip',lst['input_revision'])[0],422)
+        self.assertEqual(self.upload_document(rid,cookie,'bad.pdf',b'%PDF-not-valid',lst['input_revision'])[0],422)
 
     def test_p2_course_lifecycle(self):
         seed_spec=importlib.util.spec_from_file_location('seed_dev', Path(__file__).resolve().parents[2] / 'app' / 'scripts' / 'seed_dev.py')
