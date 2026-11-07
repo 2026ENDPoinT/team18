@@ -109,5 +109,84 @@ class ApiTest(unittest.TestCase):
         result=self.request('GET','/roadmap-inputs/'+rid,cookie=cookie)[1]
         self.assertEqual(result['selection_revision'],1)
 
+    def test_p2_course_lifecycle(self):
+        seed_spec=importlib.util.spec_from_file_location('seed_dev', Path(__file__).resolve().parents[2] / 'app' / 'scripts' / 'seed_dev.py')
+        seed=importlib.util.module_from_spec(seed_spec); seed_spec.loader.exec_module(seed); seed.seed(); seed.seed()
+        self.assertTrue(any(x['university_id']==seed.U for x in self.request('GET','/universities')[1]['universities']))
+        self.assertEqual(self.request('GET','/universities/'+seed.U+'/departments')[1]['departments'][0]['department_id'],seed.D)
+        self.assertEqual(len(self.request('GET','/departments/'+seed.D+'/catalogs')[1]['catalogs']),2)
+        self.assertEqual(self.request('GET','/departments/nonexistent/catalogs')[0],404)
+        rid,cookie=self.create(); _,other=self.create()
+        base='/roadmap-inputs/'+rid
+        r=self.patch(rid,cookie,0,{'career_goal':'진로','university_id':seed.U,'department_id':seed.D,'catalog_id':seed.C1})
+        self.assertEqual(r[0],200)
+        def listing(query=''):
+            return self.request('GET',base+'/courses?catalog_id='+seed.C1+query,cookie=cookie)
+        self.assertEqual(self.request('GET',base+'/courses?catalog_id='+seed.C1,cookie=other)[0],404)
+        result=listing()[1]
+        self.assertEqual(result['review_status'],'unconfirmed'); self.assertEqual(result['selection_summary']['count'],0)
+        review=lambda selection,inputrev,missing: self.request('POST',base+'/course-selection-review',{'catalog_id':seed.C1,'expected_selection_revision':selection,'expected_input_revision':inputrev,'reported_missing_courses':missing},cookie)
+        self.assertEqual(review(0,1,False)[0],409)
+        confirmed=review(1,1,False)
+        self.assertEqual(confirmed[1]['review_status'],'confirmed')
+        self.assertEqual(listing()[1]['courses'][0]['completion_state'],'not_selected_in_reviewed_catalog')
+        self.assertEqual(review(1,1,True)[0],409)
+        partial=review(1,2,True)
+        self.assertEqual(partial[1]['review_status'],'partial')
+        changes=lambda rev, items:self.request('PATCH',base+'/course-selections',{'catalog_id':seed.C1,'expected_selection_revision':rev,'changes':items},cookie)
+        selected=seed.rows[3][0]
+        self.assertEqual(changes(1,[{'course_id':selected,'is_completed':'true'}])[0],422)
+        self.assertEqual(changes(1,[{'course_id':selected,'is_completed':True}]*2)[0],422)
+        result=changes(1,[{'course_id':selected,'is_completed':True}])
+        self.assertEqual((result[1]['selection_revision'],result[1]['input_revision'],result[1]['review_status']),(2,4,'unconfirmed'))
+        self.assertEqual(changes(1,[{'course_id':selected,'is_completed':False}])[0],409)
+        self.assertEqual(changes(2,[{'course_id':selected,'is_completed':True}])[1]['selection_revision'],2)
+        result=listing('&completed_only=true&page_size=1')[1]
+        self.assertEqual(result['selection_summary'],{'count':1,'known_credits':0.0,'unknown_credits_count':1})
+        self.assertEqual(len(result['courses']),1)
+        self.assertEqual(listing('&q=DEV301')[1]['courses'][0]['course_id'],selected)
+        self.assertEqual(listing('&year=3&category=%EC%A0%84%EA%B3%B5%ED%95%84%EC%88%98')[1]['courses'][0]['course_name'],'운영체제')
+        self.assertEqual(listing('&page_size=0')[0],422)
+        self.assertEqual(self.request('GET',base+'/courses?catalog_id='+seed.C2,cookie=cookie)[0],409)
+        # Switching catalogs clears review but preserves the earlier course selection.
+        change=self.patch(rid,cookie,4,{'catalog_id':seed.C2})
+        self.assertEqual((change[1]['selection_revision'],change[1]['review_status']),(3,'unconfirmed'))
+        updated=self.request('GET',base+'/courses?catalog_id='+seed.C2,cookie=cookie)[1]
+        self.assertEqual(updated['out_of_scope_completed_courses'][0]['course_id'],selected)
+        self.assertEqual(updated['selection_summary']['count'],0)
+        outside={'catalog_id':seed.C2,'expected_selection_revision':3,'changes':[{'course_id':selected,'is_completed':True}]}
+        self.assertEqual(self.request('PATCH',base+'/course-selections',outside,cookie)[0],422)
+        outside['changes'][0]['is_completed']=False
+        self.assertEqual(self.request('PATCH',base+'/course-selections',outside,cookie)[0],200)
+        self.assertEqual(self.request('GET',base+'/courses?catalog_id='+seed.C2,cookie=cookie)[1]['out_of_scope_completed_courses'],[])
+
+    def test_p2_course_identity_and_atomic_batch(self):
+        seed_spec=importlib.util.spec_from_file_location('seed_identity', Path(__file__).resolve().parents[2] / 'app' / 'scripts' / 'seed_dev.py')
+        seed=importlib.util.module_from_spec(seed_spec); seed_spec.loader.exec_module(seed); seed.seed()
+        rid,cookie=self.create(); self.patch(rid,cookie,0,{'career_goal':'목표','university_id':seed.U,'department_id':seed.D,'catalog_id':seed.C1})
+        base='/roadmap-inputs/'+rid
+        same_id,old_same_name=seed.rows[0][0],seed.rows[2][0]
+        invalid={'catalog_id':seed.C1,'expected_selection_revision':1,'changes':[{'course_id':same_id,'is_completed':True},{'course_id':'missing','is_completed':True}]}
+        self.assertEqual(self.request('PATCH',base+'/course-selections',invalid,cookie)[0],422)
+        self.assertEqual(self.request('GET',base+'/courses?catalog_id='+seed.C1,cookie=cookie)[1]['selection_summary']['count'],0)
+        invalid['changes'][1]['course_id']=old_same_name
+        self.assertEqual(self.request('PATCH',base+'/course-selections',invalid,cookie)[0],200)
+        self.assertEqual(self.patch(rid,cookie,2,{'catalog_id':seed.C2})[0],200)
+        result=self.request('GET',base+'/courses?catalog_id='+seed.C2,cookie=cookie)[1]
+        same=next(c for c in result['courses'] if c['course_id']==same_id)
+        other=next(c for c in result['courses'] if c['course_id']==seed.rows[6][0])
+        self.assertTrue(same['is_completed'])
+        self.assertFalse(other['is_completed'])
+        self.assertEqual(result['out_of_scope_completed_courses'][0]['course_id'],old_same_name)
+
+    def test_p2_parallel_requests(self):
+        seed_spec=importlib.util.spec_from_file_location('seed_parallel', Path(__file__).resolve().parents[2] / 'app' / 'scripts' / 'seed_dev.py')
+        seed=importlib.util.module_from_spec(seed_spec); seed_spec.loader.exec_module(seed); seed.seed()
+        rid,cookie=self.create(); self.patch(rid,cookie,0,{'career_goal':'목표','university_id':seed.U,'department_id':seed.D,'catalog_id':seed.C1})
+        endpoint='/roadmap-inputs/'+rid+'/course-selections'
+        def toggle(item): return self.request('PATCH',endpoint,{'catalog_id':seed.C1,'expected_selection_revision':1,'changes':[{'course_id':item[0],'is_completed':True}]},cookie)[0]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+            self.assertEqual(sorted(pool.map(toggle,seed.rows[:2])),[200,409])
+
 
 if __name__ == '__main__': unittest.main()
