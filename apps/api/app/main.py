@@ -10,9 +10,11 @@ from urllib.parse import urlparse, parse_qs
 import json
 import re
 import secrets
+import signal
 import sqlite3
+import threading
 import uuid
-from config import APP_ORIGIN, SECURE_COOKIE, API_HOST, API_PORT, DB_BACKEND
+from config import APP_ORIGIN, SECURE_COOKIE, API_HOST, API_PORT, DB_BACKEND, validate_deployment
 from repositories.p1 import Repository, connect, migrate, StorageUnavailable
 from repositories.p2 import CourseRepository
 from api.routes.documents import route as document_route
@@ -130,6 +132,10 @@ class Handler(BaseHTTPRequestHandler):
     def run_request(self, method):
         path = urlparse(self.path).path
         if path == '/api/health' and method == 'GET':
+            return self.respond(200, {'status': 'ok'})
+        if path == '/api/health/db' and method == 'GET':
+            with closing(connect()) as db:
+                db.execute('SELECT 1').fetchone()
             return self.respond(200, {'status': 'ok'})
         # SameSite is defense in depth; require the configured browser origin for writes.
         if method in ('POST', 'PATCH', 'DELETE') and self.headers.get('Origin', '').rstrip('/') != APP_ORIGIN:
@@ -332,6 +338,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
+    validate_deployment()
     try:
         migrate()
         if DB_BACKEND == 'postgres':
@@ -345,6 +352,9 @@ if __name__ == '__main__':
         seed(only_if_empty=True)
     stop_worker = start_worker() if DB_BACKEND == 'sqlite' else None
     server = ThreadingHTTPServer((API_HOST, API_PORT), Handler)
+    def stop_server(signum, frame):
+        threading.Thread(target=server.shutdown, daemon=True).start()
+    signal.signal(signal.SIGTERM, stop_server)
     print(f'API listening on {API_HOST}:{API_PORT}', flush=True)
     try:
         server.serve_forever()
