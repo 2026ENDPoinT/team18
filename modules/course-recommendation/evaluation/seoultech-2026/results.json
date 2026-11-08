@@ -1,0 +1,319 @@
+[
+  {
+    "case": "백엔드 직무",
+    "goal": "서버를 만드는 백엔드 개발자가 되고 싶어요",
+    "target_role": "백엔드",
+    "completed": [],
+    "status": "ok",
+    "skills": [
+      "databases",
+      "programming",
+      "networks",
+      "operating_systems",
+      "software_engineering"
+    ],
+    "courses": [
+      {
+        "course_id": "csv-row-001",
+        "course_name": "프로그래밍입문(1)",
+        "score": 0.25
+      },
+      {
+        "course_id": "csv-row-036",
+        "course_name": "프로그래밍입문(2)",
+        "score": 0.25
+      },
+      {
+        "course_id": "csv-row-042",
+        "course_name": "데이터베이스",
+        "score": 0.25
+      },
+      {
+        "course_id": "csv-row-020",
+        "course_name": "시스템프로그래밍",
+        "score": 0.2083
+      },
+      {
+        "course_id": "csv-row-047",
+        "course_name": "유닉스프로그래밍",
+        "score": 0.2083
+      }
+    ]
+  },
+  {
+    "case": "데이터 분석 직무",
+    "goal": "데이터를 분석하는 일을 하고 싶어요",
+    "target_role": "데이터 분석가",
+    "completed": [],
+    "status": "ok",
+    "skills": [
+      "data_analysis",
+      "statistics",
+      "databases",
+      "programming"
+    ],
+    "courses": [
+      {
+        "course_id": "csv-row-019",
+        "course_name": "데이터분석",
+        "score": 0.45
+      },
+      {
+        "course_id": "csv-row-010",
+        "course_name": "확률및랜덤변수",
+        "score": 0.3
+      },
+      {
+        "course_id": "csv-row-001",
+        "course_name": "프로그래밍입문(1)",
+        "score": 0.2
+      },
+      {
+        "course_id": "csv-row-036",
+        "course_name": "프로그래밍입문(2)",
+        "score": 0.2
+      },
+      {
+        "course_id": "csv-row-042",
+        "course_name": "데이터베이스",
+        "score": 0.2
+      }
+    ]
+  },
+  {
+    "case": "기계학습 직무",
+    "goal": "기계학습 모델을 만들고 싶어요",
+    "target_role": "머신러닝 엔지니어",
+    "completed": [],
+    "status": "ok",
+    "skills": [
+      "machine_learning",
+      "programming",
+      "linear_algebra",
+      "statistics"
+    ],
+    "courses": [
+      {
+        "course_id": "csv-row-049",
+        "course_name": "기계학습",
+        "score": 0.72
+      },
+      {
+        "course_id": "csv-row-026",
+        "course_name": "강화학습",
+        "score": 0.36
+      },
+      {
+        "course_id": "csv-row-066",
+        "course_name": "데이터마이닝",
+        "score": 0.36
+      },
+      {
+        "course_id": "csv-row-001",
+        "course_name": "프로그래밍입문(1)",
+        "score": 0.12
+      },
+      {
+        "course_id": "csv-row-036",
+        "course_name": "프로그래밍입문(2)",
+        "score": 0.12
+      }
+    ]
+  },
+  {
+    "case": "정보 보안 직무",
+    "goal": "시스템을 안전하게 보호하고 싶어요",
+    "target_role": "보안 엔지니어",
+    "completed": [],
+    "status": "ok",
+    "skills": [
+      "security",
+      "cryptography",
+      "networks",
+      "operating_systems"
+    ],
+    "courses": [
+      {
+        "course_id": "csv-row-035",
+        "course_name": "차세대암호알고리즘",
+        "score": 0.3889
+      },
+      {
+        "course_id": "csv-row-023",
+        "course_name": "정보보호론",
+        "score": 0.3333
+      },
+      {
+        "course_id": "csv-row-055",
+        "course_name": "컴퓨터보안",
+        "score": 0.3333
+      },
+      {
+        "course_id": "csv-row-067",
+        "course_name": "사이버보안",
+        "score": 0.3333
+      },
+      {
+        "course_id": "csv-row-018",
+        "course_name": "컴퓨터네트워크",
+        "score": 0.2222
+      }
+    ]
+  },
+  {
+    "case": "직접 SQL",
+    "goal": "SQL을 배우고 싶어요",
+    "target_role": null,
+    "completed": [],
+    "status": "no_match",
+    "skills": [
+      "sql"
+    ],
+    "courses": []
+  },
+  {
+    "case": "명시 직무 없는 목표",
+    "goal": "데이터를 분석하는 일을 하고 싶어요",
+    "target_role": null,
+    "completed": [],
+    "status": "no_match",
+    "skills": [],
+    "courses": []
+  },
+  {
+    "case": "지원 범위 밖",
+    "goal": "우주 비행사가 되고 싶어요",
+    "target_role": null,
+    "completed": [],
+    "status": "no_match",
+    "skills": [],
+    "courses": []
+  },
+  {
+    "case": "복합 부정",
+    "goal": "프론트엔드 말고 백엔드 개발자가 되고 싶어요",
+    "target_role": null,
+    "completed": [],
+    "status": "ok",
+    "skills": [
+      "databases",
+      "programming",
+      "networks",
+      "operating_systems",
+      "software_engineering"
+    ],
+    "courses": [
+      {
+        "course_id": "csv-row-001",
+        "course_name": "프로그래밍입문(1)",
+        "score": 0.25
+      },
+      {
+        "course_id": "csv-row-036",
+        "course_name": "프로그래밍입문(2)",
+        "score": 0.25
+      },
+      {
+        "course_id": "csv-row-042",
+        "course_name": "데이터베이스",
+        "score": 0.25
+      },
+      {
+        "course_id": "csv-row-020",
+        "course_name": "시스템프로그래밍",
+        "score": 0.2083
+      },
+      {
+        "course_id": "csv-row-047",
+        "course_name": "유닉스프로그래밍",
+        "score": 0.2083
+      }
+    ]
+  },
+  {
+    "case": "한국어 이수 제외",
+    "goal": "서버를 만드는 백엔드 개발자가 되고 싶어요",
+    "target_role": "백엔드",
+    "completed": [
+      "csv-row-042"
+    ],
+    "status": "ok",
+    "skills": [
+      "databases",
+      "programming",
+      "networks",
+      "operating_systems",
+      "software_engineering"
+    ],
+    "courses": [
+      {
+        "course_id": "csv-row-001",
+        "course_name": "프로그래밍입문(1)",
+        "score": 0.25
+      },
+      {
+        "course_id": "csv-row-036",
+        "course_name": "프로그래밍입문(2)",
+        "score": 0.25
+      },
+      {
+        "course_id": "csv-row-020",
+        "course_name": "시스템프로그래밍",
+        "score": 0.2083
+      },
+      {
+        "course_id": "csv-row-047",
+        "course_name": "유닉스프로그래밍",
+        "score": 0.2083
+      },
+      {
+        "course_id": "csv-row-018",
+        "course_name": "컴퓨터네트워크",
+        "score": 0.1667
+      }
+    ]
+  },
+  {
+    "case": "영어 이수 제외",
+    "goal": "서버를 만드는 백엔드 개발자가 되고 싶어요",
+    "target_role": "백엔드",
+    "completed": [
+      "csv-row-043"
+    ],
+    "status": "ok",
+    "skills": [
+      "databases",
+      "programming",
+      "networks",
+      "operating_systems",
+      "software_engineering"
+    ],
+    "courses": [
+      {
+        "course_id": "csv-row-001",
+        "course_name": "프로그래밍입문(1)",
+        "score": 0.25
+      },
+      {
+        "course_id": "csv-row-036",
+        "course_name": "프로그래밍입문(2)",
+        "score": 0.25
+      },
+      {
+        "course_id": "csv-row-020",
+        "course_name": "시스템프로그래밍",
+        "score": 0.2083
+      },
+      {
+        "course_id": "csv-row-047",
+        "course_name": "유닉스프로그래밍",
+        "score": 0.2083
+      },
+      {
+        "course_id": "csv-row-018",
+        "course_name": "컴퓨터네트워크",
+        "score": 0.1667
+      }
+    ]
+  }
+]

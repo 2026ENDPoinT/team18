@@ -1,0 +1,11 @@
+{
+  "status": "experimental policy; not approved for deployment",
+  "minimum_reviewed_labels": 100,
+  "allowed_absolute_precision_drop": 0.02,
+  "allowed_absolute_ndcg_drop": 0.02,
+  "allowed_new_exclusion_violations": 0,
+  "allowed_unavailable_errors": 0,
+  "target_server_cpu_ram": null,
+  "resource_target": null,
+  "note": "Quality and resource targets require human agreement; do not promote before reviewed labels and target environment exist."
+}

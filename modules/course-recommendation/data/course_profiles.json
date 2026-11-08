@@ -1,0 +1,74 @@
+{
+  "30000000-0000-4000-8000-000000000001": {
+    "version": "가상 교육과정 A (개발용)",
+    "course_ids": [
+      "40000000-0000-4000-8000-000000000001",
+      "40000000-0000-4000-8000-000000000002",
+      "40000000-0000-4000-8000-000000000003",
+      "40000000-0000-4000-8000-000000000004",
+      "40000000-0000-4000-8000-000000000005",
+      "40000000-0000-4000-8000-000000000006"
+    ],
+    "profiles": [
+      {
+        "course_id": "40000000-0000-4000-8000-000000000001",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "programming",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "40000000-0000-4000-8000-000000000002",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "data_structures",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "40000000-0000-4000-8000-000000000003",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "sql",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "data_modeling",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "40000000-0000-4000-8000-000000000004",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "software_design",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "40000000-0000-4000-8000-000000000005",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "operating_systems",
+            "coverage": 1.0
+          }
+        ]
+      }
+    ]
+  }
+}

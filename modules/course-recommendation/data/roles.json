@@ -1,0 +1,32 @@
+[
+  {
+    "role_id": "backend",
+    "name": "백엔드 개발자",
+    "aliases": [
+      "백엔드"
+    ],
+    "description": "서버 애플리케이션과 데이터베이스를 설계하고 개발한다",
+    "skills": [
+      {
+        "skill_id": "programming",
+        "priority": 3
+      },
+      {
+        "skill_id": "sql",
+        "priority": 3
+      },
+      {
+        "skill_id": "data_modeling",
+        "priority": 2
+      },
+      {
+        "skill_id": "software_design",
+        "priority": 2
+      },
+      {
+        "skill_id": "operating_systems",
+        "priority": 1
+      }
+    ]
+  }
+]

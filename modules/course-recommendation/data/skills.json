@@ -1,0 +1,42 @@
+[
+  {
+    "skill_id": "programming",
+    "name": "프로그래밍",
+    "description": "프로그램의 기본 제어 흐름과 함수로 문제를 해결한다",
+    "aliases": [
+      "코딩"
+    ]
+  },
+  {
+    "skill_id": "data_structures",
+    "name": "자료구조",
+    "description": "배열과 연결 구조 등 자료구조를 사용해 데이터를 구성한다",
+    "aliases": []
+  },
+  {
+    "skill_id": "sql",
+    "name": "SQL",
+    "description": "관계형 데이터베이스에서 SQL로 데이터를 조회하고 결합한다",
+    "aliases": [
+      "에스큐엘"
+    ]
+  },
+  {
+    "skill_id": "data_modeling",
+    "name": "데이터 모델링",
+    "description": "관계형 데이터의 구조와 관계를 설계한다",
+    "aliases": []
+  },
+  {
+    "skill_id": "software_design",
+    "name": "소프트웨어 설계",
+    "description": "소프트웨어 구조와 구성 요소를 설계한다",
+    "aliases": []
+  },
+  {
+    "skill_id": "operating_systems",
+    "name": "운영체제",
+    "description": "프로세스와 메모리 등 운영체제의 기본 원리를 이해한다",
+    "aliases": []
+  }
+]

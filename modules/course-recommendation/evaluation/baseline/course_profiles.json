@@ -1,0 +1,961 @@
+{
+  "seoultech-csv-test": {
+    "version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+    "course_ids": [
+      "csv-row-001",
+      "csv-row-002",
+      "csv-row-003",
+      "csv-row-004",
+      "csv-row-005",
+      "csv-row-006",
+      "csv-row-007",
+      "csv-row-008",
+      "csv-row-009",
+      "csv-row-010",
+      "csv-row-011",
+      "csv-row-012",
+      "csv-row-013",
+      "csv-row-014",
+      "csv-row-015",
+      "csv-row-016",
+      "csv-row-017",
+      "csv-row-018",
+      "csv-row-019",
+      "csv-row-020",
+      "csv-row-021",
+      "csv-row-022",
+      "csv-row-023",
+      "csv-row-024",
+      "csv-row-025",
+      "csv-row-026",
+      "csv-row-027",
+      "csv-row-028",
+      "csv-row-029",
+      "csv-row-030",
+      "csv-row-031",
+      "csv-row-032",
+      "csv-row-033",
+      "csv-row-034",
+      "csv-row-035",
+      "csv-row-036",
+      "csv-row-037",
+      "csv-row-038",
+      "csv-row-039",
+      "csv-row-040",
+      "csv-row-041",
+      "csv-row-042",
+      "csv-row-043",
+      "csv-row-044",
+      "csv-row-045",
+      "csv-row-046",
+      "csv-row-047",
+      "csv-row-048",
+      "csv-row-049",
+      "csv-row-050",
+      "csv-row-051",
+      "csv-row-052",
+      "csv-row-053",
+      "csv-row-054",
+      "csv-row-055",
+      "csv-row-056",
+      "csv-row-057",
+      "csv-row-058",
+      "csv-row-059",
+      "csv-row-060",
+      "csv-row-061",
+      "csv-row-062",
+      "csv-row-063",
+      "csv-row-064",
+      "csv-row-065",
+      "csv-row-066",
+      "csv-row-067",
+      "csv-row-068"
+    ],
+    "profiles": [
+      {
+        "course_id": "csv-row-001",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "programming",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-002",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "programming",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-005",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "discrete_math",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-006",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "object_oriented",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "programming",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-007",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "object_oriented",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "programming",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-008",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "unix",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "operating_systems",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-009",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "unix",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "operating_systems",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-010",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "statistics",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-011",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "statistics",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-012",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "data_structures",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "algorithms",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-013",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "data_structures",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "algorithms",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-014",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "digital_logic",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "computer_architecture",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-015",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "digital_logic",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "computer_architecture",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-016",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "formal_languages",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "automata",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-017",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "formal_languages",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "automata",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-018",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "networks",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-019",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "data_analysis",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "statistics",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-020",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "systems_programming",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "programming",
+            "coverage": 0.5
+          },
+          {
+            "skill_id": "operating_systems",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-021",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "computer_vision",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "ai",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-022",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "operating_systems",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-023",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "security",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-025",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "reinforcement_learning",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "machine_learning",
+            "coverage": 0.5
+          },
+          {
+            "skill_id": "ai",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-026",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "reinforcement_learning",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "machine_learning",
+            "coverage": 0.5
+          },
+          {
+            "skill_id": "ai",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-027",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "programming_language_theory",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-028",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "programming_language_theory",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-030",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "natural_language",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "ai",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-031",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "embedded",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "programming",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-034",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "iot",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "embedded",
+            "coverage": 0.5
+          },
+          {
+            "skill_id": "networks",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-035",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "cryptography",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "security",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-036",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "programming",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-037",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "programming",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-038",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "linear_algebra",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-039",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "linear_algebra",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-040",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "open_source",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-041",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "open_source",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-042",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "databases",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-043",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "databases",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-044",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "algorithms",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "data_structures",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-045",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "web_development",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "programming",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-046",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "data_communication",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "networks",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-047",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "systems_programming",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "unix",
+            "coverage": 0.5
+          },
+          {
+            "skill_id": "programming",
+            "coverage": 0.5
+          },
+          {
+            "skill_id": "operating_systems",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-048",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "ai",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-049",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "machine_learning",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "ai",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-050",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "machine_learning",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "ai",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-051",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "software_engineering",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "software_design",
+            "coverage": 0.5
+          },
+          {
+            "skill_id": "software_testing",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-052",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "software_engineering",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "software_design",
+            "coverage": 0.5
+          },
+          {
+            "skill_id": "software_testing",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-053",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "graphics",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "programming",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-054",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "mobile",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "programming",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-055",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "security",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-056",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "computer_architecture",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-057",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "web_development",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "programming",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-058",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "game_programming",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "programming",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-061",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "blockchain",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-062",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "compiler",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "programming_language_theory",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-065",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "software_engineering",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "software_design",
+            "coverage": 0.5
+          },
+          {
+            "skill_id": "software_testing",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-066",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "data_mining",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "data_analysis",
+            "coverage": 0.5
+          },
+          {
+            "skill_id": "machine_learning",
+            "coverage": 0.5
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-067",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "security",
+            "coverage": 1.0
+          }
+        ]
+      },
+      {
+        "course_id": "csv-row-068",
+        "source_type": "name_inferred",
+        "review_status": "unreviewed",
+        "skills": [
+          {
+            "skill_id": "big_data_processing",
+            "coverage": 1.0
+          },
+          {
+            "skill_id": "data_analysis",
+            "coverage": 0.5
+          }
+        ]
+      }
+    ],
+    "equivalent_course_groups": [
+      [
+        "csv-row-001",
+        "csv-row-002"
+      ],
+      [
+        "csv-row-003",
+        "csv-row-004"
+      ],
+      [
+        "csv-row-006",
+        "csv-row-007"
+      ],
+      [
+        "csv-row-008",
+        "csv-row-009"
+      ],
+      [
+        "csv-row-010",
+        "csv-row-011"
+      ],
+      [
+        "csv-row-012",
+        "csv-row-013"
+      ],
+      [
+        "csv-row-014",
+        "csv-row-015"
+      ],
+      [
+        "csv-row-016",
+        "csv-row-017"
+      ],
+      [
+        "csv-row-026",
+        "csv-row-025"
+      ],
+      [
+        "csv-row-027",
+        "csv-row-028"
+      ],
+      [
+        "csv-row-036",
+        "csv-row-037"
+      ],
+      [
+        "csv-row-038",
+        "csv-row-039"
+      ],
+      [
+        "csv-row-040",
+        "csv-row-041"
+      ],
+      [
+        "csv-row-042",
+        "csv-row-043"
+      ],
+      [
+        "csv-row-049",
+        "csv-row-050"
+      ],
+      [
+        "csv-row-051",
+        "csv-row-052"
+      ]
+    ]
+  }
+}

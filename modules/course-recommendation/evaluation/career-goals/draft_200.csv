@@ -1,0 +1,201 @@
+﻿id,split,group_id,sentence,type,allowed_skills,excluded_skills,decision,course_relevance_json,evidence,review_status
+N001,adjustment,group-01,웹 프론트엔드 화면 개발 분야에 관심이 있어요.,positive,web_development,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N002,adjustment,group-01,저는 웹 프론트엔드 화면 개발 분야를 공부하고 싶습니다.,positive,web_development,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N003,adjustment,group-01,진로 목표는 웹 프론트엔드 화면 개발입니다.,positive,web_development,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N004,adjustment,group-01,웹 프론트엔드 화면 개발 관련 일을 하고 싶어요.,positive,web_development,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N005,holdout_candidate,group-02,서버 API 설계 분야에 관심이 있어요.,positive,api_design,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N006,holdout_candidate,group-02,저는 서버 API 설계 분야를 공부하고 싶습니다.,positive,api_design,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N007,holdout_candidate,group-02,진로 목표는 서버 API 설계입니다.,positive,api_design,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N008,holdout_candidate,group-02,서버 API 설계 관련 일을 하고 싶어요.,positive,api_design,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N009,adjustment,group-03,컴퓨터 네트워크 원리 분야에 관심이 있어요.,positive,networks,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N010,adjustment,group-03,저는 컴퓨터 네트워크 원리 분야를 공부하고 싶습니다.,positive,networks,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N011,adjustment,group-03,진로 목표는 컴퓨터 네트워크 원리입니다.,positive,networks,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N012,adjustment,group-03,컴퓨터 네트워크 원리 관련 일을 하고 싶어요.,positive,networks,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N013,holdout_candidate,group-04,운영체제 메모리 관리 분야에 관심이 있어요.,positive,operating_systems,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N014,holdout_candidate,group-04,저는 운영체제 메모리 관리 분야를 공부하고 싶습니다.,positive,operating_systems,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N015,holdout_candidate,group-04,진로 목표는 운영체제 메모리 관리입니다.,positive,operating_systems,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N016,holdout_candidate,group-04,운영체제 메모리 관리 관련 일을 하고 싶어요.,positive,operating_systems,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N017,adjustment,group-05,자료구조 설계 분야에 관심이 있어요.,positive,data_structures,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N018,adjustment,group-05,저는 자료구조 설계 분야를 공부하고 싶습니다.,positive,data_structures,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N019,adjustment,group-05,진로 목표는 자료구조 설계입니다.,positive,data_structures,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N020,adjustment,group-05,자료구조 설계 관련 일을 하고 싶어요.,positive,data_structures,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N021,holdout_candidate,group-06,알고리즘 분석 분야에 관심이 있어요.,positive,algorithms,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N022,holdout_candidate,group-06,저는 알고리즘 분석 분야를 공부하고 싶습니다.,positive,algorithms,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N023,holdout_candidate,group-06,진로 목표는 알고리즘 분석입니다.,positive,algorithms,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N024,holdout_candidate,group-06,알고리즘 분석 관련 일을 하고 싶어요.,positive,algorithms,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N025,adjustment,group-07,데이터베이스 관리 분야에 관심이 있어요.,positive,databases,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N026,adjustment,group-07,저는 데이터베이스 관리 분야를 공부하고 싶습니다.,positive,databases,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N027,adjustment,group-07,진로 목표는 데이터베이스 관리입니다.,positive,databases,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N028,adjustment,group-07,데이터베이스 관리 관련 일을 하고 싶어요.,positive,databases,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N029,holdout_candidate,group-08,컴퓨터 그래픽스 분야에 관심이 있어요.,positive,graphics,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N030,holdout_candidate,group-08,저는 컴퓨터 그래픽스 분야를 공부하고 싶습니다.,positive,graphics,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N031,holdout_candidate,group-08,진로 목표는 컴퓨터 그래픽스입니다.,positive,graphics,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N032,holdout_candidate,group-08,컴퓨터 그래픽스 관련 일을 하고 싶어요.,positive,graphics,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N033,adjustment,group-09,확률과 랜덤 변수 분야에 관심이 있어요.,positive,statistics,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N034,adjustment,group-09,저는 확률과 랜덤 변수 분야를 공부하고 싶습니다.,positive,statistics,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N035,adjustment,group-09,진로 목표는 확률과 랜덤 변수입니다.,positive,statistics,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N036,adjustment,group-09,확률과 랜덤 변수 관련 일을 하고 싶어요.,positive,statistics,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N037,holdout_candidate,group-10,선형대수 분야에 관심이 있어요.,positive,linear_algebra,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N038,holdout_candidate,group-10,저는 선형대수 분야를 공부하고 싶습니다.,positive,linear_algebra,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N039,holdout_candidate,group-10,진로 목표는 선형대수입니다.,positive,linear_algebra,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N040,holdout_candidate,group-10,선형대수 관련 일을 하고 싶어요.,positive,linear_algebra,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N041,adjustment,group-11,영상을 해석하는 컴퓨터 프로그램 분야에 관심이 있어요.,indirect,computer_vision,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N042,adjustment,group-11,저는 영상을 해석하는 컴퓨터 프로그램 분야를 공부하고 싶습니다.,indirect,computer_vision,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N043,adjustment,group-11,진로 목표는 영상을 해석하는 컴퓨터 프로그램입니다.,indirect,computer_vision,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N044,adjustment,group-11,영상을 해석하는 컴퓨터 프로그램 관련 일을 하고 싶어요.,indirect,computer_vision,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N045,holdout_candidate,group-12,기계가 문장을 처리하는 기술 분야에 관심이 있어요.,indirect,natural_language,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N046,holdout_candidate,group-12,저는 기계가 문장을 처리하는 기술 분야를 공부하고 싶습니다.,indirect,natural_language,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N047,holdout_candidate,group-12,진로 목표는 기계가 문장을 처리하는 기술입니다.,indirect,natural_language,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N048,holdout_candidate,group-12,기계가 문장을 처리하는 기술 관련 일을 하고 싶어요.,indirect,natural_language,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N049,adjustment,group-13,센서가 달린 연결 기기 분야에 관심이 있어요.,indirect,iot,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N050,adjustment,group-13,저는 센서가 달린 연결 기기 분야를 공부하고 싶습니다.,indirect,iot,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N051,adjustment,group-13,진로 목표는 센서가 달린 연결 기기입니다.,indirect,iot,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N052,adjustment,group-13,센서가 달린 연결 기기 관련 일을 하고 싶어요.,indirect,iot,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N053,holdout_candidate,group-14,데이터에서 유용한 패턴 찾기 분야에 관심이 있어요.,indirect,data_mining,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N054,holdout_candidate,group-14,저는 데이터에서 유용한 패턴 찾기 분야를 공부하고 싶습니다.,indirect,data_mining,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N055,holdout_candidate,group-14,진로 목표는 데이터에서 유용한 패턴 찾기입니다.,indirect,data_mining,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N056,holdout_candidate,group-14,데이터에서 유용한 패턴 찾기 관련 일을 하고 싶어요.,indirect,data_mining,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N057,adjustment,group-15,프로그램을 기계어로 변환하는 과정 분야에 관심이 있어요.,indirect,compiler,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N058,adjustment,group-15,저는 프로그램을 기계어로 변환하는 과정 분야를 공부하고 싶습니다.,indirect,compiler,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N059,adjustment,group-15,진로 목표는 프로그램을 기계어로 변환하는 과정입니다.,indirect,compiler,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N060,adjustment,group-15,프로그램을 기계어로 변환하는 과정 관련 일을 하고 싶어요.,indirect,compiler,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N061,holdout_candidate,group-16,장치에서 실행되는 소프트웨어 분야에 관심이 있어요.,indirect,embedded,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N062,holdout_candidate,group-16,저는 장치에서 실행되는 소프트웨어 분야를 공부하고 싶습니다.,indirect,embedded,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N063,holdout_candidate,group-16,진로 목표는 장치에서 실행되는 소프트웨어입니다.,indirect,embedded,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N064,holdout_candidate,group-16,장치에서 실행되는 소프트웨어 관련 일을 하고 싶어요.,indirect,embedded,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N065,adjustment,group-17,파일과 프로세스 관리 분야에 관심이 있어요.,indirect,operating_systems,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N066,adjustment,group-17,저는 파일과 프로세스 관리 분야를 공부하고 싶습니다.,indirect,operating_systems,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N067,adjustment,group-17,진로 목표는 파일과 프로세스 관리입니다.,indirect,operating_systems,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N068,adjustment,group-17,파일과 프로세스 관리 관련 일을 하고 싶어요.,indirect,operating_systems,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N069,holdout_candidate,group-18,데이터를 이용한 행동 예측 분야에 관심이 있어요.,indirect,machine_learning,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N070,holdout_candidate,group-18,저는 데이터를 이용한 행동 예측 분야를 공부하고 싶습니다.,indirect,machine_learning,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N071,holdout_candidate,group-18,진로 목표는 데이터를 이용한 행동 예측입니다.,indirect,machine_learning,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N072,holdout_candidate,group-18,데이터를 이용한 행동 예측 관련 일을 하고 싶어요.,indirect,machine_learning,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N073,adjustment,group-19,보상을 통한 행동 학습 분야에 관심이 있어요.,indirect,reinforcement_learning,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N074,adjustment,group-19,저는 보상을 통한 행동 학습 분야를 공부하고 싶습니다.,indirect,reinforcement_learning,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N075,adjustment,group-19,진로 목표는 보상을 통한 행동 학습입니다.,indirect,reinforcement_learning,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N076,adjustment,group-19,보상을 통한 행동 학습 관련 일을 하고 싶어요.,indirect,reinforcement_learning,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N077,holdout_candidate,group-20,프로그램 구조 설계 분야에 관심이 있어요.,indirect,software_design,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N078,holdout_candidate,group-20,저는 프로그램 구조 설계 분야를 공부하고 싶습니다.,indirect,software_design,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N079,holdout_candidate,group-20,진로 목표는 프로그램 구조 설계입니다.,indirect,software_design,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N080,holdout_candidate,group-20,프로그램 구조 설계 관련 일을 하고 싶어요.,indirect,software_design,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N081,adjustment,group-21,모바일 앱이 아닌 웹사이트 개발 분야에 관심이 있어요.,negative,web_development,mobile,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N082,adjustment,group-21,저는 모바일 앱이 아닌 웹사이트 개발 분야를 공부하고 싶습니다.,negative,web_development,mobile,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N083,adjustment,group-21,진로 목표는 모바일 앱이 아닌 웹사이트 개발입니다.,negative,web_development,mobile,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N084,adjustment,group-21,모바일 앱이 아닌 웹사이트 개발 관련 일을 하고 싶어요.,negative,web_development,mobile,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N085,holdout_candidate,group-22,프론트엔드 말고 백엔드 서버 분야에 관심이 있어요.,negative,api_design,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N086,holdout_candidate,group-22,저는 프론트엔드 말고 백엔드 서버 분야를 공부하고 싶습니다.,negative,api_design,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N087,holdout_candidate,group-22,진로 목표는 프론트엔드 말고 백엔드 서버입니다.,negative,api_design,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N088,holdout_candidate,group-22,프론트엔드 말고 백엔드 서버 관련 일을 하고 싶어요.,negative,api_design,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N089,adjustment,group-23,웹 개발을 제외하고 네트워크 원리 분야에 관심이 있어요.,negative,networks,web_development,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N090,adjustment,group-23,저는 웹 개발을 제외하고 네트워크 원리 분야를 공부하고 싶습니다.,negative,networks,web_development,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N091,adjustment,group-23,진로 목표는 웹 개발을 제외하고 네트워크 원리입니다.,negative,networks,web_development,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N092,adjustment,group-23,웹 개발을 제외하고 네트워크 원리 관련 일을 하고 싶어요.,negative,networks,web_development,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N093,holdout_candidate,group-24,그래픽스가 아닌 데이터베이스 관리 분야에 관심이 있어요.,negative,databases,graphics,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N094,holdout_candidate,group-24,저는 그래픽스가 아닌 데이터베이스 관리 분야를 공부하고 싶습니다.,negative,databases,graphics,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N095,holdout_candidate,group-24,진로 목표는 그래픽스가 아닌 데이터베이스 관리입니다.,negative,databases,graphics,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N096,holdout_candidate,group-24,그래픽스가 아닌 데이터베이스 관리 관련 일을 하고 싶어요.,negative,databases,graphics,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N097,adjustment,group-25,기계학습 말고 정보보안 분야에 관심이 있어요.,negative,security,machine_learning,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N098,adjustment,group-25,저는 기계학습 말고 정보보안 분야를 공부하고 싶습니다.,negative,security,machine_learning,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N099,adjustment,group-25,진로 목표는 기계학습 말고 정보보안입니다.,negative,security,machine_learning,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N100,adjustment,group-25,기계학습 말고 정보보안 관련 일을 하고 싶어요.,negative,security,machine_learning,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N101,holdout_candidate,group-26,운영체제 대신 알고리즘 분석 분야에 관심이 있어요.,negative,algorithms,operating_systems,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N102,holdout_candidate,group-26,저는 운영체제 대신 알고리즘 분석 분야를 공부하고 싶습니다.,negative,algorithms,operating_systems,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N103,holdout_candidate,group-26,진로 목표는 운영체제 대신 알고리즘 분석입니다.,negative,algorithms,operating_systems,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N104,holdout_candidate,group-26,운영체제 대신 알고리즘 분석 관련 일을 하고 싶어요.,negative,algorithms,operating_systems,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N105,adjustment,group-27,인공지능이 아닌 이산수학 분야에 관심이 있어요.,negative,discrete_math,ai,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N106,adjustment,group-27,저는 인공지능이 아닌 이산수학 분야를 공부하고 싶습니다.,negative,discrete_math,ai,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N107,adjustment,group-27,진로 목표는 인공지능이 아닌 이산수학입니다.,negative,discrete_math,ai,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N108,adjustment,group-27,인공지능이 아닌 이산수학 관련 일을 하고 싶어요.,negative,discrete_math,ai,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N109,holdout_candidate,group-28,프로그래밍을 제외하고 통계 분야에 관심이 있어요.,negative,statistics,programming,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N110,holdout_candidate,group-28,저는 프로그래밍을 제외하고 통계 분야를 공부하고 싶습니다.,negative,statistics,programming,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N111,holdout_candidate,group-28,진로 목표는 프로그래밍을 제외하고 통계입니다.,negative,statistics,programming,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N112,holdout_candidate,group-28,프로그래밍을 제외하고 통계 관련 일을 하고 싶어요.,negative,statistics,programming,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N113,adjustment,group-29,모바일 개발 말고 컴퓨터 그래픽스 분야에 관심이 있어요.,negative,graphics,mobile,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N114,adjustment,group-29,저는 모바일 개발 말고 컴퓨터 그래픽스 분야를 공부하고 싶습니다.,negative,graphics,mobile,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N115,adjustment,group-29,진로 목표는 모바일 개발 말고 컴퓨터 그래픽스입니다.,negative,graphics,mobile,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N116,adjustment,group-29,모바일 개발 말고 컴퓨터 그래픽스 관련 일을 하고 싶어요.,negative,graphics,mobile,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N117,holdout_candidate,group-30,보안이 아닌 자료구조 분야에 관심이 있어요.,negative,data_structures,security,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N118,holdout_candidate,group-30,저는 보안이 아닌 자료구조 분야를 공부하고 싶습니다.,negative,data_structures,security,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N119,holdout_candidate,group-30,진로 목표는 보안이 아닌 자료구조입니다.,negative,data_structures,security,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N120,holdout_candidate,group-30,보안이 아닌 자료구조 관련 일을 하고 싶어요.,negative,data_structures,security,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N121,adjustment,group-31,웹 개발보다 네트워크 분야에 관심이 있어요.,comparison,networks,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N122,adjustment,group-31,저는 웹 개발보다 네트워크 분야를 공부하고 싶습니다.,comparison,networks,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N123,adjustment,group-31,진로 목표는 웹 개발보다 네트워크입니다.,comparison,networks,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N124,adjustment,group-31,웹 개발보다 네트워크 관련 일을 하고 싶어요.,comparison,networks,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N125,holdout_candidate,group-32,통계보다는 데이터 분석 분야에 관심이 있어요.,comparison,data_analysis,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N126,holdout_candidate,group-32,저는 통계보다는 데이터 분석 분야를 공부하고 싶습니다.,comparison,data_analysis,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N127,holdout_candidate,group-32,진로 목표는 통계보다는 데이터 분석입니다.,comparison,data_analysis,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N128,holdout_candidate,group-32,통계보다는 데이터 분석 관련 일을 하고 싶어요.,comparison,data_analysis,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N129,adjustment,group-33,프로그래밍보다 알고리즘 분야에 관심이 있어요.,comparison,algorithms,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N130,adjustment,group-33,저는 프로그래밍보다 알고리즘 분야를 공부하고 싶습니다.,comparison,algorithms,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N131,adjustment,group-33,진로 목표는 프로그래밍보다 알고리즘입니다.,comparison,algorithms,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N132,adjustment,group-33,프로그래밍보다 알고리즘 관련 일을 하고 싶어요.,comparison,algorithms,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N133,holdout_candidate,group-34,운영체제보다 데이터베이스 분야에 관심이 있어요.,comparison,databases,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N134,holdout_candidate,group-34,저는 운영체제보다 데이터베이스 분야를 공부하고 싶습니다.,comparison,databases,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N135,holdout_candidate,group-34,진로 목표는 운영체제보다 데이터베이스입니다.,comparison,databases,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N136,holdout_candidate,group-34,운영체제보다 데이터베이스 관련 일을 하고 싶어요.,comparison,databases,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N137,adjustment,group-35,모바일보다 웹 개발 분야에 관심이 있어요.,comparison,web_development,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N138,adjustment,group-35,저는 모바일보다 웹 개발 분야를 공부하고 싶습니다.,comparison,web_development,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N139,adjustment,group-35,진로 목표는 모바일보다 웹 개발입니다.,comparison,web_development,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N140,adjustment,group-35,모바일보다 웹 개발 관련 일을 하고 싶어요.,comparison,web_development,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N141,holdout_candidate,group-36,알고리즘과 자료구조를 함께 분야에 관심이 있어요.,complex,algorithms|data_structures,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N142,holdout_candidate,group-36,저는 알고리즘과 자료구조를 함께 분야를 공부하고 싶습니다.,complex,algorithms|data_structures,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N143,holdout_candidate,group-36,진로 목표는 알고리즘과 자료구조를 함께입니다.,complex,algorithms|data_structures,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N144,holdout_candidate,group-36,알고리즘과 자료구조를 함께 관련 일을 하고 싶어요.,complex,algorithms|data_structures,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N145,adjustment,group-37,컴퓨터 그래픽스와 선형대수를 함께 분야에 관심이 있어요.,complex,graphics|linear_algebra,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N146,adjustment,group-37,저는 컴퓨터 그래픽스와 선형대수를 함께 분야를 공부하고 싶습니다.,complex,graphics|linear_algebra,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N147,adjustment,group-37,진로 목표는 컴퓨터 그래픽스와 선형대수를 함께입니다.,complex,graphics|linear_algebra,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N148,adjustment,group-37,컴퓨터 그래픽스와 선형대수를 함께 관련 일을 하고 싶어요.,complex,graphics|linear_algebra,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N149,holdout_candidate,group-38,네트워크와 보안을 함께 분야에 관심이 있어요.,complex,networks|security,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N150,holdout_candidate,group-38,저는 네트워크와 보안을 함께 분야를 공부하고 싶습니다.,complex,networks|security,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N151,holdout_candidate,group-38,진로 목표는 네트워크와 보안을 함께입니다.,complex,networks|security,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N152,holdout_candidate,group-38,네트워크와 보안을 함께 관련 일을 하고 싶어요.,complex,networks|security,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N153,adjustment,group-39,기계학습과 확률을 함께 분야에 관심이 있어요.,complex,machine_learning|statistics,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N154,adjustment,group-39,저는 기계학습과 확률을 함께 분야를 공부하고 싶습니다.,complex,machine_learning|statistics,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N155,adjustment,group-39,진로 목표는 기계학습과 확률을 함께입니다.,complex,machine_learning|statistics,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N156,adjustment,group-39,기계학습과 확률을 함께 관련 일을 하고 싶어요.,complex,machine_learning|statistics,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N157,holdout_candidate,group-40,데이터베이스와 웹 개발을 함께 분야에 관심이 있어요.,complex,databases|web_development,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N158,holdout_candidate,group-40,저는 데이터베이스와 웹 개발을 함께 분야를 공부하고 싶습니다.,complex,databases|web_development,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N159,holdout_candidate,group-40,진로 목표는 데이터베이스와 웹 개발을 함께입니다.,complex,databases|web_development,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N160,holdout_candidate,group-40,데이터베이스와 웹 개발을 함께 관련 일을 하고 싶어요.,complex,databases|web_development,,recommend,,자동 작성된 초안; 사람의 검토 필요,draft
+N161,adjustment,group-41,보안과 웹 개발 중 아직 결정을 못한 상태에 관심이 있어요.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N162,adjustment,group-41,저는 보안과 웹 개발 중 아직 결정을 못한 상태을 생각하고 있습니다.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N163,adjustment,group-41,제 목표는 보안과 웹 개발 중 아직 결정을 못한 상태입니다.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N164,adjustment,group-41,보안과 웹 개발 중 아직 결정을 못한 상태에 대해 고민하고 있어요.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N165,holdout_candidate,group-42,기계학습과 데이터 분석 중 어느 쪽을 선택할지 모르는 상태에 관심이 있어요.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N166,holdout_candidate,group-42,저는 기계학습과 데이터 분석 중 어느 쪽을 선택할지 모르는 상태을 생각하고 있습니다.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N167,holdout_candidate,group-42,제 목표는 기계학습과 데이터 분석 중 어느 쪽을 선택할지 모르는 상태입니다.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N168,holdout_candidate,group-42,기계학습과 데이터 분석 중 어느 쪽을 선택할지 모르는 상태에 대해 고민하고 있어요.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N169,adjustment,group-43,소프트웨어 분야의 막연한 직업에 관심이 있어요.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N170,adjustment,group-43,저는 소프트웨어 분야의 막연한 직업을 생각하고 있습니다.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N171,adjustment,group-43,제 목표는 소프트웨어 분야의 막연한 직업입니다.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N172,adjustment,group-43,소프트웨어 분야의 막연한 직업에 대해 고민하고 있어요.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N173,holdout_candidate,group-44,좋아하는 전공 분야가 무엇인지 모르는 상황에 관심이 있어요.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N174,holdout_candidate,group-44,저는 좋아하는 전공 분야가 무엇인지 모르는 상황을 생각하고 있습니다.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N175,holdout_candidate,group-44,제 목표는 좋아하는 전공 분야가 무엇인지 모르는 상황입니다.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N176,holdout_candidate,group-44,좋아하는 전공 분야가 무엇인지 모르는 상황에 대해 고민하고 있어요.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N177,adjustment,group-45,아직 직무를 정하지 않은 대학생의 진로에 관심이 있어요.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N178,adjustment,group-45,저는 아직 직무를 정하지 않은 대학생의 진로을 생각하고 있습니다.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N179,adjustment,group-45,제 목표는 아직 직무를 정하지 않은 대학생의 진로입니다.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N180,adjustment,group-45,아직 직무를 정하지 않은 대학생의 진로에 대해 고민하고 있어요.,ambiguous,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N181,holdout_candidate,group-46,서양 고전 음악 연주에 관심이 있어요.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N182,holdout_candidate,group-46,저는 서양 고전 음악 연주을 생각하고 있습니다.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N183,holdout_candidate,group-46,제 목표는 서양 고전 음악 연주입니다.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N184,holdout_candidate,group-46,서양 고전 음악 연주에 대해 고민하고 있어요.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N185,adjustment,group-47,제과점에서 빵을 만드는 제빵사에 관심이 있어요.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N186,adjustment,group-47,저는 제과점에서 빵을 만드는 제빵사을 생각하고 있습니다.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N187,adjustment,group-47,제 목표는 제과점에서 빵을 만드는 제빵사입니다.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N188,adjustment,group-47,제과점에서 빵을 만드는 제빵사에 대해 고민하고 있어요.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N189,holdout_candidate,group-48,해양 생물 관찰 연구에 관심이 있어요.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N190,holdout_candidate,group-48,저는 해양 생물 관찰 연구을 생각하고 있습니다.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N191,holdout_candidate,group-48,제 목표는 해양 생물 관찰 연구입니다.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N192,holdout_candidate,group-48,해양 생물 관찰 연구에 대해 고민하고 있어요.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N193,adjustment,group-49,건축물 내부 인테리어 디자인에 관심이 있어요.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N194,adjustment,group-49,저는 건축물 내부 인테리어 디자인을 생각하고 있습니다.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N195,adjustment,group-49,제 목표는 건축물 내부 인테리어 디자인입니다.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N196,adjustment,group-49,건축물 내부 인테리어 디자인에 대해 고민하고 있어요.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N197,holdout_candidate,group-50,전문 운동선수 훈련에 관심이 있어요.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N198,holdout_candidate,group-50,저는 전문 운동선수 훈련을 생각하고 있습니다.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N199,holdout_candidate,group-50,제 목표는 전문 운동선수 훈련입니다.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
+N200,holdout_candidate,group-50,전문 운동선수 훈련에 대해 고민하고 있어요.,out_of_scope,,,defer,,자동 작성된 초안; 사람의 검토 필요,draft
