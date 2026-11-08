@@ -272,6 +272,7 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(self.request('GET',base+'/courses?catalog_id='+seed.C1,cookie=other)[0],404)
         result=listing()[1]
         self.assertEqual(result['review_status'],'unconfirmed'); self.assertEqual(result['selection_summary']['count'],0)
+        self.assertIsNone(result['courses'][0]['theory_hours']); self.assertIsNone(result['courses'][0]['practice_hours'])
         review=lambda selection,inputrev,missing: self.request('POST',base+'/course-selection-review',{'catalog_id':seed.C1,'expected_selection_revision':selection,'expected_input_revision':inputrev,'reported_missing_courses':missing},cookie)
         self.assertEqual(review(0,1,False)[0],409)
         confirmed=review(1,1,False)
