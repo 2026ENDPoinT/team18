@@ -17,6 +17,8 @@ from repositories.p1 import Repository, connect, migrate, StorageUnavailable
 from repositories.p2 import CourseRepository
 from api.routes.documents import route as document_route
 from worker.documents import start_worker
+from services.course_recommendations import recommend
+from services.gemini import GeminiError
 
 COOKIE = 'roadmap_session'
 FIELDS = ('career_goal', 'target_role', 'university_id', 'department_id', 'catalog_id', 'year_level', 'earned_credits', 'gpa', 'gpa_scale')
@@ -175,6 +177,36 @@ class Handler(BaseHTTPRequestHandler):
             if path == '/api/roadmap-inputs/resume' and method == 'GET':
                 row = repo.resume(owner['owner_id']) if owner else None
                 return self.respond(200, {'found': bool(row), 'request': dict(row) if row else None})
+            recommendation_match = re.fullmatch(r'/api/roadmap-inputs/([0-9a-f-]{36})/course-recommendations', path)
+            if recommendation_match and method == 'POST':
+                if not owner: raise Problem(401, 'unauthorized', '세션이 만료되었거나 유효하지 않습니다.')
+                if self.body() != {}: raise Problem(422, 'validation_error', '추천 요청 형식을 확인해 주세요.')
+                rid = recommendation_match[1]
+                db.execute('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY' if DB_BACKEND == 'postgres' else 'BEGIN')
+                row = repo.plan(rid, owner['owner_id'])
+                if not row: raise Problem(404, 'not_found', '계획을 찾을 수 없습니다.')
+                if not row['career_goal'] or not row['career_goal'].strip(): raise Problem(422, 'goal_required', '진로 목표를 먼저 입력해 주세요.')
+                cid = row['catalog_id']
+                if not cid or not courses_repo.catalog(cid): raise Problem(422, 'catalog_unavailable', '사용할 과목 목록이 없습니다.')
+                courses = courses_repo.courses(rid, cid, include_description=True)
+                university = courses_repo.university(row['university_id']) if row['university_id'] else None
+                department = courses_repo.department(row['department_id']) if row['department_id'] else None
+                profile = {'career_goal': row['career_goal'], 'target_role': row['target_role'], 'university': university['university_name'] if university else None, 'department': department['department_name'] if department else None, 'year_level': row['year_level'], 'review_status': payload(row)['review_status']}
+                revision = row['input_revision']
+                status = payload(row)['review_status']
+                db.commit()
+                if not courses:
+                    return self.respond(200, {'courses': [], 'status': 'empty_catalog', 'catalog_id': cid, 'input_revision': revision, 'review_status': status, 'career_goal': profile['career_goal']})
+                result = recommend(profile, courses, status)
+                # The model call may take time; never return a result for changed input.
+                db.execute('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY' if DB_BACKEND == 'postgres' else 'BEGIN')
+                current = repo.plan(rid, owner['owner_id'])
+                if not current or current['input_revision'] != revision or current['catalog_id'] != cid:
+                    raise Problem(409, 'revision_conflict', '분석 중 입력이 변경되었습니다. 다시 시도해 주세요.')
+                latest = {str(c['course_id']): c for c in courses_repo.courses(rid, cid)}
+                result = [dict(latest[str(c['course_id'])], is_completed=False, completion_state=c['completion_state']) for c in result if str(c['course_id']) in latest and not latest[str(c['course_id'])]['is_completed']]
+                db.commit()
+                return self.respond(200, {'courses': result, 'status': 'ok', 'catalog_id': cid, 'input_revision': revision, 'review_status': status, 'career_goal': profile['career_goal']})
             course_match = re.fullmatch(r'/api/roadmap-inputs/([0-9a-f-]{36})/(courses|course-selections|course-selection-review)', path)
             if course_match:
                 rid, action = course_match.groups()
@@ -285,6 +317,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             self.run_request(method)
         except Problem as error:
+            self.respond(error.status, {'error': error.code, 'message': error.message})
+        except GeminiError as error:
             self.respond(error.status, {'error': error.code, 'message': error.message})
         except StorageUnavailable as error:
             self.respond(503, {'error': 'storage_unavailable', 'message': str(error)})
