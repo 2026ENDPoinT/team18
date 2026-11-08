@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from repositories.p1 import migrate
+from config import DB_BACKEND
 from services.external_collection import init_fixtures,enqueue,process_once,retry,status,inspect
 
 def main():
@@ -16,7 +17,10 @@ def main():
     p=sub.add_parser('status');p.add_argument('job_id')
     p=sub.add_parser('retry');p.add_argument('job_id')
     p=sub.add_parser('inspect');p.add_argument('source_id')
-    args=parser.parse_args();migrate()
+    args=parser.parse_args()
+    if DB_BACKEND != 'sqlite':
+        print('외부 수집은 PostgreSQL에 아직 연결되지 않았습니다.', file=sys.stderr);return 2
+    migrate()
     try:
         if args.command=='init-fixtures':init_fixtures();result={'registered':'fixture only','network_access':False}
         elif args.command=='enqueue':
