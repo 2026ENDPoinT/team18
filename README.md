@@ -1,6 +1,6 @@
 # 대학생 개인화 진로 로드맵
 
-P0~P5 비AI 기능을 검수한 로컬 웹앱입니다. Node.js 20.9 이상과 Python 3이 필요합니다. 기본 설정은 SQLite이며, P1/P2는 PostgreSQL을 선택할 수 있습니다.
+개인화 진로 입력과 Gemini 기반 수강 후보 기능을 제공하는 로컬 웹앱입니다. Node.js 20.9 이상과 Python 3이 필요합니다. 기본 설정은 SQLite이며, 기본 입력과 과목 기능은 PostgreSQL을 선택할 수 있습니다.
 
 먼저 API 가상환경과 문서 파싱 라이브러리를 설치합니다.
 
@@ -43,6 +43,8 @@ PYTHONPATH=apps/api/app apps/api/.venv/bin/python -c 'from repositories.p1 impor
 
 | 환경변수 | 기본값 | 용도 |
 |---|---|---|
+| `GEMINI_API_KEY` | 미설정 | 백엔드에서만 사용하는 Gemini API 키 |
+| `GEMINI_MODEL` | `gemini-3.5-flash` | Gemini 모델 ID |
 | `ROADMAP_DB_BACKEND` | `sqlite` | `sqlite` 또는 `postgres` 선택 |
 | `ROADMAP_DATABASE_URL` | 미설정 | PostgreSQL 백엔드 전용 연결 문자열 |
 | `ROADMAP_DB_PATH` | `apps/api/var/roadmap.sqlite3` | SQLite DB 파일 위치 |
@@ -57,7 +59,30 @@ PYTHONPATH=apps/api/app apps/api/.venv/bin/python -c 'from repositories.p1 impor
 
 세션 토큰은 서버가 안전한 난수로 만들고 DB에는 해시만 저장하므로 별도 서명 비밀키는 사용하지 않습니다. 향후 필요한 비밀은 환경의 비밀 저장소에서 주입하고 저장소에 커밋하지 않습니다. 운영 HTTPS에서는 `ROADMAP_INSECURE_LOCAL_COOKIE`를 설정하지 않습니다. 현재 서버는 로컬 개발용입니다. PostgreSQL 모드에서는 P1/P2만 연결되며 P3/P4, 클라우드 파일 저장소와 배포 구성은 후속 작업입니다. [PostgreSQL 연결 안내](docs/supabase-backend-connection.md)를 참고하세요. DB 접근은 `apps/api/app/repositories/p1.py`, 환경 설정은 `apps/api/app/config.py`, 웹 API 주소는 `apps/web/next.config.mjs`에 분리되어 있습니다.
 
-`apps/web`에서 `npm run build`, `npm start`로 프로덕션 빌드를 확인할 수 있습니다. 백엔드 통합 테스트는 저장소 루트에서 `apps/api/.venv/bin/python -m unittest discover -s apps/api/tests/integration -p 'test_*.py' -v`로 실행합니다. 제공된 학교·학과·과목은 직접 만든 가상 개발용 데이터입니다. 문서 업로드와 일반 텍스트 추출을 사용할 수 있습니다. AI 분석은 준비 중입니다. [진행 문서](docs/non-ai-mvp-progress.md)를 참고하세요.
+`apps/web`에서 `npm run build`, `npm start`로 프로덕션 빌드를 확인할 수 있습니다. 백엔드 통합 테스트는 저장소 루트에서 `apps/api/.venv/bin/python -m unittest discover -s apps/api/tests/integration -p 'test_*.py' -v`로 실행합니다. SQLite 개발 seed의 학교·학과·과목은 가상 데이터입니다. 문서 업로드와 일반 텍스트 추출을 사용할 수 있습니다. 수강 후보 외 AI 분석은 준비 중입니다. [진행 문서](docs/non-ai-mvp-progress.md)를 참고하세요.
+
+## Gemini 수강 후보
+
+[Google AI Studio](https://aistudio.google.com/app/apikey)에서 Gemini API 키를 발급하고 `apps/api/.env.example`을 `apps/api/.env`로 복사해 백엔드에만 `GEMINI_API_KEY`를 설정합니다. 기존 `.env`가 있다면 덮어쓰지 말고 변수만 추가합니다. `GEMINI_MODEL`로 계정에서 사용 가능한 모델 ID를 바꿀 수 있습니다. 기본 `gemini-3.5-flash`는 Google 문서상 구조화 출력을 지원하는 안정 모델이지만 계정별 사용 가능 여부는 실제 연결로 확인해야 합니다. 키와 `.env`는 Git과 프론트엔드에 포함하지 않습니다. 위 설치 명령에 공식 `google-genai`와 Pydantic이 포함됩니다.
+
+기본 정보와 과목 이수 상태를 저장한 뒤 결과 화면의 **수강 후보** 탭에서 분석을 실행합니다. 서버가 세션 소유권을 확인하고 저장된 목록과 진로 정보만 모델에 전달합니다. 이수 신고를 제외하고 반환 ID를 현재 목록과 대조해 최대 5개를 표시합니다. 설명이 없으면 과목명으로 추론하며 실제 강의 내용을 보장하지 않습니다. 목록이 미확인인 경우 미선택을 미이수로 확정하지 않습니다. 응답은 입력 버전이 바뀌면 거부하며 저장하지 않아 화면을 새로 열면 다시 분석해야 합니다. 모델 호출 시 진로 목표, 희망 직무, 학교·학과·학년, 과목명이 Google에 전송됩니다. 문서 내용은 전송하지 않습니다.
+
+`POST /api/roadmap-inputs/{request_id}/course-recommendations`에 기존 세션 쿠키와 `{}`를 보냅니다. 쓰기 요청에는 기존 `Origin` 검증이 적용됩니다. 성공 응답 예시는 다음과 같습니다. `courses`는 기존 과목 조회와 같은 필드 및 `completion_state`를 사용하며 추천 순서입니다. `status`는 `ok` 또는 목록 자체가 비었을 때 `empty_catalog`입니다. `ok`의 빈 배열은 추천 결과가 없거나 이수 신고를 제외한 후보가 없는 경우입니다.
+
+```json
+{"courses": [{"course_id": "실제 ID", "course_name": "과목명", "is_completed": false, "completion_state": "unconfirmed"}], "status": "ok", "catalog_id": "목록 ID", "input_revision": 1, "review_status": "unconfirmed", "career_goal": "데이터 분석"}
+```
+
+키 누락, 인증, 사용량 제한, 시간 초과, 모델 호출 실패, 잘못된 응답은 각각 오류 코드와 비성공 HTTP 상태로 반환합니다. 일시적 제한·서버 오류·시간 초과는 최대 3회 시도합니다. 실패 시 가짜 추천으로 대체하지 않습니다. DB 연결 실패 및 목록 미선택도 별도 오류입니다. 키가 없어도 일반 서버 기능은 실행됩니다.
+
+```sh
+# 모킹 테스트; 실제 외부 호출 없음
+apps/api/.venv/bin/python -m unittest discover -s apps/api/tests/unit -v
+# API 키가 설정된 경우에만 실제 모델 및 구조화 응답 확인 (요금이 발생할 수 있음)
+GEMINI_LIVE_TEST=1 apps/api/.venv/bin/python -m unittest discover -s apps/api/tests/unit -p test_course_recommendations.py -v
+```
+
+현재 추천은 선택한 단일 DB의 현재 과목 목록만 대상으로 하며 SQLite 사용자 데이터와 별도 Supabase 데이터를 자동으로 합치거나 이전하지 않습니다. 실제 교육과정의 품질과 모델 추천의 정확성은 데이터 및 모델에 따라 달라집니다. 직무 역량, 문서 분석, 전체 로드맵, 공모전 추천은 구현 범위에 포함되지 않습니다.
 
 ## 문서 처리
 
