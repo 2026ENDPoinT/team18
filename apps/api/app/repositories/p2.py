@@ -7,9 +7,15 @@ class CourseRepository:
     def department(self, did): return self.db.execute('SELECT * FROM departments WHERE department_id=?',(did,)).fetchone()
     def catalogs(self, did): return [dict(r) for r in self.db.execute('SELECT * FROM course_catalogs WHERE department_id=? AND is_selectable=TRUE ORDER BY version_label, catalog_id',(did,))]
     def catalog(self, cid): return self.db.execute('SELECT * FROM course_catalogs WHERE catalog_id=?',(cid,)).fetchone()
-    def courses(self, rid, cid):
+    def courses(self, rid, cid, include_description=False):
         hours = 'cc.theory_hours,cc.practice_hours' if getattr(self.db, 'backend', 'sqlite') == 'postgres' else 'NULL AS theory_hours,NULL AS practice_hours'
-        return [dict(r) for r in self.db.execute('''SELECT cc.course_id,cc.course_name,cc.course_code,cc.credits,cc.category,cc.recommended_year,cc.recommended_term,''' + hours + ''',COALESCE(s.is_completed,FALSE) AS is_completed
+        description = ''
+        if include_description:
+            has_description = True
+            if getattr(self.db, 'backend', 'sqlite') == 'postgres':
+                has_description = bool(self.db.execute("SELECT 1 FROM information_schema.columns WHERE table_schema=current_schema() AND table_name='catalog_courses' AND column_name='description_text'").fetchone())
+            description = ',cc.description_text' if has_description else ',NULL AS description_text'
+        return [dict(r) for r in self.db.execute('''SELECT cc.course_id,cc.course_name,cc.course_code,cc.credits,cc.category,cc.recommended_year,cc.recommended_term,''' + hours + description + ''',COALESCE(s.is_completed,FALSE) AS is_completed
           FROM catalog_courses cc LEFT JOIN input_course_states s ON s.request_id=? AND s.course_id=cc.course_id WHERE cc.catalog_id=? ORDER BY cc.course_name,cc.course_id''',(rid,cid))]
     def outside(self, rid, cid):
         return [dict(r) for r in self.db.execute('''SELECT s.course_id, s.source_catalog_id, cc.course_name, cc.course_code, cc.credits FROM input_course_states s JOIN catalog_courses cc ON cc.catalog_id=s.source_catalog_id AND cc.course_id=s.course_id WHERE s.request_id=? AND s.is_completed=TRUE AND NOT EXISTS (SELECT 1 FROM catalog_courses current WHERE current.catalog_id=? AND current.course_id=s.course_id) ORDER BY cc.course_name,s.course_id''',(rid,cid))]
