@@ -1,0 +1,26 @@
+{
+  "source": "O*NET 31.0",
+  "seed": 42,
+  "balanced": true,
+  "train_occupations": 646,
+  "validation_occupations": 138,
+  "test_occupations": 139,
+  "class_count": 87,
+  "test_without_supported_labels": 0,
+  "best_epoch": 35,
+  "model": {
+    "precision_at_3": 0.8873,
+    "recall_at_3": 0.2454,
+    "examples": 139
+  },
+  "common_category_baseline": {
+    "precision_at_3": 0.8897,
+    "recall_at_3": 0.2429,
+    "examples": 139
+  },
+  "sha256": {
+    "occupation_data.csv": "a09eae1d6609686e44e05b7290993a1c8b523d8ca224bc0eedc194c855c3ee02",
+    "software_skills.csv": "6aabb96b464288db849580e6510530efff3f80e25dde2bb23f1fc36bb526b016"
+  },
+  "warning": "US occupation-level categories only, not Korean postings or student-specific recommendations."
+}

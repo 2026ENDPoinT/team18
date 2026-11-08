@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+deps/
+models/
+storage/
+local/data/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.gguf
