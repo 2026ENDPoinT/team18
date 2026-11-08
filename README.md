@@ -1,6 +1,6 @@
 # 대학생 개인화 진로 로드맵
 
-P0~P5 비AI 기능을 검수한 로컬 웹앱입니다. Node.js 20.9 이상과 Python 3이 필요합니다. 별도의 AI 키나 DB 서비스는 필요하지 않습니다.
+P0~P5 비AI 기능을 검수한 로컬 웹앱입니다. Node.js 20.9 이상과 Python 3이 필요합니다. 기본 설정은 SQLite이며, P1/P2는 PostgreSQL을 선택할 수 있습니다.
 
 먼저 API 가상환경과 문서 파싱 라이브러리를 설치합니다.
 
@@ -31,7 +31,7 @@ http://localhost:3000 에서 새 계획을 만들거나 이어서 작성할 수 
 
 ## DB 초기화와 마이그레이션
 
-API 시작과 가상 과목 데이터 적재 시 `apps/api/migrations`의 미적용 SQL을 순서대로 적용하고 `schema_migrations`에 기록합니다. 기존 DB는 자동 삭제하지 않습니다. 서버를 시작하지 않고 마이그레이션만 적용할 수도 있습니다.
+SQLite 모드의 API 시작과 가상 과목 데이터 적재 시 `apps/api/migrations`의 미적용 SQL을 순서대로 적용하고 `schema_migrations`에 기록합니다. 기존 DB는 자동 삭제하지 않습니다. 서버를 시작하지 않고 마이그레이션만 적용할 수도 있습니다.
 
 ```sh
 PYTHONPATH=apps/api/app apps/api/.venv/bin/python -c 'from repositories.p1 import migrate; migrate()'
@@ -43,6 +43,8 @@ PYTHONPATH=apps/api/app apps/api/.venv/bin/python -c 'from repositories.p1 impor
 
 | 환경변수 | 기본값 | 용도 |
 |---|---|---|
+| `ROADMAP_DB_BACKEND` | `sqlite` | `sqlite` 또는 `postgres` 선택 |
+| `ROADMAP_DATABASE_URL` | 미설정 | PostgreSQL 백엔드 전용 연결 문자열 |
 | `ROADMAP_DB_PATH` | `apps/api/var/roadmap.sqlite3` | SQLite DB 파일 위치 |
 | `ROADMAP_AUTO_SEED_DEV` | `1` | 학교 테이블이 비어 있으면 가상 개발용 기준 데이터를 자동 적재. 실제 자료를 사용하는 환경에서는 `0`으로 비활성화 |
 | `ROADMAP_API_HOST` / `ROADMAP_API_PORT` | `127.0.0.1` / `8000` | API 바인드 주소와 포트 |
@@ -53,7 +55,7 @@ PYTHONPATH=apps/api/app apps/api/.venv/bin/python -c 'from repositories.p1 impor
 | `ROADMAP_MAX_DOCUMENT_BYTES` / `ROADMAP_MAX_DOCUMENTS` | `10485760` / `10` | 파일당 바이트와 계획당 문서 개수 제한 |
 | `ROADMAP_PROXY_MAX_BODY_BYTES` | `11534336` | Next.js 프록시 본문 상한. 파일 크기 제한과 multipart 여유를 합친 값 이상으로 설정 |
 
-세션 토큰은 서버가 안전한 난수로 만들고 DB에는 해시만 저장하므로 별도 서명 비밀키는 사용하지 않습니다. 향후 필요한 비밀은 환경의 비밀 저장소에서 주입하고 저장소에 커밋하지 않습니다. 운영 HTTPS에서는 `ROADMAP_INSECURE_LOCAL_COOKIE`를 설정하지 않습니다. 현재 서버와 SQLite는 로컬 개발용이며 클라우드용 DB 어댑터, 마이그레이션, 파일 저장소, HTTPS 및 배포 구성을 별도로 마련해야 합니다. DB 접근은 `apps/api/app/repositories/p1.py`, 환경 설정은 `apps/api/app/config.py`, 웹 API 주소는 `apps/web/next.config.mjs`에 분리되어 있습니다.
+세션 토큰은 서버가 안전한 난수로 만들고 DB에는 해시만 저장하므로 별도 서명 비밀키는 사용하지 않습니다. 향후 필요한 비밀은 환경의 비밀 저장소에서 주입하고 저장소에 커밋하지 않습니다. 운영 HTTPS에서는 `ROADMAP_INSECURE_LOCAL_COOKIE`를 설정하지 않습니다. 현재 서버는 로컬 개발용입니다. PostgreSQL 모드에서는 P1/P2만 연결되며 P3/P4, 클라우드 파일 저장소와 배포 구성은 후속 작업입니다. [PostgreSQL 연결 안내](docs/supabase-backend-connection.md)를 참고하세요. DB 접근은 `apps/api/app/repositories/p1.py`, 환경 설정은 `apps/api/app/config.py`, 웹 API 주소는 `apps/web/next.config.mjs`에 분리되어 있습니다.
 
 `apps/web`에서 `npm run build`, `npm start`로 프로덕션 빌드를 확인할 수 있습니다. 백엔드 통합 테스트는 저장소 루트에서 `apps/api/.venv/bin/python -m unittest discover -s apps/api/tests/integration -p 'test_*.py' -v`로 실행합니다. 제공된 학교·학과·과목은 직접 만든 가상 개발용 데이터입니다. 문서 업로드와 일반 텍스트 추출을 사용할 수 있습니다. AI 분석은 준비 중입니다. [진행 문서](docs/non-ai-mvp-progress.md)를 참고하세요.
 

@@ -3,6 +3,14 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+# Explicit environment variables take precedence over the optional local file.
+try:
+    from dotenv import load_dotenv
+    load_dotenv(ROOT / '.env', override=False)
+except ImportError:
+    pass
+DB_BACKEND = os.environ.get('ROADMAP_DB_BACKEND', 'sqlite').lower()
+DATABASE_URL = os.environ.get('ROADMAP_DATABASE_URL', '')
 DB_PATH = Path(os.environ.get('ROADMAP_DB_PATH', ROOT / 'var' / 'roadmap.sqlite3'))
 APP_ORIGIN = os.environ.get('ROADMAP_APP_ORIGIN', 'http://localhost:3000').rstrip('/')
 SECURE_COOKIE = os.environ.get('ROADMAP_INSECURE_LOCAL_COOKIE') != '1'
