@@ -8,7 +8,7 @@ from pathlib import Path
 root=Path(__file__).resolve().parents[2];sys.path.insert(0,str(root))
 from course_recommendation import load_bundle,recommend_courses
 from course_recommendation.interpret import interpret,occurrences
-p=argparse.ArgumentParser();p.add_argument('--input',default=str(Path(__file__).with_name('draft_200.csv')));p.add_argument('--split',choices=['adjustment','holdout_candidate'],default='adjustment');p.add_argument('--bundle',default=str(root/'artifacts/seoultech-bundle-experimental'));p.add_argument('--output',default=str(Path(__file__).with_name('draft_adjustment_metrics.json')));a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--input',default=str(Path(__file__).with_name('draft_200.csv')));p.add_argument('--split',choices=['adjustment','holdout_candidate'],default='adjustment');p.add_argument('--bundle',default=str(root/'artifacts/model'));p.add_argument('--output',default=str(root/'artifacts/draft_adjustment_metrics.json'));a=p.parse_args()
 b=load_bundle(a.bundle);cat=b['catalogs']['seoultech-csv-test'];rows=json.loads((root/'artifacts/seoultech-data/rows.json').read_text());names={x['course_id']:x['교과목명'] for x in rows}
 snap=dict(catalog_id='seoultech-csv-test',catalog_version=cat['version'],course_ids=cat['course_ids'],completed_course_ids=[],selection_review_status='unconfirmed',target_role=None)
 with open(a.input,encoding='utf-8-sig',newline='') as f: inputs=[r for r in csv.DictReader(f) if r['split']==a.split]

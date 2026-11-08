@@ -12,12 +12,12 @@ from course_recommendation import load_bundle, recommend_courses, InputTooLong
 
 folder = Path(__file__).resolve().parent
 read = lambda path: json.loads(path.read_text(encoding='utf-8'))
-bundle_dir = root / 'artifacts/seoultech-bundle'
+bundle_dir = root / 'artifacts/model'
 data_dir = root / 'artifacts/seoultech-data'
 manifest = read(bundle_dir / 'manifest.json')
 bundle = load_bundle(bundle_dir)
-if bundle['bundle_version'] != 'seoultech-test-v4':
-    raise SystemExit('Expected seoultech-test-v4; rebuild the bundle before running.')
+if bundle['bundle_version'] != 'seoultech-experimental-v1':
+    raise SystemExit('Expected seoultech-experimental-v1; rebuild the bundle before running.')
 cat = bundle['catalogs']['seoultech-csv-test']
 course_rows = read(data_dir / 'rows.json')
 if [r['course_id'] for r in course_rows] != cat['course_ids']:
@@ -52,9 +52,9 @@ counts=Counter(r['상태'] for r in results)
 by_category=defaultdict(Counter)
 for r in results: by_category[r['분류']][r['상태']]+=1
 fields=['id','분류','희망_진로_예시','관련_역량_가설','판정','상태','모델_역량',*[f'추천{i}' for i in range(1,6)]]
-out=folder/'recommendations_100.csv'
+out=root/'artifacts/recommendations_100.csv'
 with out.open('w',encoding='utf-8-sig',newline='') as f:
     writer=csv.DictWriter(f,fieldnames=fields); writer.writeheader(); writer.writerows(results)
 summary={'bundle_version':bundle['bundle_version'],'model_revision':manifest['model_revision'],'goal_file_sha256':hashlib.sha256(input_file.read_bytes()).hexdigest(),'catalog_csv_sha256':cat['version'],'snapshot':{'target_role':None,'completed_course_ids':[],'selection_review_status':'unconfirmed'},'counts':dict(counts),'by_category':{k:dict(v) for k,v in by_category.items()},'limits':'실제 이수 상태와 직무 선택 없음; 미검토 과목명 추론 태그 및 검증 전 임계값; 사람의 정답 평가 아님'}
-(folder/'recommendations_100_summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+(root/'artifacts/recommendations_100_summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 print(json.dumps(summary,ensure_ascii=False,indent=2))

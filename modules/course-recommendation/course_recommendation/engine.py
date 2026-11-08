@@ -4,7 +4,7 @@ import copy
 from .legacy import InputTooLong, validate_equivalence_groups, _normalized
 from .interpret import interpret, normalize, occurrences
 
-def recommend_with_trace(s, b, limit=5):
+def recommend_with_trace(s, b, limit=5, interpreter=None):
     s=copy.deepcopy(s)
     base={'basis_version':b.get('bundle_version'),'selection_review_status':s.get('selection_review_status'),'goal_skills':[],'courses':[]}
     trace={'bundle_version':b.get('bundle_version'),'model_revision':b.get('model_revision'),'bundle_hashes':b.get('bundle_hashes'), 'config':b.get('config'), 'status_reason':None,'matching':{},'skill_candidates':[],'role_candidates':[],'weights':[],'course_candidates':[]}
@@ -16,8 +16,8 @@ def recommend_with_trace(s, b, limit=5):
         groups=validate_equivalence_groups(cat)
         goal=normalize(s['career_goal']); role_input=normalize(s.get('target_role') or '')
         if not goal: return done('no_match','empty_goal')
-        matching=interpret(goal,b['skills'],b['roles']); trace['matching']=matching
-        if matching['ambiguous']: return done('no_match','ambiguous_goal')
+        matching=(interpreter or interpret)(goal,b['skills'],b['roles']); trace['matching']=matching
+        if matching['ambiguous']: return done('no_match',matching.get('ambiguity_reason') or 'ambiguous_goal')
         vector=b['encoder'].encode('query: '+goal+(' '+role_input if role_input else ''))
         if len(vector)!=b['dimension'] or not all(math.isfinite(v) for v in vector): return done('unavailable','invalid_vector')
         sim=lambda a,v: sum(x*y for x,y in zip(a,v))
@@ -49,9 +49,9 @@ def recommend_with_trace(s, b, limit=5):
         trace['role_selection']={'source':source,'selected':[r['role_id'] for r in selected], 'top_margin':eligible_scores[0][0]-eligible_scores[1][0] if len(eligible_scores)>1 else None}
         p={}
         for role in selected:
-            part=_normalized({t['skill_id']:t['priority'] for t in role['skills'] if t['skill_id'] not in excluded})
+            part=_normalized({t['skill_id']:t['priority'] for t in role['skills'] if t['skill_id'] not in excluded and t['skill_id'] not in blocked})
             for sid,val in part.items(): p[sid]=p.get(sid,0)+val/len(selected)
-        combined={sid:(.6*d.get(sid,0)+.4*p.get(sid,0) if d and p else d.get(sid,0)+p.get(sid,0)) for sid in d.keys()|p.keys() if sid not in excluded}
+        combined={sid:(.6*d.get(sid,0)+.4*p.get(sid,0) if d and p else d.get(sid,0)+p.get(sid,0)) for sid in d.keys()|p.keys() if sid not in excluded and sid not in blocked}
         weights=_normalized(dict(sorted(combined.items(),key=lambda x:(-x[1],x[0]))[:8]))
         trace['weights']=[{'skill_id':sid,'direct_contribution':(.6 if p else 1)*d.get(sid,0),'role_contribution':(.4 if d else 1)*p.get(sid,0),'final_weight':weights.get(sid,0)} for sid in sorted(combined)]
         base['goal_skills']=[{'skill_id':sid,'priority_weight':weight} for sid,weight in weights.items()]

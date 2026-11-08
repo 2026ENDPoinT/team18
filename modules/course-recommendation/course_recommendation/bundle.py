@@ -5,7 +5,11 @@ import threading
 from pathlib import Path
 from .core import InputTooLong, validate_equivalence_groups
 
-def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
+def digest(path):
+    h = hashlib.sha256()
+    with path.open('rb') as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b''): h.update(chunk)
+    return h.hexdigest()
 def read(path): return json.loads(path.read_text(encoding='utf-8'))
 
 class Encoder:

@@ -3,7 +3,7 @@ import argparse, json, sys
 from pathlib import Path
 root=Path(__file__).resolve().parents[2];sys.path.insert(0,str(root))
 from course_recommendation import load_bundle,recommend_courses
-p=root/'artifacts'; b=load_bundle(p/'seoultech-bundle-experimental'); cat=b['catalogs']['seoultech-csv-test']; names={r['course_id']:r['교과목명'] for r in json.loads((p/'seoultech-data/rows.json').read_text())}
+p=root/'artifacts'; b=load_bundle(p/'model'); cat=b['catalogs']['seoultech-csv-test']; names={r['course_id']:r['교과목명'] for r in json.loads((p/'seoultech-data/rows.json').read_text())}
 def injected(weights):
  total=sum(weights.values()); weights={k:v/total for k,v in weights.items()}; scores=[]
  for c in cat['profiles']:
@@ -31,5 +31,5 @@ result['role_comparison']={str(role):recommend_courses(dict(snap,target_role=rol
 # Reverse stored profile order; tie sorting must not depend on insertion order.
 initial=injected({'programming':1});cat['profiles'].reverse();result['profile_order_stable']=(initial==injected({'programming':1}));cat['profiles'].reverse()
 result['input_ids_order_stable']=(recommend_courses(dict(snap,target_role='데이터 분석가'),b)==recommend_courses(dict(snap,course_ids=list(reversed(snap['course_ids'])),target_role='데이터 분석가'),b))
-out=Path(__file__).resolve().parent/'diagnostics.json';out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+out=root/'artifacts/diagnostics.json';out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
 print('Diagnostic results:',out,'order stable:',result['profile_order_stable'],result['input_ids_order_stable'])

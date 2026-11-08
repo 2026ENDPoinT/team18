@@ -5,7 +5,7 @@ import argparse, concurrent.futures, hashlib, importlib.metadata, json, os, plat
 from pathlib import Path
 root=Path(__file__).resolve().parents[2];sys.path.insert(0,str(root))
 from course_recommendation import load_bundle,recommend_courses
-p=argparse.ArgumentParser();p.add_argument('--bundle',default=str(root/'artifacts/seoultech-bundle-experimental'));p.add_argument('--iterations',type=int,default=5);p.add_argument('--output',default=str(Path(__file__).with_name('local_fp32.json')));a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--bundle',default=str(root/'artifacts/model'));p.add_argument('--iterations',type=int,default=5);p.add_argument('--output',default=str(root/'artifacts/local_benchmark.json'));a=p.parse_args()
 bp=Path(a.bundle)
 child_code="import sys; sys.path.insert(0,sys.argv[1]); from course_recommendation import load_bundle; x=load_bundle(sys.argv[2]); print('READY',flush=True)"
 start_child=time.perf_counter()

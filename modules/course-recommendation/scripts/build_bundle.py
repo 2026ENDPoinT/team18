@@ -13,7 +13,9 @@ encoder=Encoder(out,384)
 def vectors(items): return np.asarray([encoder.encode('passage: '+x['name']+' '+x['description']) for x in items],dtype=np.float32).reshape(-1,384)
 np.savez_compressed(out/'lookup_vectors.npz', skills=vectors(skills), roles=vectors(roles))
 files=('encoder.onnx','tokenizer.json','skills.json','roles.json','course_profiles.json','config.json','lookup_vectors.npz')
-manifest={'bundle_version':a.version,'model_revision':(model/'model_revision.txt').read_text().strip(),'dimension':384,'preprocessing':'e5 query/passage, attention-mask mean, L2, max 256','skill_ids':[x['skill_id'] for x in skills],'role_ids':[x['role_id'] for x in roles],'sha256':{name:digest(out/name) for name in files}}
+revision_file=model/'model_revision.txt'
+revision=revision_file.read_text().strip() if revision_file.exists() else json.loads((model/'manifest.json').read_text())['model_revision']
+manifest={'bundle_version':a.version,'model_revision':revision,'dimension':384,'preprocessing':'e5 query/passage, attention-mask mean, L2, max 256','skill_ids':[x['skill_id'] for x in skills],'role_ids':[x['role_id'] for x in roles],'sha256':{name:digest(out/name) for name in files}}
 (out/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
 load_bundle(out)
 print('Validated bundle:',out)

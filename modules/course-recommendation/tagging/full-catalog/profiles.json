@@ -1,0 +1,2682 @@
+{
+  "schema_version": "full-catalog-v1",
+  "generation": {
+    "method": "Codex가 제목과 일반적 학문 의미를 바탕으로 직접 작성; 외부 모델 및 외부 자료 미사용",
+    "version": "manual-full-v1",
+    "generated_at": "2026-11-08T07:36:52.724777+00:00"
+  },
+  "dictionary_version": "seoultech-2026-41-skill-v1",
+  "catalog_id": "seoultech-csv-test",
+  "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+  "profiles": [
+    {
+      "profile_id": "profile-csv-row-001",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-001",
+          "title": "프로그래밍입문(1)"
+        },
+        {
+          "course_id": "csv-row-002",
+          "title": "Introduction to Programming 1"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "간단한 프로그램의 명령을 작성한다",
+          "object": "프로그램과 명령",
+          "action": "작성",
+          "source_type": "title_inferred",
+          "source": "과목명: 프로그래밍입문(1)"
+        },
+        {
+          "id": "L2",
+          "text": "명령이 실행되는 흐름을 이해한다",
+          "object": "프로그램의 실행 흐름",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 프로그래밍입문(1)"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "programming",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "프로그래밍 입문이라는 제목의 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-003",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-003",
+          "title": "컴퓨터공학개론"
+        },
+        {
+          "course_id": "csv-row-004",
+          "title": "Introduction to Computer Engineering"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "컴퓨터공학의 주요 분야를 개관한다",
+          "object": "컴퓨터공학의 주요 분야",
+          "action": "개관",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴퓨터공학개론"
+        },
+        {
+          "id": "L2",
+          "text": "컴퓨터 시스템과 소프트웨어의 역할을 살핀다",
+          "object": "컴퓨터 시스템과 소프트웨어",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴퓨터공학개론"
+        }
+      ],
+      "tag_candidates": [],
+      "dictionary_candidates": [
+        "컴퓨터공학 개론"
+      ],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": "표준 사전에 개론을 표현할 역량이 없어 태깅 보류",
+      "required_material": "강의계획서, 강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-005",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-005",
+          "title": "이산수학"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "이산적 대상의 수학적 표현을 이해한다",
+          "object": "이산적 수학 구조",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 이산수학"
+        },
+        {
+          "id": "L2",
+          "text": "명제와 논리적 관계를 분석한다",
+          "object": "명제와 논리",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 이산수학"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "discrete_math",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "이산수학이라는 제목의 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-006",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-006",
+          "title": "객체지향프로그래밍언어"
+        },
+        {
+          "course_id": "csv-row-007",
+          "title": "Object Oriented Programming Language"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "객체와 클래스의 개념을 이해한다",
+          "object": "객체와 클래스",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 객체지향프로그래밍언어"
+        },
+        {
+          "id": "L2",
+          "text": "객체 사이의 관계를 프로그램으로 표현한다",
+          "object": "객체 사이의 관계",
+          "action": "구현",
+          "source_type": "title_inferred",
+          "source": "과목명: 객체지향프로그래밍언어"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "object_oriented",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "객체지향 언어의 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-008",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-008",
+          "title": "유닉스시스템"
+        },
+        {
+          "course_id": "csv-row-009",
+          "title": "Unix System"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "유닉스 시스템의 구성과 동작을 이해한다",
+          "object": "유닉스 시스템",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 유닉스시스템"
+        },
+        {
+          "id": "L2",
+          "text": "유닉스 환경에서 파일과 프로세스의 역할을 살핀다",
+          "object": "유닉스 환경의 파일과 프로세스",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 유닉스시스템"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "unix",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "제목에 명시된 유닉스 시스템",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-010",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-010",
+          "title": "확률및랜덤변수"
+        },
+        {
+          "course_id": "csv-row-011",
+          "title": "Probability and Random Variables"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "사건의 확률을 표현하고 계산한다",
+          "object": "확률과 사건",
+          "action": "계산",
+          "source_type": "title_inferred",
+          "source": "과목명: 확률및랜덤변수"
+        },
+        {
+          "id": "L2",
+          "text": "확률변수와 그 분포를 이해한다",
+          "object": "확률변수와 분포",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 확률및랜덤변수"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "statistics",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "확률과 확률변수의 기초를 다룸",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-012",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-012",
+          "title": "자료구조"
+        },
+        {
+          "course_id": "csv-row-013",
+          "title": "Data Structure"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "자료를 조직하는 여러 구조를 비교한다",
+          "object": "자료구조",
+          "action": "비교",
+          "source_type": "title_inferred",
+          "source": "과목명: 자료구조"
+        },
+        {
+          "id": "L2",
+          "text": "자료구조에서 저장과 접근 방법을 이해한다",
+          "object": "자료의 저장과 접근",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 자료구조"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "data_structures",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "자료구조 자체가 제목의 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-014",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-014",
+          "title": "디지털논리및시스템"
+        },
+        {
+          "course_id": "csv-row-015",
+          "title": "Digital Logic and Systems"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "디지털 논리 연산과 회로를 이해한다",
+          "object": "논리 연산과 논리회로",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 디지털논리및시스템"
+        },
+        {
+          "id": "L2",
+          "text": "논리 요소로 구성된 디지털 시스템을 살핀다",
+          "object": "디지털 시스템",
+          "action": "구성",
+          "source_type": "title_inferred",
+          "source": "과목명: 디지털논리및시스템"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "digital_logic",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "제목에 디지털 논리와 시스템이 명시됨",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-016",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-016",
+          "title": "형식언어및오토마타"
+        },
+        {
+          "course_id": "csv-row-017",
+          "title": "Formal Language and Automata Theory"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "형식 문법과 언어의 표현을 이해한다",
+          "object": "형식 문법과 언어",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 형식언어및오토마타"
+        },
+        {
+          "id": "L2",
+          "text": "오토마타가 언어를 인식하는 관계를 분석한다",
+          "object": "오토마타와 언어",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 형식언어및오토마타"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "formal_languages",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "형식 언어가 제목에 명시됨",
+          "coverage": null
+        },
+        {
+          "skill_id": "automata",
+          "importance": "core",
+          "learning_item_ids": [
+            "L2"
+          ],
+          "rationale": "오토마타가 제목에 명시됨",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-018",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-018",
+          "title": "컴퓨터네트워크"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "컴퓨터 간 네트워크의 구성과 통신을 이해한다",
+          "object": "컴퓨터 네트워크",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴퓨터네트워크"
+        },
+        {
+          "id": "L2",
+          "text": "네트워크에서 정보가 전달되는 방식을 살핀다",
+          "object": "네트워크 통신",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴퓨터네트워크"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "networks",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "컴퓨터 네트워크가 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-019",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-019",
+          "title": "데이터분석"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "데이터를 살펴보고 특징과 패턴을 분석한다",
+          "object": "데이터",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 데이터분석"
+        },
+        {
+          "id": "L2",
+          "text": "데이터 분석 결과의 의미를 해석한다",
+          "object": "분석 결과",
+          "action": "해석",
+          "source_type": "title_inferred",
+          "source": "과목명: 데이터분석"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "data_analysis",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "데이터 분석이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-020",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-020",
+          "title": "시스템프로그래밍"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "시스템과 상호작용하는 소프트웨어 구현을 살핀다",
+          "object": "시스템 소프트웨어",
+          "action": "구현",
+          "source_type": "title_inferred",
+          "source": "과목명: 시스템프로그래밍"
+        },
+        {
+          "id": "L2",
+          "text": "프로그램에서 시스템 자원을 다루는 원리를 이해한다",
+          "object": "시스템 자원",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 시스템프로그래밍"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "systems_programming",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "시스템 프로그래밍이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-021",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-021",
+          "title": "컴퓨터비전"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "이미지와 영상의 시각 정보를 처리하는 방법을 살핀다",
+          "object": "이미지와 영상",
+          "action": "처리",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴퓨터비전"
+        },
+        {
+          "id": "L2",
+          "text": "시각 정보에서 특징을 분석하는 원리를 이해한다",
+          "object": "시각 정보",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴퓨터비전"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "computer_vision",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "컴퓨터비전이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-022",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-022",
+          "title": "운영체제"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "운영체제의 실행 단위와 관리 원리를 이해한다",
+          "object": "프로세스와 스레드",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 운영체제"
+        },
+        {
+          "id": "L2",
+          "text": "운영체제가 메모리와 자원을 관리하는 방식을 살핀다",
+          "object": "메모리와 자원",
+          "action": "관리",
+          "source_type": "title_inferred",
+          "source": "과목명: 운영체제"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "operating_systems",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "운영체제의 기본 관리 대상",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-023",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-023",
+          "title": "정보보호론"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "정보와 시스템에 대한 위협을 살핀다",
+          "object": "정보와 시스템의 위협",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 정보보호론"
+        },
+        {
+          "id": "L2",
+          "text": "정보를 보호하는 기본 원리를 이해한다",
+          "object": "정보 보호 원리",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 정보보호론"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "security",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "정보보호론의 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-024",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-024",
+          "title": "캡스톤디자인(1)"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [],
+      "tag_candidates": [],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": "캡스톤의 프로젝트 주제와 수행 활동은 제목으로 특정할 수 없음",
+      "required_material": "강의계획서, 강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-026",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-026",
+          "title": "강화학습"
+        },
+        {
+          "course_id": "csv-row-025",
+          "title": "Reinforcement Learning"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "행동에 따른 보상을 이용하는 학습 개념을 이해한다",
+          "object": "행동과 보상",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 강화학습"
+        },
+        {
+          "id": "L2",
+          "text": "상태에 따른 행동 선택과 결과를 분석한다",
+          "object": "상태와 행동 선택",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 강화학습"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "reinforcement_learning",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "강화학습이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-027",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-027",
+          "title": "프로그래밍언어론"
+        },
+        {
+          "course_id": "csv-row-028",
+          "title": "Programming Language Theory"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "프로그래밍 언어의 구문 구조를 살핀다",
+          "object": "프로그래밍 언어의 구문",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 프로그래밍언어론"
+        },
+        {
+          "id": "L2",
+          "text": "언어 구성 요소의 의미를 이해한다",
+          "object": "프로그래밍 언어의 의미",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 프로그래밍언어론"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "programming_language_theory",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "프로그래밍언어론이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-029",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-029",
+          "title": "현장실습(1)"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [],
+      "tag_candidates": [],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": "현장실습의 기관·업무가 확인되지 않음",
+      "required_material": "강의계획서, 강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-030",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-030",
+          "title": "자연어처리"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "자연어 텍스트의 구조와 정보를 분석한다",
+          "object": "자연어 텍스트",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 자연어처리"
+        },
+        {
+          "id": "L2",
+          "text": "자연어를 컴퓨터로 처리하는 방법을 살핀다",
+          "object": "자연어 데이터",
+          "action": "처리",
+          "source_type": "title_inferred",
+          "source": "과목명: 자연어처리"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "natural_language",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "자연어처리가 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-031",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-031",
+          "title": "임베디드소프트웨어"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "임베디드 장치에서 동작하는 소프트웨어의 특성을 이해한다",
+          "object": "임베디드 장치의 소프트웨어",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 임베디드소프트웨어"
+        },
+        {
+          "id": "L2",
+          "text": "장치 환경에 맞는 소프트웨어 구현을 살핀다",
+          "object": "장치와 소프트웨어",
+          "action": "구현",
+          "source_type": "title_inferred",
+          "source": "과목명: 임베디드소프트웨어"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "embedded",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "임베디드 소프트웨어가 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-032",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-032",
+          "title": "코업(1)"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [],
+      "tag_candidates": [],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": "코업의 기관·직무와 학습 목표가 확인되지 않음",
+      "required_material": "강의계획서, 강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-033",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-033",
+          "title": "코업프로젝트(1)"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [],
+      "tag_candidates": [],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": "코업 프로젝트의 주제·활동이 확인되지 않음",
+      "required_material": "강의계획서, 강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-034",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-034",
+          "title": "사물인터넷"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "네트워크로 연결된 장치의 역할을 이해한다",
+          "object": "연결된 사물과 장치",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 사물인터넷"
+        },
+        {
+          "id": "L2",
+          "text": "사물과 서비스 사이의 데이터 교환을 살핀다",
+          "object": "사물 간 데이터 교환",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 사물인터넷"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "iot",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "사물인터넷이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-035",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-035",
+          "title": "차세대암호알고리즘"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "정보 보호에 쓰이는 암호 알고리즘의 원리를 이해한다",
+          "object": "암호 알고리즘",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 차세대암호알고리즘"
+        },
+        {
+          "id": "L2",
+          "text": "암호 기법의 특성을 비교한다",
+          "object": "암호 기법",
+          "action": "비교",
+          "source_type": "title_inferred",
+          "source": "과목명: 차세대암호알고리즘"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "cryptography",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "암호 알고리즘이 제목에 명시됨",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-036",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-036",
+          "title": "프로그래밍입문(2)"
+        },
+        {
+          "course_id": "csv-row-037",
+          "title": "Introduction to Programming 2"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "프로그램의 명령을 작성한다",
+          "object": "프로그램과 명령",
+          "action": "작성",
+          "source_type": "title_inferred",
+          "source": "과목명: 프로그래밍입문(2)"
+        },
+        {
+          "id": "L2",
+          "text": "프로그램을 구성하는 요소와 실행 흐름을 살핀다",
+          "object": "프로그램 구성",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 프로그래밍입문(2)"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "programming",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "프로그래밍 입문이라는 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-038",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-038",
+          "title": "선형대수학"
+        },
+        {
+          "course_id": "csv-row-039",
+          "title": "Linear Algebra"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "벡터와 행렬의 연산을 이해한다",
+          "object": "벡터와 행렬",
+          "action": "연산",
+          "source_type": "title_inferred",
+          "source": "과목명: 선형대수학"
+        },
+        {
+          "id": "L2",
+          "text": "선형 변환과 그 표현을 분석한다",
+          "object": "선형 변환",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 선형대수학"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "linear_algebra",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "선형대수의 기본 대상",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-040",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-040",
+          "title": "오픈소스소프트웨어"
+        },
+        {
+          "course_id": "csv-row-041",
+          "title": "Open Source Software"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "공개된 소스에 기반한 소프트웨어의 개념을 이해한다",
+          "object": "오픈소스 소프트웨어",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 오픈소스소프트웨어"
+        },
+        {
+          "id": "L2",
+          "text": "공개 소스의 활용과 협업 방식을 살핀다",
+          "object": "공개 소스와 협업",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 오픈소스소프트웨어"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "open_source",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "오픈소스 소프트웨어가 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-042",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-042",
+          "title": "데이터베이스"
+        },
+        {
+          "course_id": "csv-row-043",
+          "title": "Database"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "데이터와 관계를 구조화하는 방법을 이해한다",
+          "object": "데이터와 관계",
+          "action": "구조화",
+          "source_type": "title_inferred",
+          "source": "과목명: 데이터베이스"
+        },
+        {
+          "id": "L2",
+          "text": "데이터베이스에서 데이터의 저장과 조회 개념을 살핀다",
+          "object": "데이터의 저장과 조회",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 데이터베이스"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "databases",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "데이터베이스의 기본 개념",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [
+        "데이터 모델링"
+      ],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-044",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-044",
+          "title": "알고리즘"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "문제를 해결하는 절차를 설계한다",
+          "object": "알고리즘",
+          "action": "설계",
+          "source_type": "title_inferred",
+          "source": "과목명: 알고리즘"
+        },
+        {
+          "id": "L2",
+          "text": "알고리즘의 실행 비용을 분석한다",
+          "object": "알고리즘의 자원 사용",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 알고리즘"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "algorithms",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "알고리즘 자체가 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-045",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-045",
+          "title": "웹프로그래밍"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "웹에서 동작하는 프로그램의 구현을 살핀다",
+          "object": "웹 애플리케이션",
+          "action": "구현",
+          "source_type": "title_inferred",
+          "source": "과목명: 웹프로그래밍"
+        },
+        {
+          "id": "L2",
+          "text": "웹에서 정보가 전달되는 기본 구조를 이해한다",
+          "object": "웹 요청과 응답",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 웹프로그래밍"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "web_development",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "웹 프로그래밍이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-046",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-046",
+          "title": "데이터통신"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "장치 사이 데이터 전송의 기본 원리를 이해한다",
+          "object": "데이터 전송",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 데이터통신"
+        },
+        {
+          "id": "L2",
+          "text": "데이터 통신 방식의 특성을 비교한다",
+          "object": "통신 방식",
+          "action": "비교",
+          "source_type": "title_inferred",
+          "source": "과목명: 데이터통신"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "data_communication",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "데이터통신이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-047",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-047",
+          "title": "유닉스프로그래밍"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "유닉스 환경에서 동작하는 프로그램을 작성한다",
+          "object": "유닉스 환경의 프로그램",
+          "action": "구현",
+          "source_type": "title_inferred",
+          "source": "과목명: 유닉스프로그래밍"
+        },
+        {
+          "id": "L2",
+          "text": "프로그램이 유닉스 시스템 자원과 상호작용하는 방식을 살핀다",
+          "object": "유닉스 시스템 자원",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 유닉스프로그래밍"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "systems_programming",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "유닉스 환경의 시스템 프로그래밍",
+          "coverage": null
+        },
+        {
+          "skill_id": "unix",
+          "importance": "supporting",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "유닉스가 제목에 명시된 실행 환경",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-048",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-048",
+          "title": "인공지능개론"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "인공지능의 기본 문제 해결 개념을 이해한다",
+          "object": "인공지능의 문제 해결",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 인공지능개론"
+        },
+        {
+          "id": "L2",
+          "text": "인공지능 문제를 다루는 접근법을 살핀다",
+          "object": "인공지능 접근법",
+          "action": "비교",
+          "source_type": "title_inferred",
+          "source": "과목명: 인공지능개론"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "ai",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "인공지능 개론이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-049",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-049",
+          "title": "기계학습"
+        },
+        {
+          "course_id": "csv-row-050",
+          "title": "Machine Learning"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "데이터로부터 모델이 학습하는 원리를 이해한다",
+          "object": "데이터와 학습 모델",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 기계학습"
+        },
+        {
+          "id": "L2",
+          "text": "학습 모델의 결과를 평가하는 개념을 살핀다",
+          "object": "학습 결과",
+          "action": "평가",
+          "source_type": "title_inferred",
+          "source": "과목명: 기계학습"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "machine_learning",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "기계학습이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-051",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-051",
+          "title": "소프트웨어공학"
+        },
+        {
+          "course_id": "csv-row-052",
+          "title": "Software Engineering"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "소프트웨어 개발 과정의 주요 활동을 이해한다",
+          "object": "소프트웨어 개발 과정",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 소프트웨어공학"
+        },
+        {
+          "id": "L2",
+          "text": "소프트웨어 품질을 관리하는 원리를 살핀다",
+          "object": "소프트웨어 품질",
+          "action": "관리",
+          "source_type": "title_inferred",
+          "source": "과목명: 소프트웨어공학"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "software_engineering",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "소프트웨어공학이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-053",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-053",
+          "title": "컴퓨터그래픽스"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "컴퓨터에서 그래픽 이미지를 표현하는 원리를 이해한다",
+          "object": "그래픽 이미지",
+          "action": "표현",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴퓨터그래픽스"
+        },
+        {
+          "id": "L2",
+          "text": "시각 장면을 컴퓨터로 생성하는 방법을 살핀다",
+          "object": "시각 장면",
+          "action": "생성",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴퓨터그래픽스"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "graphics",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "컴퓨터그래픽스가 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-054",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-054",
+          "title": "모바일프로그래밍"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "모바일 환경에서 동작하는 응용 프로그램을 구현한다",
+          "object": "모바일 응용 프로그램",
+          "action": "구현",
+          "source_type": "title_inferred",
+          "source": "과목명: 모바일프로그래밍"
+        },
+        {
+          "id": "L2",
+          "text": "모바일 장치 환경의 특성을 살핀다",
+          "object": "모바일 장치 환경",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 모바일프로그래밍"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "mobile",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "모바일 프로그래밍이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-055",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-055",
+          "title": "컴퓨터보안"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "컴퓨터 시스템에 대한 보안 위협을 분석한다",
+          "object": "컴퓨터 시스템의 위협",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴퓨터보안"
+        },
+        {
+          "id": "L2",
+          "text": "컴퓨터 시스템을 보호하는 원리를 이해한다",
+          "object": "시스템 보호",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴퓨터보안"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "security",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "컴퓨터보안이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-056",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-056",
+          "title": "컴퓨터시스템구조"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "컴퓨터 시스템의 주요 구성 요소와 역할을 이해한다",
+          "object": "프로세서와 메모리",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴퓨터시스템구조"
+        },
+        {
+          "id": "L2",
+          "text": "구성 요소의 상호작용을 분석한다",
+          "object": "컴퓨터 시스템 구조",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴퓨터시스템구조"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "computer_architecture",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "컴퓨터 시스템의 구조가 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-057",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-057",
+          "title": "고급웹프로그래밍"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "웹 애플리케이션의 구성과 구현을 살핀다",
+          "object": "웹 애플리케이션",
+          "action": "구현",
+          "source_type": "title_inferred",
+          "source": "과목명: 고급웹프로그래밍"
+        },
+        {
+          "id": "L2",
+          "text": "웹 프로그램의 구조와 구성 요소를 분석한다",
+          "object": "웹 프로그램 구조",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 고급웹프로그래밍"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "web_development",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "고급 웹프로그래밍이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-058",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-058",
+          "title": "게임프로그래밍"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "게임의 규칙과 동작을 프로그램으로 구현한다",
+          "object": "게임의 규칙과 동작",
+          "action": "구현",
+          "source_type": "title_inferred",
+          "source": "과목명: 게임프로그래밍"
+        },
+        {
+          "id": "L2",
+          "text": "게임 프로그램의 구성 요소를 이해한다",
+          "object": "게임 프로그램 구조",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 게임프로그래밍"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "game_programming",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "게임 프로그래밍이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-059",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-059",
+          "title": "캡스톤디자인(2)"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [],
+      "tag_candidates": [],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": "캡스톤의 프로젝트 주제와 수행 활동은 제목으로 특정할 수 없음",
+      "required_material": "강의계획서, 강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-060",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-060",
+          "title": "현장실습(3)"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [],
+      "tag_candidates": [],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": "현장실습의 기관·업무가 확인되지 않음",
+      "required_material": "강의계획서, 강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-061",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-061",
+          "title": "블록체인"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "블록으로 연결된 분산 기록의 개념을 이해한다",
+          "object": "블록과 분산 기록",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 블록체인"
+        },
+        {
+          "id": "L2",
+          "text": "분산된 기록을 검증하는 원리를 살핀다",
+          "object": "블록체인 기록의 검증",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 블록체인"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "blockchain",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "블록체인이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-062",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-062",
+          "title": "컴파일러구조"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "원시 언어를 변환하는 컴파일러의 구조를 이해한다",
+          "object": "컴파일러의 구성",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴파일러구조"
+        },
+        {
+          "id": "L2",
+          "text": "프로그램을 다른 표현으로 변환하는 단계를 살핀다",
+          "object": "프로그램 변환 단계",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 컴파일러구조"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "compiler",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "컴파일러구조가 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-063",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-063",
+          "title": "코업(2)"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [],
+      "tag_candidates": [],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": "코업의 기관·직무와 학습 목표가 확인되지 않음",
+      "required_material": "강의계획서, 강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-064",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-064",
+          "title": "코업프로젝트(2)"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [],
+      "tag_candidates": [],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": "코업 프로젝트의 주제·활동이 확인되지 않음",
+      "required_material": "강의계획서, 강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-065",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-065",
+          "title": "고급소프트웨어공학"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "소프트웨어 개발 과정의 활동과 관계를 분석한다",
+          "object": "소프트웨어 개발 과정",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 고급소프트웨어공학"
+        },
+        {
+          "id": "L2",
+          "text": "소프트웨어 품질과 유지보수의 원리를 살핀다",
+          "object": "소프트웨어 품질과 유지보수",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 고급소프트웨어공학"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "software_engineering",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "고급 소프트웨어공학이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-066",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-066",
+          "title": "데이터마이닝"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "데이터에서 반복되는 패턴과 정보를 발견한다",
+          "object": "데이터의 패턴",
+          "action": "발견",
+          "source_type": "title_inferred",
+          "source": "과목명: 데이터마이닝"
+        },
+        {
+          "id": "L2",
+          "text": "데이터에서 찾은 패턴의 의미를 해석한다",
+          "object": "발견된 패턴",
+          "action": "해석",
+          "source_type": "title_inferred",
+          "source": "과목명: 데이터마이닝"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "data_mining",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "데이터마이닝이 직접 주제",
+          "coverage": null
+        },
+        {
+          "skill_id": "data_analysis",
+          "importance": "supporting",
+          "learning_item_ids": [
+            "L2"
+          ],
+          "rationale": "발견한 데이터 패턴의 해석과 관련",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-067",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-067",
+          "title": "사이버보안"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "사이버 환경의 보안 위협을 살핀다",
+          "object": "사이버 환경의 위협",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 사이버보안"
+        },
+        {
+          "id": "L2",
+          "text": "정보 시스템을 보호하는 원리를 이해한다",
+          "object": "정보 시스템 보호",
+          "action": "이해",
+          "source_type": "title_inferred",
+          "source": "과목명: 사이버보안"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "security",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "사이버보안이 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    },
+    {
+      "profile_id": "profile-csv-row-068",
+      "catalog_id": "seoultech-csv-test",
+      "catalog_version": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+      "courses": [
+        {
+          "course_id": "csv-row-068",
+          "title": "빅데이터처리"
+        }
+      ],
+      "source": {
+        "type": "title",
+        "file": "data/서울과기대_컴퓨터공학과_2026_전공과목_가공.csv",
+        "sha256": "9b511b63700f29e89c51c7662d4ae2736b72ba67b6400d03d3f50dea8dc6f16e",
+        "actual_description": null
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "대규모 데이터를 처리하는 방법을 이해한다",
+          "object": "대규모 데이터",
+          "action": "처리",
+          "source_type": "title_inferred",
+          "source": "과목명: 빅데이터처리"
+        },
+        {
+          "id": "L2",
+          "text": "데이터 규모에 따른 처리 구조의 특성을 살핀다",
+          "object": "대규모 데이터 처리 구조",
+          "action": "분석",
+          "source_type": "title_inferred",
+          "source": "과목명: 빅데이터처리"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "big_data_processing",
+          "importance": "core",
+          "learning_item_ids": [
+            "L1",
+            "L2"
+          ],
+          "rationale": "빅데이터처리가 직접 주제",
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "uncertainty": "제목에 근거한 추정이며 실제 강의 내용과 학습 비중은 확인되지 않음",
+      "hold_reason": null,
+      "required_material": "강의 개요와 학습 목표",
+      "review_status": "unreviewed",
+      "reviewer": null,
+      "review_notes": null
+    }
+  ]
+}
