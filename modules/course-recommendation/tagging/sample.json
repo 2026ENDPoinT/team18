@@ -1,0 +1,83 @@
+{
+  "generation_version": "manual-sample-v1",
+  "dictionary_version": "seoultech-experimental-v1",
+  "bundle_version": "candidate-sample-v1",
+  "courses": [
+    {
+      "catalog_id": "seoultech-csv-test",
+      "course_id": "csv-row-042",
+      "original_title": "데이터베이스",
+      "source": {
+        "type": "title",
+        "reference": "서울과기대 2026 목록 제목"
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "데이터를 구조화하고 관계를 다루는 방법을 살핀다",
+          "object": "데이터와 관계",
+          "action": "구조화",
+          "source_type": "title_inference",
+          "source": "과목명 데이터베이스"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "databases",
+          "learning_item_ids": [
+            "L1"
+          ],
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "review_status": "unreviewed",
+      "hold_reason": null
+    },
+    {
+      "catalog_id": "seoultech-csv-test",
+      "course_id": "csv-row-021",
+      "original_title": "컴퓨터비전",
+      "source": {
+        "type": "title",
+        "reference": "서울과기대 2026 목록 제목"
+      },
+      "learning_items": [
+        {
+          "id": "L1",
+          "text": "영상 정보를 컴퓨터로 다루는 방법을 살핀다",
+          "object": "영상 정보",
+          "action": "처리",
+          "source_type": "title_inference",
+          "source": "과목명 컴퓨터비전"
+        }
+      ],
+      "tag_candidates": [
+        {
+          "skill_id": "computer_vision",
+          "learning_item_ids": [
+            "L1"
+          ],
+          "coverage": null
+        }
+      ],
+      "dictionary_candidates": [],
+      "review_status": "unreviewed",
+      "hold_reason": null
+    },
+    {
+      "catalog_id": "seoultech-csv-test",
+      "course_id": "csv-row-024",
+      "original_title": "캡스톤디자인(1)",
+      "source": {
+        "type": "title",
+        "reference": "서울과기대 2026 목록 제목"
+      },
+      "learning_items": [],
+      "tag_candidates": [],
+      "dictionary_candidates": [],
+      "review_status": "held",
+      "hold_reason": "제목만으로 프로젝트 주제와 학습 행동을 특정할 수 없음"
+    }
+  ]
+}

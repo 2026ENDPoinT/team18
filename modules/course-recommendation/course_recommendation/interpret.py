@@ -35,6 +35,7 @@ def interpret(goal, skills, roles):
     # A/B testing is a statistical experiment, not software testing.
     ab_test=bool(re.search(r'(?<![\w])a\s*/\s*b\s*테스트',text,re.I))
     api_goal=bool(re.search(r'(?:rest\s*)?api\s*(?:를|을|의)?\s*(?:설계|개발|구현|만들|제공)',text,re.I))
+    api_use=bool(re.search(r'api\s*(?:와|과|를|을|에)?\s*(?:연결|연동|사용|호출)',text,re.I))
     mobile_environment=bool(re.search(r'모바일\s*(?:앱|애플리케이션)(?:에서|용|을\s*위해|을\s*위한)\s*(?:사용할|사용하는|쓸|위한)?\s*(?:rest\s*)?api',text,re.I))
     deploy_goal=bool(re.search(r'(?:모델|인공지능|ai).{0,20}(?:배포|서비스에\s*적용)',text,re.I))
     for h in kept:
@@ -43,6 +44,7 @@ def interpret(goal, skills, roles):
         decision='positive'
         if explicit_neg.match(scope_after): decision='excluded'
         elif compare.match(after): decision='comparison_lower'
+        if h['id']=='api_design' and api_use and not api_goal: decision='context_suppressed'
         if h['id']=='software_testing' and ab_test and re.search(r'a\s*/\s*b\s*$',before,re.I): decision='context_suppressed'
         if h['id']=='mobile' and mobile_environment: decision='context_suppressed'
         if h['id']=='ai' and deploy_goal and re.match(r'\s*(?:모델\s*)?연구\s*(?:가\s*)?아니',after): decision='context_suppressed'
@@ -52,10 +54,17 @@ def interpret(goal, skills, roles):
     # Narrow contextual concepts are recognized only if supplied in the bundle vocabulary.
     available={x['skill_id'] for x in skills}
     contextual=[]
-    if re.search(r'데이터(?:를|의|에서|로|를\s*이용해)?\s*.{0,16}분석',text):
+    # Context rules operate only on the positive side of exclusion/comparison clauses.
+    positive_text=re.sub(r'^.*?(?:보다(?:는)?|제외하고|빼고|원하지\s*않고|하지\s*않고|말고)', '', text, count=1)
+    if re.search(r'데이터(?:를|의|에서|로|를\s*이용해)?\s*.{0,16}분석',positive_text):
         contextual += [x for x in ('data_analysis',) if x in available]
     if re.search(r'(?:사진|이미지|영상|시각).{0,22}(?:인식|구별|분류|분석|처리)',text):
         contextual += [x for x in ('computer_vision',) if x in available]
+    if re.search(r'서버\s*(?:개발|프로그래밍)',positive_text):
+        positive_roles += [r['role_id'] for r in roles if r['role_id']=='backend']
+    if re.search(r'게임(?:을|을\s*직접)?\s*(?:만들|개발)',positive_text) and 'game_programming' in available: contextual.append('game_programming')
+    if re.search(r'(?:취약점|보안).{0,20}(?:점검|찾|고치|분석|검사)',positive_text) and 'security' in available: contextual.append('security')
+    if re.search(r'데이터(?:를)?\s*(?:저장|관리)',positive_text) and 'databases' in available: contextual.append('databases')
     if ab_test:
         contextual += [x for x in ('experiment_analysis','data_analysis','statistics') if x in available]
     if api_goal: contextual += [x for x in ('api_design',) if x in available]
@@ -64,11 +73,17 @@ def interpret(goal, skills, roles):
     blocked={h['id'] for h in decisions if h['kind']=='skill' and h['decision']=='context_suppressed'}
     if any(h['decision']=='comparison_lower' for h in decisions) and not positive and not positive_roles and not contextual:
         ambiguous = True
-    positive += [h['id'] for h in decisions if h['kind']=='skill' and h['decision']=='comparison_lower']
+    # Lower-priority comparison is not a ban; do not let it drive this focused result.
+    blocked.update(h['id'] for h in decisions if h['kind']=='skill' and h['decision']=='comparison_lower')
     if ab_test: blocked.add('software_testing')
     if mobile_environment: blocked.add('mobile')
     # Unrecognized exclusion scope is not safe to interpret confidently.
     neg_check=re.sub(r'뿐\s*아니라', '', text)
-    uncertain_neg=bool(re.search(r'(?:제외|말고|빼고|싫|아닌|아니라|하지\s*않)',neg_check)) and not any(h['decision'] in ('excluded','context_suppressed') for h in decisions)
+    known_scope=bool(re.search(r'(?:웹\s*화면\s*디자인|게임\s*개발|암호\s*이론|통계\s*분석)\s*(?:은|는|을|를)?\s*(?:제외|빼고|원하지\s*않|하지\s*않)',text))
+    if re.search(r'암호\s*이론\s*(?:은|을)?\s*(?:제외|빼고|원하지\s*않|하지\s*않)',text): excluded.add('cryptography')
+    if re.search(r'웹(?:사이트)?(?:의)?\s*취약점',positive_text) and 'web_development' in available: contextual.append('web_development')
+    if re.search(r'게임\s*개발\s*(?:은|을)?\s*(?:제외|빼고|원하지\s*않|하지\s*않)',text): excluded.add('game_programming')
+    if re.search(r'통계\s*분석\s*(?:은|을)?\s*(?:제외|빼고|원하지\s*않|하지\s*않)',text): excluded.add('statistics')
+    uncertain_neg=not known_scope and bool(re.search(r'(?:제외|말고|빼고|싫|아닌|아니라|하지\s*않)',neg_check)) and not any(h['decision'] in ('excluded','context_suppressed') for h in decisions)
     if mobile_environment or deploy_goal: uncertain_neg=False if any(h['decision']=='context_suppressed' for h in decisions) else uncertain_neg
-    return {'matches':decisions,'excluded_skills':sorted(excluded),'excluded_roles':sorted(excluded_roles),'blocked_direct':sorted(blocked),'positive_skills':list(dict.fromkeys(contextual+positive)), 'positive_roles':list(dict.fromkeys(positive_roles)), 'ambiguous':ambiguous or uncertain_neg,'ambiguity_reason':'unresolved_choice' if ambiguous else 'unresolved_exclusion' if uncertain_neg else None,'context':{'ab_test':ab_test,'api_goal':api_goal,'mobile_environment':mobile_environment,'deployment_goal':deploy_goal}}
+    return {'matches':decisions,'excluded_skills':sorted(excluded),'excluded_roles':sorted(excluded_roles),'blocked_direct':sorted(blocked),'positive_skills':list(dict.fromkeys(contextual+positive)), 'positive_roles':list(dict.fromkeys(positive_roles)), 'ambiguous':ambiguous or uncertain_neg,'ambiguity_reason':'unresolved_choice_or_comparison' if ambiguous else 'parser_unresolved_exclusion' if uncertain_neg else None,'context':{'ab_test':ab_test,'api_goal':api_goal,'api_use':api_use,'mobile_environment':mobile_environment,'deployment_goal':deploy_goal}}

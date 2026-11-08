@@ -1,6 +1,0 @@
-{
-  "skill_threshold": 0.9,
-  "role_threshold": 0.9,
-  "role_margin": 0.05,
-  "course_threshold": 0.01
-}

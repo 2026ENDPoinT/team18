@@ -1,5 +1,7 @@
 # 경량 강의 추천 모델 및 시험 결과 검토 요청
 
+> 과거 검토 요청 문서다. 당시 수치와 묶음은 과거 실행에 대한 설명이며 현재 결과는 `runs/20261108T054152Z-db17025d/`를 참조한다.
+
 아래는 현재 구현과 시험 결과입니다. **구조와 결과를 검토하고, 잘못된 추천을 줄이면서 한국어 진로 표현을 더 잘 처리할 수 있는 구체적인 보완 방안을 제안해 주세요.** 관찰된 사실, 가능한 원인, 검증이 필요한 가설을 구분해 주세요. 모델 교체가 필요하다면 현재 방식 개선과의 비용·품질 trade-off도 비교해 주세요.
 
 ## 1. 만들려는 기능과 제약
@@ -72,8 +74,8 @@
 이 문서만으로 대략적인 검토는 가능하지만, 세부 분석을 위해 다음 파일을 함께 첨부해 주세요.
 
 - `career_goals_100.csv`: 100개 입력 문장과 미검토 역량 가설.
-- `recommendations_100.csv`: 각 입력에 선택된 역량과 가중치, 추천 과목과 점수.
-- `course_tags_review.csv`: 과목명별 태그와 미검토 상태. 로컬 생성 경로 `modules/course-recommendation/artifacts/seoultech-data/course_tags_review.csv`.
+- 최신 비교 실행의 `runs/20261108T054152Z-db17025d/results.csv`: 각 입력의 조건별 역량과 추천 과목.
+- `tagging/full-catalog/review.csv`: 현재 구조화 과목 후보와 미검토 상태.
 - 필요하면 `prepare.py`: 시험용 역량 사전, 직무표, 과목별 태그 매핑과 한영 수업 그룹. 경로 `modules/course-recommendation/evaluation/seoultech-2026/prepare.py`.
 - 필요하면 `core.py`: 실제 매칭·부정 표현·점수 계산 로직. 경로 `modules/course-recommendation/course_recommendation/core.py`.
 

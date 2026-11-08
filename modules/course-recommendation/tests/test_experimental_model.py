@@ -4,7 +4,7 @@ from pathlib import Path
 root=Path(__file__).resolve().parents[1];sys.path.insert(0,str(root))
 from course_recommendation import load_bundle
 from course_recommendation.engine import recommend_with_trace
-bundle_path=root/'artifacts/seoultech-bundle-experimental'
+bundle_path=root/'artifacts/model'
 @unittest.skipUnless(bundle_path.exists() and importlib.util.find_spec('onnxruntime') and importlib.util.find_spec('numpy'),'experimental model and runtime not prepared')
 class ModelRegression(unittest.TestCase):
  @classmethod
