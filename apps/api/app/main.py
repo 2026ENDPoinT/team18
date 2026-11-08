@@ -12,8 +12,8 @@ import re
 import secrets
 import sqlite3
 import uuid
-from config import APP_ORIGIN, SECURE_COOKIE, API_HOST, API_PORT
-from repositories.p1 import Repository, connect, migrate
+from config import APP_ORIGIN, SECURE_COOKIE, API_HOST, API_PORT, DB_BACKEND
+from repositories.p1 import Repository, connect, migrate, StorageUnavailable
 from repositories.p2 import CourseRepository
 from api.routes.documents import route as document_route
 from worker.documents import start_worker
@@ -53,7 +53,7 @@ def validate(repo, values):
         value = values[name]
         if value is None:
             continue
-        if isinstance(value, bool) or not isinstance(value, (int, float)):
+        if isinstance(value, bool) or not isinstance(value, (int, float, Decimal)):
             raise Problem(422, 'validation_error', '학점과 GPA는 숫자로 입력해 주세요.')
         try:
             n = Decimal(str(value))
@@ -82,9 +82,15 @@ def payload(row):
     return {'request_id': row['request_id'], 'input': {key: row[key] for key in FIELDS}, 'input_revision': row['input_revision'], 'selection_revision': row['course_selection_revision'], 'review_status': status, 'updated_at': row['updated_at']}
 
 
+def json_value(value):
+    if isinstance(value, Decimal): return float(value)
+    if isinstance(value, datetime): return value.isoformat(timespec='microseconds')
+    raise TypeError('Unsupported JSON value')
+
+
 class Handler(BaseHTTPRequestHandler):
     def respond(self, status, body, cookie=None):
-        content = json.dumps(body, ensure_ascii=False, allow_nan=False).encode('utf-8')
+        content = json.dumps(body, ensure_ascii=False, allow_nan=False, default=json_value).encode('utf-8')
         self.send_response(status)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Cache-Control', 'no-store')
@@ -146,7 +152,9 @@ class Handler(BaseHTTPRequestHandler):
                 support = 'unsupported' if not department['is_supported'] else 'supported' if catalogs else 'no_catalog'
                 return self.respond(200, {'catalogs': catalogs, 'support_status': support})
             owner = self.owner(repo)
-            if document_route(self, db, repo, owner, path, method, Problem): return
+            if DB_BACKEND == 'postgres' and re.fullmatch(r'/api/roadmap-inputs/[0-9a-f-]{36}/documents(?:/.*)?', path):
+                raise Problem(503, 'feature_unavailable', 'PostgreSQL 문서 기능은 아직 연결되지 않았습니다.')
+            if DB_BACKEND != 'postgres' and document_route(self, db, repo, owner, path, method, Problem): return
             if path == '/api/roadmap-inputs' and method == 'POST':
                 repo.begin()
                 cookie = None
@@ -173,10 +181,11 @@ class Handler(BaseHTTPRequestHandler):
                 if not owner: raise Problem(401, 'unauthorized', '세션이 만료되었거나 유효하지 않습니다.')
                 if (action, method) not in (('courses', 'GET'), ('course-selections', 'PATCH'), ('course-selection-review', 'POST')):
                     raise Problem(404, 'not_found', '요청한 경로를 찾을 수 없습니다.')
+                body = self.body() if method != 'GET' else None
                 # Read the entire listing from one snapshot; serialize all writes to the parent row.
-                if method == 'GET': db.execute('BEGIN')
+                if method == 'GET': db.execute('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY' if DB_BACKEND == 'postgres' else 'BEGIN')
                 else: repo.begin()
-                row = repo.plan(rid, owner['owner_id'])
+                row = repo.plan(rid, owner['owner_id'], lock=method != 'GET')
                 if not row: raise Problem(404, 'not_found', '계획을 찾을 수 없습니다.')
                 if method == 'GET':
                     query = parse_qs(urlparse(self.path).query, keep_blank_values=True)
@@ -206,7 +215,6 @@ class Handler(BaseHTTPRequestHandler):
                     result = {'catalog_id':cid, 'catalog_version':catalog['version_label'], 'scope_description':catalog['scope_description'], 'completeness_status':catalog['completeness_status'], 'source':{'name':catalog['source_name'],'url':catalog['source_url'],'retrieved_at':catalog['retrieved_at']}, 'selection_revision':row['course_selection_revision'], 'input_revision':row['input_revision'], 'review_status':status, 'reported_missing_courses':bool(row['reported_missing_courses']) if status in ('confirmed','partial') else False, 'reviewed_at':row['reviewed_at'] if status in ('confirmed','partial') else None, 'courses':filtered[(page-1)*size:page*size], 'selected_courses':selected, 'selection_summary':{'count':len(selected), 'known_credits':float(sum(Decimal(str(c['credits'])) for c in selected if c['credits'] is not None)), 'unknown_credits_count':sum(c['credits'] is None for c in selected)}, 'out_of_scope_completed_courses':courses_repo.outside(rid,cid), 'categories':categories, 'page':page, 'page_size':size, 'total':len(filtered)}
                     db.commit()
                     return self.respond(200,result)
-                body = self.body()
                 cid = body.get('catalog_id')
                 if not isinstance(cid, str) or not cid: raise Problem(422, 'validation_error', '과목 목록 기준이 필요합니다.')
                 if cid != row['catalog_id']: raise Problem(409, 'catalog_conflict', '저장된 과목 목록 기준이 변경되었습니다.')
@@ -253,18 +261,18 @@ class Handler(BaseHTTPRequestHandler):
                     if set(body) != {'expected_input_revision', 'changes'} or type(body['expected_input_revision']) is not int or body['expected_input_revision'] < 0 or not isinstance(body['changes'], dict) or not set(body['changes']).issubset(FIELDS):
                         raise Problem(422, 'validation_error', '수정 요청 형식을 확인해 주세요.')
                     repo.begin()
-                row = repo.plan(match[1], owner['owner_id'])
+                row = repo.plan(match[1], owner['owner_id'], lock=method == 'PATCH')
                 if not row:
                     raise Problem(404, 'not_found', '계획을 찾을 수 없습니다.')
                 if method == 'GET':
                     return self.respond(200, payload(row))
                 if row['input_revision'] != body['expected_input_revision']:
                     raise Problem(409, 'revision_conflict', '다른 화면에서 입력이 변경되었습니다. 최신 내용을 불러와 확인해 주세요.')
-                values = {field: row[field] for field in FIELDS}
+                values = {field: float(row[field]) if isinstance(row[field], Decimal) else row[field] for field in FIELDS}
                 values.update(body['changes'])
                 values['_existing_catalog'] = row['catalog_id']
                 validate(repo, values)
-                changed = any(values[k] != row[k] for k in FIELDS)
+                changed = any(values[k] != (float(row[k]) if isinstance(row[k], Decimal) else row[k]) for k in FIELDS)
                 scope_changed = any(values[k] != row[k] for k in ('university_id', 'department_id', 'catalog_id'))
                 if changed:
                     repo.update_plan(match[1], FIELDS, values, scope_changed, now())
@@ -278,6 +286,8 @@ class Handler(BaseHTTPRequestHandler):
             self.run_request(method)
         except Problem as error:
             self.respond(error.status, {'error': error.code, 'message': error.message})
+        except StorageUnavailable as error:
+            self.respond(503, {'error': 'storage_unavailable', 'message': str(error)})
         except (sqlite3.Error, OSError):
             self.respond(503, {'error': 'storage_unavailable', 'message': '저장소를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.'})
 
@@ -288,13 +298,18 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    migrate()
+    try:
+        migrate()
+        if DB_BACKEND == 'postgres':
+            with closing(connect()) as db: db.execute('SELECT 1')
+    except StorageUnavailable as error:
+        raise SystemExit(str(error)) from None
     # This application is a local development MVP. Seed only an empty reference
     # database; deployments can disable fictional data explicitly.
-    if os.environ.get('ROADMAP_AUTO_SEED_DEV', '1') == '1':
+    if DB_BACKEND == 'sqlite' and os.environ.get('ROADMAP_AUTO_SEED_DEV', '1') == '1':
         from scripts.seed_dev import seed
         seed(only_if_empty=True)
-    stop_worker = start_worker()
+    stop_worker = start_worker() if DB_BACKEND == 'sqlite' else None
     server = ThreadingHTTPServer((API_HOST, API_PORT), Handler)
     print(f'API listening on {API_HOST}:{API_PORT}', flush=True)
     try:
@@ -302,5 +317,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     finally:
-        stop_worker.set()
+        if stop_worker: stop_worker.set()
         server.server_close()
