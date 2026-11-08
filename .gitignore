@@ -51,3 +51,8 @@ blob-report/
 # Operating system and editor files
 .DS_Store
 Thumbs.db
+
+# Generated course recommendation models and bundles
+modules/course-recommendation/artifacts/
+__pycache__/
+*.py[cod]

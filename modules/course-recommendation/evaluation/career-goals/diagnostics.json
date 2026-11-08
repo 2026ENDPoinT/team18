@@ -1,0 +1,418 @@
+{
+  "note": "Injected weights are unreviewed diagnostic hypotheses, not gold labels.",
+  "injected": {
+    "G021": [
+      [
+        "데이터분석",
+        0.75
+      ],
+      [
+        "확률및랜덤변수",
+        0.5
+      ],
+      [
+        "데이터마이닝",
+        0.25
+      ],
+      [
+        "빅데이터처리",
+        0.25
+      ]
+    ],
+    "G031": [
+      [
+        "컴퓨터비전",
+        0.5
+      ],
+      [
+        "기계학습",
+        0.5
+      ],
+      [
+        "강화학습",
+        0.25
+      ],
+      [
+        "데이터마이닝",
+        0.25
+      ]
+    ],
+    "G071": [
+      [
+        "데이터분석",
+        0.5
+      ],
+      [
+        "데이터베이스",
+        0.5
+      ],
+      [
+        "데이터마이닝",
+        0.25
+      ],
+      [
+        "빅데이터처리",
+        0.25
+      ]
+    ],
+    "G074": [
+      [
+        "컴퓨터비전",
+        0.5
+      ],
+      [
+        "모바일프로그래밍",
+        0.5
+      ]
+    ],
+    "G088": []
+  },
+  "coverage": {
+    "programming": {
+      "count": 14,
+      "name_inferred": 14,
+      "description": 0
+    },
+    "object_oriented": {
+      "count": 2,
+      "name_inferred": 2,
+      "description": 0
+    },
+    "data_structures": {
+      "count": 3,
+      "name_inferred": 3,
+      "description": 0
+    },
+    "algorithms": {
+      "count": 3,
+      "name_inferred": 3,
+      "description": 0
+    },
+    "sql": {
+      "count": 0,
+      "name_inferred": 0,
+      "description": 0
+    },
+    "databases": {
+      "count": 2,
+      "name_inferred": 2,
+      "description": 0
+    },
+    "operating_systems": {
+      "count": 5,
+      "name_inferred": 5,
+      "description": 0
+    },
+    "networks": {
+      "count": 3,
+      "name_inferred": 3,
+      "description": 0
+    },
+    "software_engineering": {
+      "count": 3,
+      "name_inferred": 3,
+      "description": 0
+    },
+    "web_development": {
+      "count": 2,
+      "name_inferred": 2,
+      "description": 0
+    },
+    "data_analysis": {
+      "count": 3,
+      "name_inferred": 3,
+      "description": 0
+    },
+    "statistics": {
+      "count": 3,
+      "name_inferred": 3,
+      "description": 0
+    },
+    "linear_algebra": {
+      "count": 2,
+      "name_inferred": 2,
+      "description": 0
+    },
+    "machine_learning": {
+      "count": 5,
+      "name_inferred": 5,
+      "description": 0
+    },
+    "ai": {
+      "count": 7,
+      "name_inferred": 7,
+      "description": 0
+    },
+    "security": {
+      "count": 4,
+      "name_inferred": 4,
+      "description": 0
+    },
+    "computer_vision": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "natural_language": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "embedded": {
+      "count": 2,
+      "name_inferred": 2,
+      "description": 0
+    },
+    "systems_programming": {
+      "count": 2,
+      "name_inferred": 2,
+      "description": 0
+    },
+    "computer_architecture": {
+      "count": 3,
+      "name_inferred": 3,
+      "description": 0
+    },
+    "cryptography": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "graphics": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "mobile": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "discrete_math": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "reinforcement_learning": {
+      "count": 2,
+      "name_inferred": 2,
+      "description": 0
+    },
+    "data_mining": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "big_data_processing": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "digital_logic": {
+      "count": 2,
+      "name_inferred": 2,
+      "description": 0
+    },
+    "formal_languages": {
+      "count": 2,
+      "name_inferred": 2,
+      "description": 0
+    },
+    "automata": {
+      "count": 2,
+      "name_inferred": 2,
+      "description": 0
+    },
+    "programming_language_theory": {
+      "count": 3,
+      "name_inferred": 3,
+      "description": 0
+    },
+    "compiler": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "unix": {
+      "count": 3,
+      "name_inferred": 3,
+      "description": 0
+    },
+    "data_communication": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "open_source": {
+      "count": 2,
+      "name_inferred": 2,
+      "description": 0
+    },
+    "iot": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "blockchain": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "game_programming": {
+      "count": 1,
+      "name_inferred": 1,
+      "description": 0
+    },
+    "software_design": {
+      "count": 3,
+      "name_inferred": 3,
+      "description": 0
+    },
+    "software_testing": {
+      "count": 3,
+      "name_inferred": 3,
+      "description": 0
+    },
+    "api_design": {
+      "count": 0,
+      "name_inferred": 0,
+      "description": 0
+    },
+    "experiment_analysis": {
+      "count": 0,
+      "name_inferred": 0,
+      "description": 0
+    },
+    "model_deployment": {
+      "count": 0,
+      "name_inferred": 0,
+      "description": 0
+    }
+  },
+  "broad_ai": [
+    [
+      "인공지능개론",
+      1.0
+    ],
+    [
+      "컴퓨터비전",
+      0.5
+    ],
+    [
+      "강화학습",
+      0.5
+    ],
+    [
+      "자연어처리",
+      0.5
+    ],
+    [
+      "기계학습",
+      0.5
+    ]
+  ],
+  "broad_programming": [
+    [
+      "프로그래밍입문(1)",
+      1.0
+    ],
+    [
+      "프로그래밍입문(2)",
+      1.0
+    ],
+    [
+      "객체지향프로그래밍언어",
+      0.5
+    ],
+    [
+      "시스템프로그래밍",
+      0.5
+    ],
+    [
+      "임베디드소프트웨어",
+      0.5
+    ]
+  ],
+  "role_comparison": {
+    "None": {
+      "status": "ok",
+      "basis_version": "seoultech-experimental-v1",
+      "selection_review_status": "unconfirmed",
+      "goal_skills": [
+        {
+          "skill_id": "data_analysis",
+          "priority_weight": 1.0
+        }
+      ],
+      "courses": [
+        {
+          "course_id": "csv-row-019",
+          "rank": 1,
+          "score": 1.0
+        },
+        {
+          "course_id": "csv-row-066",
+          "rank": 2,
+          "score": 0.5
+        },
+        {
+          "course_id": "csv-row-068",
+          "rank": 3,
+          "score": 0.5
+        }
+      ]
+    },
+    "데이터 분석가": {
+      "status": "ok",
+      "basis_version": "seoultech-experimental-v1",
+      "selection_review_status": "unconfirmed",
+      "goal_skills": [
+        {
+          "skill_id": "data_analysis",
+          "priority_weight": 0.72
+        },
+        {
+          "skill_id": "statistics",
+          "priority_weight": 0.12
+        },
+        {
+          "skill_id": "databases",
+          "priority_weight": 0.08000000000000002
+        },
+        {
+          "skill_id": "programming",
+          "priority_weight": 0.08000000000000002
+        }
+      ],
+      "courses": [
+        {
+          "course_id": "csv-row-019",
+          "rank": 1,
+          "score": 0.78
+        },
+        {
+          "course_id": "csv-row-066",
+          "rank": 2,
+          "score": 0.36
+        },
+        {
+          "course_id": "csv-row-068",
+          "rank": 3,
+          "score": 0.36
+        },
+        {
+          "course_id": "csv-row-010",
+          "rank": 4,
+          "score": 0.12
+        },
+        {
+          "course_id": "csv-row-001",
+          "rank": 5,
+          "score": 0.08000000000000002
+        }
+      ]
+    }
+  },
+  "profile_order_stable": true,
+  "input_ids_order_stable": true
+}

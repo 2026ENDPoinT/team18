@@ -1,0 +1,106 @@
+{
+  "scope": "local process only; no target CPU/RAM limits imposed; process spawn to ready includes Python startup and excludes model download; a measurement, not a deployment guarantee",
+  "os": "macOS-26.7.2-arm64-arm-64bit",
+  "cpu": "Apple M4",
+  "logical_cpu_count": 10,
+  "cpu_quota": "not measured",
+  "physical_ram_bytes": 17179869184,
+  "ram_limit": "not configured",
+  "python": "3.12.12",
+  "packages": {
+    "numpy": "2.2.6",
+    "onnxruntime": "1.22.1",
+    "tokenizers": "0.21.2"
+  },
+  "model_revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+  "bundle_version": "seoultech-experimental-int8-v1",
+  "file_sha256": {
+    "encoder.onnx": "2e4b786ffaf10203aac703f1c768e66c24a30dce827d55c6f4a2fed1c63cc790",
+    "tokenizer.json": "cd98e5698b201ba914efb8c18b6709fa8735ab71dcad8d2b431e52e8bf68d932",
+    "skills.json": "58121fdf8bc8d3fce6a76dc32f14d0d593fe2f48d8d786889f593ede4261166f",
+    "roles.json": "7f8b20485ae68804d55a4e7dd871dd568b6a645087bea60e50136d84c5c1178b",
+    "course_profiles.json": "e7a6a3aa9d6a67e8d0e555a4bdc6f4325c195e3a4cf1e28ecebb2c8809205330",
+    "config.json": "5e06e39a968c4b689e51920e1ae3ec982ed30b028c40147c02a50c8db28a463e",
+    "lookup_vectors.npz": "455127aa2b6a195bf193e2bc7a8a82f4f75a0eb0b2805a8a3981a1626d363c77"
+  },
+  "model_bytes": 118149822,
+  "session_count": 1,
+  "onnx_threads": 1,
+  "cache": "none",
+  "process_spawn_to_ready_ms": 401.88662499713246,
+  "bundle_load_ms": 352.5710419926327,
+  "rss_after_load_bytes": 769097728,
+  "max_rss_bytes": 776519680,
+  "first_request": {
+    "total_ms": 14.041917005670257,
+    "queue_ms": 0.0002910092007368803,
+    "inference_ms": 5.11691698920913,
+    "status": "ok"
+  },
+  "warm_by_token_length": {
+    "short": {
+      "tokens": 12,
+      "n": 10,
+      "p50_ms": 4.648250003810972,
+      "p95_ms": 5.667082994477823
+    },
+    "medium": {
+      "tokens": 23,
+      "n": 10,
+      "p50_ms": 8.253916006651707,
+      "p95_ms": 8.445665996987373
+    },
+    "long": {
+      "tokens": 204,
+      "n": 10,
+      "p50_ms": 73.45716599957086,
+      "p95_ms": 74.16679098969325
+    }
+  },
+  "concurrency": {
+    "1": {
+      "n": 10,
+      "queue_p50_ms": 0.00016600824892520905,
+      "queue_p95_ms": 0.0005830079317092896,
+      "inference_p50_ms": 7.441875000949949,
+      "inference_p95_ms": 7.558375000371598,
+      "total_p50_ms": 8.175084003596567,
+      "total_p95_ms": 8.302916990942322,
+      "errors": 0,
+      "timeouts": "not configured"
+    },
+    "2": {
+      "n": 20,
+      "queue_p50_ms": 7.521750012529083,
+      "queue_p95_ms": 7.799707993399352,
+      "inference_p50_ms": 7.352125001489185,
+      "inference_p95_ms": 7.622917008120567,
+      "total_p50_ms": 15.566165995551273,
+      "total_p95_ms": 15.868624992435798,
+      "errors": 0,
+      "timeouts": "not configured"
+    },
+    "4": {
+      "n": 40,
+      "queue_p50_ms": 15.164665994234383,
+      "queue_p95_ms": 23.122457991121337,
+      "inference_p50_ms": 7.448583986843005,
+      "inference_p95_ms": 7.587542000692338,
+      "total_p50_ms": 23.247499993885867,
+      "total_p95_ms": 31.3396669953363,
+      "errors": 0,
+      "timeouts": "not configured"
+    },
+    "8": {
+      "n": 80,
+      "queue_p50_ms": 30.69708299881313,
+      "queue_p95_ms": 54.24641699937638,
+      "inference_p50_ms": 7.498249993659556,
+      "inference_p95_ms": 7.789583993144333,
+      "total_p50_ms": 38.84837499936111,
+      "total_p95_ms": 62.31687500257976,
+      "errors": 0,
+      "timeouts": "not configured"
+    }
+  }
+}

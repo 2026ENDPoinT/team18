@@ -1,0 +1,260 @@
+{
+  "semantic": {
+    "count": 100,
+    "statuses": {
+      "ok": 57,
+      "no_match": 43
+    },
+    "by_type": {
+      "positive": {
+        "ok": 20
+      },
+      "indirect": {
+        "no_match": 18,
+        "ok": 2
+      },
+      "negative": {
+        "ok": 14,
+        "no_match": 6
+      },
+      "comparison": {
+        "ok": 9,
+        "no_match": 3
+      },
+      "complex": {
+        "ok": 8
+      },
+      "ambiguous": {
+        "ok": 4,
+        "no_match": 8
+      },
+      "out_of_scope": {
+        "no_match": 8
+      }
+    },
+    "reviewed": 0,
+    "unreviewed": 100,
+    "review_counts_by_type": {
+      "ambiguous": {
+        "total": 12,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "comparison": {
+        "total": 12,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "complex": {
+        "total": 8,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "indirect": {
+        "total": 20,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "negative": {
+        "total": 20,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "out_of_scope": {
+        "total": 8,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "positive": {
+        "total": 20,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      }
+    },
+    "metrics": {
+      "skill_precision_macro": null,
+      "skill_recall_macro": null,
+      "returned_course_relevance": null,
+      "ndcg_at_5": null,
+      "mean_returned_course_count_reviewed": null,
+      "explicit_exclusion_violation_rate": null,
+      "excluded_course_tag_incidence": null,
+      "supported_return_rate": null,
+      "out_of_scope_recommendation_rate": null,
+      "complex_goal_skill_coverage": null
+    },
+    "metric_note": "null = no reviewed eligible labels; draft labels are excluded. Keyword has no predicted skill labels. Unlisted courses in supplied relevance JSON are graded zero; excluded course tag incidence is a proxy, not a verified semantic violation."
+  },
+  "keyword": {
+    "count": 100,
+    "statuses": {
+      "no_match": 78,
+      "ok": 22
+    },
+    "by_type": {
+      "positive": {
+        "no_match": 12,
+        "ok": 8
+      },
+      "indirect": {
+        "no_match": 20
+      },
+      "negative": {
+        "no_match": 13,
+        "ok": 7
+      },
+      "comparison": {
+        "no_match": 9,
+        "ok": 3
+      },
+      "complex": {
+        "no_match": 4,
+        "ok": 4
+      },
+      "ambiguous": {
+        "no_match": 12
+      },
+      "out_of_scope": {
+        "no_match": 8
+      }
+    },
+    "reviewed": 0,
+    "unreviewed": 100,
+    "review_counts_by_type": {
+      "ambiguous": {
+        "total": 12,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "comparison": {
+        "total": 12,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "complex": {
+        "total": 8,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "indirect": {
+        "total": 20,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "negative": {
+        "total": 20,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "out_of_scope": {
+        "total": 8,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "positive": {
+        "total": 20,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      }
+    },
+    "metrics": {
+      "skill_precision_macro": null,
+      "skill_recall_macro": null,
+      "returned_course_relevance": null,
+      "ndcg_at_5": null,
+      "mean_returned_course_count_reviewed": null,
+      "explicit_exclusion_violation_rate": null,
+      "excluded_course_tag_incidence": null,
+      "supported_return_rate": null,
+      "out_of_scope_recommendation_rate": null,
+      "complex_goal_skill_coverage": null
+    },
+    "metric_note": "null = no reviewed eligible labels; draft labels are excluded. Keyword has no predicted skill labels. Unlisted courses in supplied relevance JSON are graded zero; excluded course tag incidence is a proxy, not a verified semantic violation."
+  },
+  "alias": {
+    "count": 100,
+    "statuses": {
+      "no_match": 49,
+      "ok": 51
+    },
+    "by_type": {
+      "positive": {
+        "no_match": 4,
+        "ok": 16
+      },
+      "indirect": {
+        "no_match": 20
+      },
+      "negative": {
+        "ok": 14,
+        "no_match": 6
+      },
+      "comparison": {
+        "ok": 9,
+        "no_match": 3
+      },
+      "complex": {
+        "ok": 8
+      },
+      "ambiguous": {
+        "ok": 4,
+        "no_match": 8
+      },
+      "out_of_scope": {
+        "no_match": 8
+      }
+    },
+    "reviewed": 0,
+    "unreviewed": 100,
+    "review_counts_by_type": {
+      "ambiguous": {
+        "total": 12,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "comparison": {
+        "total": 12,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "complex": {
+        "total": 8,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "indirect": {
+        "total": 20,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "negative": {
+        "total": 20,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "out_of_scope": {
+        "total": 8,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      },
+      "positive": {
+        "total": 20,
+        "reviewed": 0,
+        "reviewed_defer": 0
+      }
+    },
+    "metrics": {
+      "skill_precision_macro": null,
+      "skill_recall_macro": null,
+      "returned_course_relevance": null,
+      "ndcg_at_5": null,
+      "mean_returned_course_count_reviewed": null,
+      "explicit_exclusion_violation_rate": null,
+      "excluded_course_tag_incidence": null,
+      "supported_return_rate": null,
+      "out_of_scope_recommendation_rate": null,
+      "complex_goal_skill_coverage": null
+    },
+    "metric_note": "null = no reviewed eligible labels; draft labels are excluded. Keyword has no predicted skill labels. Unlisted courses in supplied relevance JSON are graded zero; excluded course tag incidence is a proxy, not a verified semantic violation."
+  }
+}
