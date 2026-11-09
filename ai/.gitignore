@@ -3,7 +3,9 @@
 __pycache__/
 *.pyc
 deps/
-models/
+models/*
+!models/ocr-detector/
+!models/ocr-v2/
 storage/
 local/data/
 *.safetensors
@@ -11,3 +13,5 @@ local/data/
 *.pt
 *.pth
 *.gguf
+!models/ocr-detector/*.safetensors
+!models/ocr-v2/*.safetensors
