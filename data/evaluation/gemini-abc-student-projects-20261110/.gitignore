@@ -1,0 +1,9 @@
+# Share the consolidated experiment results only.
+# Detailed per-request and per-page artifacts remain local.
+/*
+!/.gitignore
+!/REPORT.md
+!/scores.csv
+!/summary.json
+!/outputs.jsonl
+!/verification.json
