@@ -1,0 +1,17 @@
+{
+  "project_id": "p09",
+  "technology": [],
+  "roles": [],
+  "metrics": [
+    {
+      "id": "metric_main",
+      "name": "초당 채점 처리량",
+      "before": "12",
+      "after": "31",
+      "unit": "건/s",
+      "direction": "증가",
+      "statement": "초당 채점 처리량 12건/s → 31건/s"
+    }
+  ],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

@@ -1,0 +1,104 @@
+{
+  "id": "p12_slide_compare",
+  "project_id": "p12",
+  "original_id": "p12",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_compare",
+  "format": "slide",
+  "facts": "key_facts/p12_slide_compare.json",
+  "image": "images/p12_slide_compare.png",
+  "ground_truth": "ground_truth/p12_slide_compare.txt",
+  "reading_order": "ground_truth/p12_slide_compare.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#4d5461",
+  "image_sha256": "28b7963a8941a50b4f724681ede355924c94749302347051da53f4adb5392b88",
+  "ground_truth_sha256": "b61e51efad2189ee040b982094c329ff2180fbe82e1fe0aacd3b31b6279de962",
+  "facts_sha256": "549610ab52c5f29cc8640b6c5480daea1ff962e4c9cb09ff35ae20263b20e493",
+  "reading_order_sha256": "72d04e19085b71ab77d93913e9a8bdcee60085bac1586816534c1e98d2b29703",
+  "status": "success",
+  "seconds": 1.6111797080002361,
+  "error": null,
+  "prediction": "predictions/p12_slide_compare.txt",
+  "prediction_sha256": "3305aa4eaf625b3079b3430b0d92def815dd51c627826fac3296b10690690b37",
+  "raw_return": [
+    [
+      1,
+      "자전거 통행 관찰기 / 역할 분담\nOpenCV, C++, ONNX Runtime\n팀 전체 구현\n내가 맡은 역할\n객체 탐지 모델과 집계 기준을 개발했다\n추론 실행부와 프레임 큐를 최적화했다\n속도 실험은 모델 정확도가 좋아졌다는 근거로\n담당자: 배지호\n사용하지 않았다.\n구현 범위는 위 항목으로 구분했다.\n2026 캡스톤 디자인 4인 팀 역할 분담 기록"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 199,
+    "prediction_characters": 195,
+    "insertions": 20,
+    "deletions": 24,
+    "substitutions": 31,
+    "errors": 75,
+    "cer": 0.3768844221105528,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 148,
+    "prediction_characters": 146,
+    "insertions": 29,
+    "deletions": 31,
+    "substitutions": 0,
+    "errors": 60,
+    "cer": 0.40540540540540543,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "OpenCV",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "OpenCV",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "C++",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "C++",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "ONNX Runtime",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "ONNX Runtime",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "객체 탐지 모델과 집계 기준",
+      "statement": "팀은 객체 탐지 모델과 집계 기준을 개발했다.",
+      "presentation": "heading_scope",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "자전거 통행 관찰기 / 역할 분담\nOpenCV, C++, ONNX Runtime\n팀 전체 구현\n내가 맡은 역할\n객체 탐지 모델과 집계 기준을 개발했다\n추론 실행부와 프레임 큐를 최적화했다\n속도 실험은 모델 정확도가 좋아졌다는 근거로\n담당자: 배",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "추론 실행부와 프레임 큐",
+      "statement": "나는 추론 실행부와 프레임 큐를 최적화했다.",
+      "presentation": "heading_scope",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "자전거 통행 관찰기 / 역할 분담\nOpenCV, C++, ONNX Runtime\n팀 전체 구현\n내가 맡은 역할\n객체 탐지 모델과 집계 기준을 개발했다\n추론 실행부와 프레임 큐를 최적화했다\n속도 실험은 모델 정확도가 좋아졌다는 근거로\n담당자: 배지호\n사용하지 않았다.\n구현 범위는",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    }
+  ]
+}

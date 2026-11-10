@@ -1,0 +1,10 @@
+{
+  "all_passed": true,
+  "csv_and_json_pages": 36,
+  "tracked_files_unchanged": true,
+  "head": "5800efe79effc5a1b2e7a7b9f2a9a7b66e9adbe6",
+  "git_status": "?? data/evaluation/ocr-v2-student-projects-20261110/\n",
+  "ocr_runs": 1,
+  "originals_frozen_and_retained": true,
+  "audited_scores_labelled_post_inference": true
+}

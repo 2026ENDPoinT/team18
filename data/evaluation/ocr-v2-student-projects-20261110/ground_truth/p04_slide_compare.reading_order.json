@@ -1,0 +1,147 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "page title and technology",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "left heading then left content",
+      "line_start": 3,
+      "line_end": 6
+    },
+    {
+      "name": "right heading then right content",
+      "line_start": 7,
+      "line_end": 11
+    },
+    {
+      "name": "footer",
+      "line_start": 12,
+      "line_end": 12
+    }
+  ],
+  "lines": [
+    {
+      "text": "연구실 공기 알리미 / 역할 분담",
+      "bbox": [
+        75,
+        57,
+        770,
+        107
+      ],
+      "font_size_px": 53
+    },
+    {
+      "text": "C++, MQTT, ESP32",
+      "bbox": [
+        78,
+        142,
+        343,
+        169
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "팀 전체 구현",
+      "bbox": [
+        85,
+        231,
+        304,
+        271
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "센서 회로와 모니터링 화면을 제작했다",
+      "bbox": [
+        85,
+        333,
+        685,
+        368
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "환기 알림은 측정치가 연속으로 기준을 넘을 때만",
+      "bbox": [
+        85,
+        520,
+        693,
+        550
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "켜진다.",
+      "bbox": [
+        85,
+        566,
+        178,
+        596
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "내가 맡은 역할",
+      "bbox": [
+        875,
+        231,
+        1133,
+        271
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "재연결 버퍼와 메시지 재전송을",
+      "bbox": [
+        875,
+        333,
+        1360,
+        368
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "구현했다",
+      "bbox": [
+        875,
+        390,
+        1015,
+        425
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "담당자: 최지우",
+      "bbox": [
+        875,
+        520,
+        1060,
+        550
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "구현 범위는 위 항목으로 구분했다.",
+      "bbox": [
+        875,
+        600,
+        1308,
+        630
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "2026 캡스톤 · 3인 팀 · 역할 분담 기록",
+      "bbox": [
+        80,
+        820,
+        478,
+        844
+      ],
+      "font_size_px": 24
+    }
+  ]
+}

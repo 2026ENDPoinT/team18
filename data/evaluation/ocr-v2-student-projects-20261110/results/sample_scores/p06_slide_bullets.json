@@ -1,0 +1,118 @@
+{
+  "id": "p06_slide_bullets",
+  "project_id": "p06",
+  "original_id": "p06",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_bullets",
+  "format": "slide",
+  "facts": "key_facts/p06_slide_bullets.json",
+  "image": "images/p06_slide_bullets.png",
+  "ground_truth": "ground_truth/p06_slide_bullets.txt",
+  "reading_order": "ground_truth/p06_slide_bullets.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#4d5461",
+  "image_sha256": "e3ed311abe2c12ebb36f593eb15aeb2cc015c5a3631817838175ca309f7f9014",
+  "ground_truth_sha256": "1c31d2d8c6dd86a4303a06a380ef43600d8f93d096ac1ae31050629fffa94dfd",
+  "facts_sha256": "4132b57556ce0e6b249c7954b413ff1acf4932db9004a773086e52bc05ba3837",
+  "reading_order_sha256": "76fb455164b96d3431887b17c15a908d0c47536abb0e5c4df77cbada8590ca6e",
+  "status": "success",
+  "seconds": 1.6401688750001995,
+  "error": null,
+  "prediction": "predictions/p06_slide_bullets.txt",
+  "prediction_sha256": "701bf91c954869afdb218908a747e00b143660157384fd61a72b8f0604182834",
+  "raw_return": [
+    [
+      1,
+      "궤도 실험실\n교육용 게임 구현과 검증\n문제\n행성의 질량과 초기 속도를 바꾸며 궤도를 관찰하는 교육용 게임이다.\n기술\nC#, Unity, .NET\n팀 기여\n팀은 물리 규칙과 튜토리얼을 설계했다.\n본인 기여\n나는 오브젝트 풀과 프레임 계측기를 구현했다.\n결과\n평균 프레임 시간 38ms  21ms로 감소\n한시우 동일 노트북 물체 200개 장면을 60초 실행"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 203,
+    "prediction_characters": 197,
+    "insertions": 0,
+    "deletions": 6,
+    "substitutions": 0,
+    "errors": 6,
+    "cer": 0.029556650246305417,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 151,
+    "prediction_characters": 147,
+    "insertions": 0,
+    "deletions": 4,
+    "substitutions": 0,
+    "errors": 4,
+    "cer": 0.026490066225165563,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "C#",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "C#",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "Unity",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Unity",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": ".NET",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": ".NET",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "물리 규칙과 튜토리얼",
+      "statement": "팀은 물리 규칙과 튜토리얼을 설계했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "NET\n팀 기여\n팀은 물리 규칙과 튜토리얼을 설계했다.\n본인 기여\n나는",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "오브젝트 풀과 프레임 계측기",
+      "statement": "나는 오브젝트 풀과 프레임 계측기를 구현했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "본인 기여\n나는 오브젝트 풀과 프레임 계측기를 구현했다.\n결과\n평균 프레",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "평균 프레임 시간",
+      "before": "38",
+      "after": "21",
+      "unit": "ms",
+      "direction": "감소",
+      "statement": "평균 프레임 시간 38ms → 21ms",
+      "category": "metrics",
+      "parsed_relation": null,
+      "state": "indeterminate",
+      "evidence": "평균 프레임 시간 38ms  21ms로 감소\n한시우 동일 노트북 물체 200개 장면을 60초 실행",
+      "reason": "metric remains, but no complete directed tuple or labelled before/after pair"
+    }
+  ]
+}

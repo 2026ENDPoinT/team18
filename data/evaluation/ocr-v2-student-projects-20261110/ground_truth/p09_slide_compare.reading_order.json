@@ -1,0 +1,137 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "page title and technology",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "left heading then left content",
+      "line_start": 3,
+      "line_end": 6
+    },
+    {
+      "name": "right heading then right content",
+      "line_start": 7,
+      "line_end": 10
+    },
+    {
+      "name": "footer",
+      "line_start": 11,
+      "line_end": 11
+    }
+  ],
+  "lines": [
+    {
+      "text": "격리된 코드 채점기 / 역할 분담",
+      "bbox": [
+        75,
+        53,
+        773,
+        105
+      ],
+      "font_size_px": 53
+    },
+    {
+      "text": "Rust, Docker, Linux",
+      "bbox": [
+        78,
+        139,
+        345,
+        167
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "팀 전체 구현",
+      "bbox": [
+        85,
+        228,
+        307,
+        269
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "채점 규칙과 제출 웹을 구성했다",
+      "bbox": [
+        85,
+        331,
+        580,
+        367
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "컴파일 실패와 실행 시간 초과를 서로 다른",
+      "bbox": [
+        85,
+        518,
+        626,
+        548
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "결과로 반환한다.",
+      "bbox": [
+        85,
+        564,
+        304,
+        594
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "내가 맡은 역할",
+      "bbox": [
+        875,
+        228,
+        1137,
+        270
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "격리 실행기와 시간 제한을 구현했다",
+      "bbox": [
+        875,
+        331,
+        1440,
+        367
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "담당자: 임예린",
+      "bbox": [
+        875,
+        519,
+        1069,
+        548
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "구현 범위는 위 항목으로 구분했다.",
+      "bbox": [
+        875,
+        598,
+        1321,
+        628
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "2026 시스템 설계 · 4인 팀 · 역할 분담 기록",
+      "bbox": [
+        80,
+        819,
+        521,
+        843
+      ],
+      "font_size_px": 24
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "id": "p07_slide_results",
+  "project_id": "p07",
+  "original_id": "p07",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_results",
+  "format": "slide",
+  "facts": "key_facts/p07_slide_results.json",
+  "image": "images/p07_slide_results.png",
+  "ground_truth": "ground_truth/p07_slide_results.txt",
+  "reading_order": "ground_truth/p07_slide_results.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#165b70",
+  "image_sha256": "aac7b898c9ea554f6432035d20e596305f5aeb231a56073752baaf14c28d249d",
+  "ground_truth_sha256": "c9078992a3fc31a9109ded6e2c743488ba98be86943aaad9036ed4370b7a89a1",
+  "facts_sha256": "ef2cba1d7f81d6d2cd745f065c8202867ad1344d5990dbde3d176acadef756aa",
+  "reading_order_sha256": "878e7a43c050b79e4f98bbf4e6a7f5956931b192682abbe5787a17d2e81bfaef",
+  "status": "success",
+  "seconds": 1.7085267500006012,
+  "error": null,
+  "prediction": "predictions/p07_slide_results.txt",
+  "prediction_sha256": "061f63d114bf46271ece291ee07cc3d085e4ff2eeeb22f1be10ffc8885f7e526",
+  "raw_return": [
+    [
+      1,
+      "도서관 자리 신호 / 결과\n시험 조건과 관찰 결과\n테스트 기록\n좌석 조회 중앙값 680ms →\n240ms\n좌석 조회 중앙값\n감소한 결과를 확인했다.\n개선 전\n680ms\n측정 조건: 동일 요청 목록 1,000회 재생\n개선 후\n240ms\n실제 출입 센서 연결과 시험 기간 운영은 아직\n하지 않았다.\n상태: 비교 완료\n합성 앱 화면 표시된 시험값만 비교\n윤수빈 합성 실험 결과"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 211,
+    "prediction_characters": 207,
+    "insertions": 52,
+    "deletions": 56,
+    "substitutions": 1,
+    "errors": 109,
+    "cer": 0.5165876777251185,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 151,
+    "prediction_characters": 149,
+    "insertions": 37,
+    "deletions": 39,
+    "substitutions": 1,
+    "errors": 77,
+    "cer": 0.5099337748344371,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "metric_main",
+      "name": "좌석 조회 중앙값",
+      "before": "680",
+      "after": "240",
+      "unit": "ms",
+      "direction": "감소",
+      "statement": "좌석 조회 중앙값 680ms → 240ms",
+      "category": "metrics",
+      "state": "preserved",
+      "parsed_relation": {
+        "metric": "좌석 조회 중앙값",
+        "before": "680",
+        "after": "240",
+        "before_unit": "ms",
+        "after_unit": "ms",
+        "connector": "directed_arrow",
+        "direction_word": null
+      },
+      "evidence": "좌석 조회 중앙값 680ms →\n240ms",
+      "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+    }
+  ]
+}

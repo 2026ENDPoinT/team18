@@ -1,0 +1,47 @@
+{
+  "project_id": "p07",
+  "technology": [
+    {
+      "id": "tech_1",
+      "name": "React"
+    },
+    {
+      "id": "tech_2",
+      "name": "Spring Boot"
+    },
+    {
+      "id": "tech_3",
+      "name": "Redis"
+    }
+  ],
+  "roles": [
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "혼잡도 집계 서버와 화면",
+      "statement": "팀은 혼잡도 집계 서버와 화면을 개발했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "조회 캐시와 만료 정책",
+      "statement": "나는 조회 캐시와 만료 정책을 설계했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "metric_main",
+      "name": "좌석 조회 중앙값",
+      "before": "680",
+      "after": "240",
+      "unit": "ms",
+      "direction": "감소",
+      "statement": "좌석 조회 중앙값 680ms → 240ms"
+    }
+  ],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

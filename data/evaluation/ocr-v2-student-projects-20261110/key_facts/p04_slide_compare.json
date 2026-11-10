@@ -1,0 +1,37 @@
+{
+  "project_id": "p04",
+  "technology": [
+    {
+      "id": "tech_1",
+      "name": "C++"
+    },
+    {
+      "id": "tech_2",
+      "name": "MQTT"
+    },
+    {
+      "id": "tech_3",
+      "name": "ESP32"
+    }
+  ],
+  "roles": [
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "센서 회로와 모니터링 화면",
+      "statement": "팀은 센서 회로와 모니터링 화면을 제작했다.",
+      "presentation": "heading_scope",
+      "header": "팀 전체 구현"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "재연결 버퍼와 메시지 재전송",
+      "statement": "나는 재연결 버퍼와 메시지 재전송을 구현했다.",
+      "presentation": "heading_scope",
+      "header": "내가 맡은 역할"
+    }
+  ],
+  "metrics": [],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

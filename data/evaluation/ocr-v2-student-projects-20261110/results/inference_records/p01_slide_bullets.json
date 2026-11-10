@@ -1,0 +1,14 @@
+{
+  "id": "p01_slide_bullets",
+  "status": "success",
+  "seconds": 1.5012187500005894,
+  "error": null,
+  "prediction": "predictions/p01_slide_bullets.txt",
+  "prediction_sha256": "a035145e11bbc39f70f3abab18883baf93163200bd31074a5d6f8cff1f60d002",
+  "raw_return": [
+    [
+      1,
+      "모여라 동아리방\n웹 서비스 구현과 검증\n• 동아리방 예약이 단체 채팅에 흩어져 같은 시간에 두 팀이 찾아오는 일이 있었다.\n· Next.js, TypeScript, PostgreSQL\n• 팀은 예약 화면과 관리자 승인 기능을 개발했다.\n· 나는 중복 예약 차단 API와 트랜잭션 처리를 구현했다.\n• 예약 API p95 420ms  180ms로 감소\n김도윤 동시 요청 50건 같은 로컬 서버에서 측정"
+    ]
+  ]
+}

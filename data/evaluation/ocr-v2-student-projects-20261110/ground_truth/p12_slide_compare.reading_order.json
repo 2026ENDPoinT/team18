@@ -1,0 +1,137 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "page title and technology",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "left heading then left content",
+      "line_start": 3,
+      "line_end": 6
+    },
+    {
+      "name": "right heading then right content",
+      "line_start": 7,
+      "line_end": 10
+    },
+    {
+      "name": "footer",
+      "line_start": 11,
+      "line_end": 11
+    }
+  ],
+  "lines": [
+    {
+      "text": "자전거 통행 관찰기 / 역할 분담",
+      "bbox": [
+        75,
+        56,
+        770,
+        107
+      ],
+      "font_size_px": 53
+    },
+    {
+      "text": "OpenCV, C++, ONNX Runtime",
+      "bbox": [
+        78,
+        142,
+        500,
+        170
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "팀 전체 구현",
+      "bbox": [
+        85,
+        231,
+        304,
+        271
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "객체 탐지 모델과 집계 기준을 개발했다",
+      "bbox": [
+        85,
+        333,
+        695,
+        368
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "속도 실험은 모델 정확도가 좋아졌다는 근거로",
+      "bbox": [
+        85,
+        520,
+        657,
+        550
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "사용하지 않았다.",
+      "bbox": [
+        85,
+        566,
+        298,
+        596
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "내가 맡은 역할",
+      "bbox": [
+        875,
+        231,
+        1133,
+        271
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "추론 실행부와 프레임 큐를 최적화했다",
+      "bbox": [
+        875,
+        333,
+        1475,
+        368
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "담당자: 배지호",
+      "bbox": [
+        875,
+        520,
+        1060,
+        549
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "구현 범위는 위 항목으로 구분했다.",
+      "bbox": [
+        875,
+        600,
+        1308,
+        630
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "2026 캡스톤 디자인 · 4인 팀 · 역할 분담 기록",
+      "bbox": [
+        80,
+        820,
+        554,
+        844
+      ],
+      "font_size_px": 24
+    }
+  ]
+}

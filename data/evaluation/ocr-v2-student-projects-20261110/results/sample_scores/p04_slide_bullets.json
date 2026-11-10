@@ -1,0 +1,118 @@
+{
+  "id": "p04_slide_bullets",
+  "project_id": "p04",
+  "original_id": "p04",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_bullets",
+  "format": "slide",
+  "facts": "key_facts/p04_slide_bullets.json",
+  "image": "images/p04_slide_bullets.png",
+  "ground_truth": "ground_truth/p04_slide_bullets.txt",
+  "reading_order": "ground_truth/p04_slide_bullets.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#386352",
+  "image_sha256": "1a5d14e3233c3ab52abf7b0c6b77f84a479fbe0dd0d68a75196750ebfa2b0968",
+  "ground_truth_sha256": "c6ca72200a41494d8557106514d695c2822bf3dc14f32ecfe81847dff02484ea",
+  "facts_sha256": "ff8c58581add551499add16dc2a1c80fe312a95b0be5b744b01a997ccaacb08d",
+  "reading_order_sha256": "10eeded6428c0bbfa2e4c4f96b055fd6020a03e35a1ccb932d6405122e13cc42",
+  "status": "success",
+  "seconds": 1.648976457999197,
+  "error": null,
+  "prediction": "predictions/p04_slide_bullets.txt",
+  "prediction_sha256": "5336a42e312b552be3a10e7f054c79da53d522c767f0cf3f69556b5b12b95bf1",
+  "raw_return": [
+    [
+      1,
+      "연구실 공기 알리미\n임베디드 시스템  구현과 검증\n문제\n창문이 없는 실습실에서 환기 시점을 놓치지 않도록 센서 값을 모았다.\n기술\nC++, MQTT, ESP32\n팀 기여\n팀은 센서 회로와 모니터링 화면을 제작했다.\n본인 기여\n나는 재연결 버퍼와 메시지 재전송을 구현했다.\n결과\n패킷 손실률 3.2%  0.8%로 감소\n최지우 연결 중단을 포함한 메시지 5,000개"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 206,
+    "prediction_characters": 202,
+    "insertions": 0,
+    "deletions": 4,
+    "substitutions": 0,
+    "errors": 4,
+    "cer": 0.019417475728155338,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 154,
+    "prediction_characters": 151,
+    "insertions": 0,
+    "deletions": 3,
+    "substitutions": 0,
+    "errors": 3,
+    "cer": 0.01948051948051948,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "C++",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "C++",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "MQTT",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "MQTT",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "ESP32",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "ESP32",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "센서 회로와 모니터링 화면",
+      "statement": "팀은 센서 회로와 모니터링 화면을 제작했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "기술\nC++, MQTT, ESP32\n팀 기여\n팀은 센서 회로와 모니터링 화면을 제작했다.\n본인 기여\n나는",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "재연결 버퍼와 메시지 재전송",
+      "statement": "나는 재연결 버퍼와 메시지 재전송을 구현했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "본인 기여\n나는 재연결 버퍼와 메시지 재전송을 구현했다.\n결과\n패킷 손실",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "패킷 손실률",
+      "before": "3.2",
+      "after": "0.8",
+      "unit": "%",
+      "direction": "감소",
+      "statement": "패킷 손실률 3.2% → 0.8%",
+      "category": "metrics",
+      "parsed_relation": null,
+      "state": "indeterminate",
+      "evidence": "패킷 손실률 3.2%  0.8%로 감소\n최지우 연결 중단을 포함한 메시지 5,000개",
+      "reason": "metric remains, but no complete directed tuple or labelled before/after pair"
+    }
+  ]
+}

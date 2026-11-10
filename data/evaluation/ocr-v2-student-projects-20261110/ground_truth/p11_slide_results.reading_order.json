@@ -1,0 +1,167 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "title",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "left chart or synthetic screen: title then before label/value then after label/value then caption",
+      "line_start": 3,
+      "line_end": 8
+    },
+    {
+      "name": "right explanatory text top to bottom",
+      "line_start": 9,
+      "line_end": 13
+    },
+    {
+      "name": "footer",
+      "line_start": 14,
+      "line_end": 14
+    }
+  ],
+  "lines": [
+    {
+      "text": "강의 문장 찾기 / 결과",
+      "bbox": [
+        75,
+        56,
+        563,
+        107
+      ],
+      "font_size_px": 54
+    },
+    {
+      "text": "시험 조건과 관찰 결과",
+      "bbox": [
+        78,
+        140,
+        354,
+        169
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "검색 Recall@5",
+      "bbox": [
+        95,
+        236,
+        296,
+        267
+      ],
+      "font_size_px": 32
+    },
+    {
+      "text": "개선 전",
+      "bbox": [
+        95,
+        350,
+        181,
+        377
+      ],
+      "font_size_px": 28
+    },
+    {
+      "text": "61%",
+      "bbox": [
+        530.6024096385543,
+        362,
+        598.6024096385543,
+        385
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "개선 후",
+      "bbox": [
+        95,
+        530,
+        181,
+        557
+      ],
+      "font_size_px": 28
+    },
+    {
+      "text": "83%",
+      "bbox": [
+        630.0,
+        542,
+        698.0,
+        566
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "막대 길이는 같은 척도로 표시",
+      "bbox": [
+        95,
+        728,
+        383,
+        750
+      ],
+      "font_size_px": 23
+    },
+    {
+      "text": "검색 Recall@5 61% → 83%",
+      "bbox": [
+        930,
+        241,
+        1414,
+        277
+      ],
+      "font_size_px": 38
+    },
+    {
+      "text": "증가한 결과를 확인했다.",
+      "bbox": [
+        930,
+        327,
+        1280,
+        360
+      ],
+      "font_size_px": 34
+    },
+    {
+      "text": "측정 조건: 고정 질의 60개와 수동 관련성 목록",
+      "bbox": [
+        930,
+        406,
+        1507,
+        436
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "질의 수가 작아서 낯선 전공 용어에 대한 추가",
+      "bbox": [
+        930,
+        480,
+        1472,
+        509
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "평가가 필요하다.",
+      "bbox": [
+        930,
+        524,
+        1136,
+        553
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "오채원 · 합성 실험 결과",
+      "bbox": [
+        80,
+        831,
+        309,
+        853
+      ],
+      "font_size_px": 23
+    }
+  ]
+}

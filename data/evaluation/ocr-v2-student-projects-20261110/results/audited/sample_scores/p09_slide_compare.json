@@ -1,0 +1,104 @@
+{
+  "id": "p09_slide_compare",
+  "project_id": "p09",
+  "original_id": "p09",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_compare",
+  "format": "slide",
+  "facts": "key_facts/p09_slide_compare.json",
+  "image": "images/p09_slide_compare.png",
+  "ground_truth": "ground_truth/p09_slide_compare.txt",
+  "reading_order": "ground_truth/p09_slide_compare.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#755235",
+  "image_sha256": "7553e401561ac9539e1239962a2cf1c186372474b11ba15b425781e8805d86e6",
+  "ground_truth_sha256": "f206466e732d6cc1e24d57e8cecdd638aa13568199b3e30aa71db43d1a5e069c",
+  "facts_sha256": "a80af428bda8c37db87a8f12c99559d8fd575f3a65b68c2a2ff39af3005fb6d8",
+  "reading_order_sha256": "70c76a5583f51e1d6d81c69ead008e7089934606b41d0650b621eb132c21d707",
+  "status": "success",
+  "seconds": 1.5618755420000525,
+  "error": null,
+  "prediction": "predictions/p09_slide_compare.txt",
+  "prediction_sha256": "50d5f13e96cd254799f0fab8811f18962755a02b01ed75967c576558a117deb7",
+  "raw_return": [
+    [
+      1,
+      "격리된 코드 채점기 / 역할 분담\nRust, Docker, Linux\n팀 전체 구현\n내가 맡은 역할\n채점 규칙과 제출 웹을 구성했다\n격리 실행기와 시간 제한을 구현했다\n컴파일 실패와 실행 시간 조과를 서로 다른\n담당자: 임예린\n결과로 반환한다.\n구현 범위는 위 항목으로 구분했다.\n2026 시스템 설계 · 4인 팀 · 역할 분담 기록"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 186,
+    "prediction_characters": 186,
+    "insertions": 21,
+    "deletions": 21,
+    "substitutions": 21,
+    "errors": 63,
+    "cer": 0.3387096774193548,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 136,
+    "prediction_characters": 136,
+    "insertions": 14,
+    "deletions": 14,
+    "substitutions": 24,
+    "errors": 52,
+    "cer": 0.38235294117647056,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Rust",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Rust",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "Docker",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Docker",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "Linux",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Linux",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "채점 규칙과 제출 웹",
+      "statement": "팀은 채점 규칙과 제출 웹을 구성했다.",
+      "presentation": "heading_scope",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "격리된 코드 채점기 / 역할 분담\nRust, Docker, Linux\n팀 전체 구현\n내가 맡은 역할\n채점 규칙과 제출 웹을 구성했다\n격리 실행기와 시간 제한을 구현했다\n컴파일 실패와 실행 시간 조과를 서로 다른\n담당자: 임예린\n결",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "격리 실행기와 시간 제한",
+      "statement": "나는 격리 실행기와 시간 제한을 구현했다.",
+      "presentation": "heading_scope",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "격리된 코드 채점기 / 역할 분담\nRust, Docker, Linux\n팀 전체 구현\n내가 맡은 역할\n채점 규칙과 제출 웹을 구성했다\n격리 실행기와 시간 제한을 구현했다\n컴파일 실패와 실행 시간 조과를 서로 다른\n담당자: 임예린\n결과로 반환한다.\n구현 범위는 위 항목",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    }
+  ]
+}

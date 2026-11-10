@@ -1,0 +1,14 @@
+{
+  "id": "p05_slide_bullets",
+  "status": "success",
+  "seconds": 1.4937572919998274,
+  "error": null,
+  "prediction": "predictions/p05_slide_bullets.txt",
+  "prediction_sha256": "a5320c66b81e6b5bf17f544c81952eee1be73a2e6723eb738df6c984c69336fc",
+  "raw_return": [
+    [
+      1,
+      "손짓 한 단어\nAI 비전 구현과 검증\n• 고정된 단어 집합에서 손동작을 분류하는 학습 보조 도구를 제작했다.\n· PyTorch, OpenCV, FastAPI\n• 팀은 손동작 분류 모델을 학습했다.\n· 나는 영상 전처리와 추론 API를 연결했다.\n• 수어 분류 정확도 82.1%  90.4%로 증가\n정민서 ·참여자 분리 평가, 고정 단어 12개"
+    ]
+  ]
+}

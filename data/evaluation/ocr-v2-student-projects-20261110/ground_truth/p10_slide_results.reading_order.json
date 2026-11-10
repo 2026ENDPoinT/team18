@@ -1,0 +1,197 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "title",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "left chart or synthetic screen: title then before label/value then after label/value then caption",
+      "line_start": 3,
+      "line_end": 10
+    },
+    {
+      "name": "right explanatory text top to bottom",
+      "line_start": 11,
+      "line_end": 16
+    },
+    {
+      "name": "footer",
+      "line_start": 17,
+      "line_end": 17
+    }
+  ],
+  "lines": [
+    {
+      "text": "한 바퀴 산책 기록 / 결과",
+      "bbox": [
+        75,
+        52,
+        633,
+        105
+      ],
+      "font_size_px": 54
+    },
+    {
+      "text": "시험 조건과 관찰 결과",
+      "bbox": [
+        78,
+        138,
+        363,
+        168
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "테스트 기록",
+      "bbox": [
+        100,
+        238,
+        243,
+        266
+      ],
+      "font_size_px": 28
+    },
+    {
+      "text": "경로 평균 오차",
+      "bbox": [
+        105,
+        314,
+        304,
+        345
+      ],
+      "font_size_px": 32
+    },
+    {
+      "text": "개선 전",
+      "bbox": [
+        110,
+        397,
+        205,
+        426
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "24m",
+      "bbox": [
+        440,
+        400,
+        521,
+        433
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "개선 후",
+      "bbox": [
+        110,
+        504,
+        205,
+        533
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "9m",
+      "bbox": [
+        440,
+        508,
+        498,
+        540
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "상태: 비교 완료",
+      "bbox": [
+        108,
+        624,
+        289,
+        651
+      ],
+      "font_size_px": 27
+    },
+    {
+      "text": "합성 앱 화면 · 표시된 시험값만 비교",
+      "bbox": [
+        80,
+        734,
+        431,
+        757
+      ],
+      "font_size_px": 23
+    },
+    {
+      "text": "경로 평균 오차 24m → 9m",
+      "bbox": [
+        930,
+        239,
+        1356,
+        276
+      ],
+      "font_size_px": 38
+    },
+    {
+      "text": "감소한 결과를 확인했다.",
+      "bbox": [
+        930,
+        325,
+        1277,
+        359
+      ],
+      "font_size_px": 34
+    },
+    {
+      "text": "측정 조건: 운동장 기준 경로를 10회 걸어",
+      "bbox": [
+        930,
+        404,
+        1457,
+        434
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "비교",
+      "bbox": [
+        930,
+        451,
+        988,
+        480
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "고층 건물 사이와 실내에서는 위치 품질을",
+      "bbox": [
+        930,
+        525,
+        1446,
+        554
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "보장하지 않는다.",
+      "bbox": [
+        930,
+        569,
+        1142,
+        598
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "장우진 · 합성 실험 결과",
+      "bbox": [
+        80,
+        829,
+        309,
+        852
+      ],
+      "font_size_px": 23
+    }
+  ]
+}

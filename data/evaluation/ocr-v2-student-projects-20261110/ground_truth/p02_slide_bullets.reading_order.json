@@ -1,0 +1,147 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "title",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "bullets top to bottom",
+      "line_start": 3,
+      "line_end": 12
+    }
+  ],
+  "lines": [
+    {
+      "text": "길벗 캠퍼스",
+      "bbox": [
+        80,
+        53,
+        360,
+        107
+      ],
+      "font_size_px": 56
+    },
+    {
+      "text": "모바일 앱 · 구현과 검증",
+      "bbox": [
+        82,
+        136,
+        374,
+        165
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "문제",
+      "bbox": [
+        85,
+        234,
+        143,
+        264
+      ],
+      "font_size_px": 31
+    },
+    {
+      "text": "낯선 건물로 이동하는 신입생을 위해 경사와 계단 정보를 보여 주는 앱을 만들었다.",
+      "bbox": [
+        295,
+        233,
+        1504,
+        268
+      ],
+      "font_size_px": 35
+    },
+    {
+      "text": "기술",
+      "bbox": [
+        85,
+        310,
+        143,
+        340
+      ],
+      "font_size_px": 31
+    },
+    {
+      "text": "Flutter, Dart, SQLite",
+      "bbox": [
+        295,
+        311,
+        611,
+        345
+      ],
+      "font_size_px": 35
+    },
+    {
+      "text": "팀 기여",
+      "bbox": [
+        85,
+        386,
+        180,
+        416
+      ],
+      "font_size_px": 31
+    },
+    {
+      "text": "팀은 추천 모델을 개발했다.",
+      "bbox": [
+        295,
+        385,
+        698,
+        420
+      ],
+      "font_size_px": 35
+    },
+    {
+      "text": "본인 기여",
+      "bbox": [
+        85,
+        462,
+        209,
+        492
+      ],
+      "font_size_px": 31
+    },
+    {
+      "text": "나는 데이터 수집 API를 구현했다.",
+      "bbox": [
+        295,
+        461,
+        796,
+        496
+      ],
+      "font_size_px": 35
+    },
+    {
+      "text": "결과",
+      "bbox": [
+        85,
+        538,
+        144,
+        568
+      ],
+      "font_size_px": 31
+    },
+    {
+      "text": "오프라인 저장 성공률 91% → 99%로 증가",
+      "bbox": [
+        295,
+        537,
+        917,
+        572
+      ],
+      "font_size_px": 35
+    },
+    {
+      "text": "이서연 · 비행기 모드 전환을 포함한 입력 100회",
+      "bbox": [
+        85,
+        823,
+        544,
+        847
+      ],
+      "font_size_px": 23
+    }
+  ]
+}

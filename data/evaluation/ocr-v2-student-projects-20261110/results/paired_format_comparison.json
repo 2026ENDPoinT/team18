@@ -1,0 +1,194 @@
+[
+  {
+    "project": "p01",
+    "slide": "p01_slide_bullets",
+    "layout": "slide_bullets",
+    "shared_facts": 6,
+    "intro_preserved": 6,
+    "slide_preserved": 6
+  },
+  {
+    "project": "p01",
+    "slide": "p01_slide_compare",
+    "layout": "slide_compare",
+    "shared_facts": 5,
+    "intro_preserved": 5,
+    "slide_preserved": 3
+  },
+  {
+    "project": "p02",
+    "slide": "p02_slide_bullets",
+    "layout": "slide_bullets",
+    "shared_facts": 6,
+    "intro_preserved": 6,
+    "slide_preserved": 6
+  },
+  {
+    "project": "p02",
+    "slide": "p02_slide_compare",
+    "layout": "slide_compare",
+    "shared_facts": 5,
+    "intro_preserved": 5,
+    "slide_preserved": 3
+  },
+  {
+    "project": "p03",
+    "slide": "p03_slide_bullets",
+    "layout": "slide_bullets",
+    "shared_facts": 6,
+    "intro_preserved": 6,
+    "slide_preserved": 6
+  },
+  {
+    "project": "p03",
+    "slide": "p03_slide_compare",
+    "layout": "slide_compare",
+    "shared_facts": 5,
+    "intro_preserved": 5,
+    "slide_preserved": 3
+  },
+  {
+    "project": "p04",
+    "slide": "p04_slide_bullets",
+    "layout": "slide_bullets",
+    "shared_facts": 6,
+    "intro_preserved": 6,
+    "slide_preserved": 6
+  },
+  {
+    "project": "p04",
+    "slide": "p04_slide_compare",
+    "layout": "slide_compare",
+    "shared_facts": 5,
+    "intro_preserved": 5,
+    "slide_preserved": 3
+  },
+  {
+    "project": "p05",
+    "slide": "p05_slide_bullets",
+    "layout": "slide_bullets",
+    "shared_facts": 6,
+    "intro_preserved": 6,
+    "slide_preserved": 6
+  },
+  {
+    "project": "p05",
+    "slide": "p05_slide_results",
+    "layout": "slide_results",
+    "shared_facts": 1,
+    "intro_preserved": 1,
+    "slide_preserved": 1
+  },
+  {
+    "project": "p06",
+    "slide": "p06_slide_bullets",
+    "layout": "slide_bullets",
+    "shared_facts": 6,
+    "intro_preserved": 6,
+    "slide_preserved": 6
+  },
+  {
+    "project": "p06",
+    "slide": "p06_slide_results",
+    "layout": "slide_results",
+    "shared_facts": 1,
+    "intro_preserved": 1,
+    "slide_preserved": 1
+  },
+  {
+    "project": "p07",
+    "slide": "p07_slide_bullets",
+    "layout": "slide_bullets",
+    "shared_facts": 6,
+    "intro_preserved": 6,
+    "slide_preserved": 6
+  },
+  {
+    "project": "p07",
+    "slide": "p07_slide_results",
+    "layout": "slide_results",
+    "shared_facts": 1,
+    "intro_preserved": 1,
+    "slide_preserved": 1
+  },
+  {
+    "project": "p08",
+    "slide": "p08_slide_bullets",
+    "layout": "slide_bullets",
+    "shared_facts": 6,
+    "intro_preserved": 6,
+    "slide_preserved": 6
+  },
+  {
+    "project": "p08",
+    "slide": "p08_slide_results",
+    "layout": "slide_results",
+    "shared_facts": 1,
+    "intro_preserved": 1,
+    "slide_preserved": 1
+  },
+  {
+    "project": "p09",
+    "slide": "p09_slide_compare",
+    "layout": "slide_compare",
+    "shared_facts": 5,
+    "intro_preserved": 5,
+    "slide_preserved": 3
+  },
+  {
+    "project": "p09",
+    "slide": "p09_slide_results",
+    "layout": "slide_results",
+    "shared_facts": 1,
+    "intro_preserved": 1,
+    "slide_preserved": 1
+  },
+  {
+    "project": "p10",
+    "slide": "p10_slide_compare",
+    "layout": "slide_compare",
+    "shared_facts": 5,
+    "intro_preserved": 5,
+    "slide_preserved": 3
+  },
+  {
+    "project": "p10",
+    "slide": "p10_slide_results",
+    "layout": "slide_results",
+    "shared_facts": 1,
+    "intro_preserved": 1,
+    "slide_preserved": 1
+  },
+  {
+    "project": "p11",
+    "slide": "p11_slide_compare",
+    "layout": "slide_compare",
+    "shared_facts": 5,
+    "intro_preserved": 5,
+    "slide_preserved": 3
+  },
+  {
+    "project": "p11",
+    "slide": "p11_slide_results",
+    "layout": "slide_results",
+    "shared_facts": 1,
+    "intro_preserved": 1,
+    "slide_preserved": 1
+  },
+  {
+    "project": "p12",
+    "slide": "p12_slide_compare",
+    "layout": "slide_compare",
+    "shared_facts": 5,
+    "intro_preserved": 5,
+    "slide_preserved": 3
+  },
+  {
+    "project": "p12",
+    "slide": "p12_slide_results",
+    "layout": "slide_results",
+    "shared_facts": 1,
+    "intro_preserved": 1,
+    "slide_preserved": 1
+  }
+]

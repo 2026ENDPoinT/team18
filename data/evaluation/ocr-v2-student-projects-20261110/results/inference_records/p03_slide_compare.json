@@ -1,0 +1,14 @@
+{
+  "id": "p03_slide_compare",
+  "status": "success",
+  "seconds": 1.598423415999605,
+  "error": null,
+  "prediction": "predictions/p03_slide_compare.txt",
+  "prediction_sha256": "f6a8b2a708cfd6598821be55f13427506b766c22a56a2b901b9ced0dd194be36",
+  "raw_return": [
+    [
+      1,
+      "잔반을 줄이는 식단 노트 / 역할 분담\nPython, pandas, scikit-learn\n팀 전체 구현\n내가 맡은 역할\n식수 예측 회귀 모델을 학습했다\n결측 기록 정제와 잔반 대시보드를\n작성했다\n대시보드는 메뉴별 평균과 측정 누락일을 함께\n담당자: 박하준\n보여 준다.\n구현 범위는 위 항목으로 구분했다.\n2026 봄학기 · 4인 팀· 역할 분담 기록"
+    ]
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "comparison_and_results": {
+    "pages": 16,
+    "errors": 1203,
+    "total_errors": 1360
+  },
+  "top_six_pages": [
+    {
+      "page": "p12_slide_results",
+      "errors": 116,
+      "reference_characters": 210,
+      "cer": 0.5523809523809524
+    },
+    {
+      "page": "p07_slide_results",
+      "errors": 109,
+      "reference_characters": 211,
+      "cer": 0.5165876777251185
+    },
+    {
+      "page": "p10_slide_results",
+      "errors": 100,
+      "reference_characters": 201,
+      "cer": 0.4975124378109453
+    },
+    {
+      "page": "p01_slide_compare",
+      "errors": 81,
+      "reference_characters": 208,
+      "cer": 0.3894230769230769
+    },
+    {
+      "page": "p09_slide_results",
+      "errors": 81,
+      "reference_characters": 199,
+      "cer": 0.40703517587939697
+    },
+    {
+      "page": "p05_slide_results",
+      "errors": 76,
+      "reference_characters": 193,
+      "cer": 0.39378238341968913
+    }
+  ],
+  "arrow_missing_pages": [
+    "p01_intro",
+    "p01_slide_bullets",
+    "p02_intro",
+    "p02_slide_bullets",
+    "p03_intro",
+    "p03_slide_bullets",
+    "p04_intro",
+    "p04_slide_bullets",
+    "p05_intro",
+    "p05_slide_bullets",
+    "p06_intro",
+    "p06_slide_bullets",
+    "p07_intro",
+    "p07_slide_bullets",
+    "p08_intro",
+    "p08_slide_bullets",
+    "p09_intro",
+    "p10_intro",
+    "p11_intro",
+    "p12_intro",
+    "p12_slide_results"
+  ]
+}

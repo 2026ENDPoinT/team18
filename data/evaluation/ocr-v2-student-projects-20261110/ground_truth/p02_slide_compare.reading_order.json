@@ -1,0 +1,137 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "page title and technology",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "left heading then left content",
+      "line_start": 3,
+      "line_end": 6
+    },
+    {
+      "name": "right heading then right content",
+      "line_start": 7,
+      "line_end": 10
+    },
+    {
+      "name": "footer",
+      "line_start": 11,
+      "line_end": 11
+    }
+  ],
+  "lines": [
+    {
+      "text": "길벗 캠퍼스 / 역할 분담",
+      "bbox": [
+        75,
+        56,
+        605,
+        106
+      ],
+      "font_size_px": 53
+    },
+    {
+      "text": "Flutter, Dart, SQLite",
+      "bbox": [
+        78,
+        141,
+        350,
+        169
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "팀 전체 구현",
+      "bbox": [
+        85,
+        231,
+        304,
+        271
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "추천 모델을 개발했다",
+      "bbox": [
+        85,
+        333,
+        420,
+        368
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "사용자는 계단 구간을 직접 표시하고 수정 의견을",
+      "bbox": [
+        85,
+        520,
+        693,
+        550
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "보낼 수 있다.",
+      "bbox": [
+        85,
+        566,
+        250,
+        596
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "내가 맡은 역할",
+      "bbox": [
+        875,
+        231,
+        1133,
+        271
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "데이터 수집 API를 구현했다",
+      "bbox": [
+        875,
+        333,
+        1312,
+        368
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "담당자: 이서연",
+      "bbox": [
+        875,
+        520,
+        1060,
+        550
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "구현 범위는 위 항목으로 구분했다.",
+      "bbox": [
+        875,
+        600,
+        1308,
+        630
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "2026 여름방학 · 3인 팀 · 역할 분담 기록",
+      "bbox": [
+        80,
+        820,
+        501,
+        844
+      ],
+      "font_size_px": 24
+    }
+  ]
+}

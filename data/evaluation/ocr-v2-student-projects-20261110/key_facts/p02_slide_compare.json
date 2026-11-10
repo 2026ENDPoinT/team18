@@ -1,0 +1,37 @@
+{
+  "project_id": "p02",
+  "technology": [
+    {
+      "id": "tech_1",
+      "name": "Flutter"
+    },
+    {
+      "id": "tech_2",
+      "name": "Dart"
+    },
+    {
+      "id": "tech_3",
+      "name": "SQLite"
+    }
+  ],
+  "roles": [
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "추천 모델",
+      "statement": "팀은 추천 모델을 개발했다.",
+      "presentation": "heading_scope",
+      "header": "팀 전체 구현"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "데이터 수집 API",
+      "statement": "나는 데이터 수집 API를 구현했다.",
+      "presentation": "heading_scope",
+      "header": "내가 맡은 역할"
+    }
+  ],
+  "metrics": [],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

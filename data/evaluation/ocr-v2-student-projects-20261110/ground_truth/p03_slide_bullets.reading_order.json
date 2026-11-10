@@ -1,0 +1,97 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "title",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "bullets top to bottom",
+      "line_start": 3,
+      "line_end": 7
+    }
+  ],
+  "lines": [
+    {
+      "text": "잔반을 줄이는 식단 노트",
+      "bbox": [
+        80,
+        56,
+        658,
+        109
+      ],
+      "font_size_px": 56
+    },
+    {
+      "text": "데이터 분석 · 구현과 검증",
+      "bbox": [
+        82,
+        137,
+        392,
+        166
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "• 학생식당의 요일별 잔반량과 메뉴 기록을 연결해 다음 주 준비량을 살펴보았다.",
+      "bbox": [
+        90,
+        235,
+        1323,
+        271
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "• Python, pandas, scikit-learn",
+      "bbox": [
+        90,
+        316,
+        593,
+        351
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "• 팀은 식수 예측 회귀 모델을 학습했다.",
+      "bbox": [
+        90,
+        394,
+        705,
+        428
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "• 나는 결측 기록 정제와 잔반 대시보드를 작성했다.",
+      "bbox": [
+        90,
+        472,
+        885,
+        507
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "• 잔반량 MAE 18.4kg → 11.2kg로 감소",
+      "bbox": [
+        90,
+        551,
+        740,
+        588
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "박하준 · 마지막 4주를 시간 순서대로 분리한 평가",
+      "bbox": [
+        85,
+        824,
+        566,
+        847
+      ],
+      "font_size_px": 23
+    }
+  ]
+}

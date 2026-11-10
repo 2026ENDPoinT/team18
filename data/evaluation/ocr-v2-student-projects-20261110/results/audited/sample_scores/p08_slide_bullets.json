@@ -1,0 +1,126 @@
+{
+  "id": "p08_slide_bullets",
+  "project_id": "p08",
+  "original_id": "p08",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_bullets",
+  "format": "slide",
+  "facts": "key_facts/p08_slide_bullets.json",
+  "image": "images/p08_slide_bullets.png",
+  "ground_truth": "ground_truth/p08_slide_bullets.txt",
+  "reading_order": "ground_truth/p08_slide_bullets.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#3a477c",
+  "image_sha256": "f3846918ad3af6d0cd0117348d3eddc3cd8767524e0b3c21fab731a6f2df7c6c",
+  "ground_truth_sha256": "f3b4edcc01fab01a3a72efb88d0de641b913b47216c625b09f4e40b149971de9",
+  "facts_sha256": "e8b6bb35b340f40c1c55e5f3954a42795136091c34793aa97a873097c61e599a",
+  "reading_order_sha256": "a90d311b12927d4b07176ea90d91d7f83ebdeae31eb16cc42e89e35c786b0d0f",
+  "status": "success",
+  "seconds": 1.5608100830004332,
+  "error": null,
+  "prediction": "predictions/p08_slide_bullets.txt",
+  "prediction_sha256": "1ce2d697cf70db3e6936bebb044f2a8252af0ea18e66796f07e69b6722b822a5",
+  "raw_return": [
+    [
+      1,
+      "우리 건물 전기 일기\n통계 분석 구현과 검증\n문제\n강의동 전력량을 날씨와 학사 일정에 맞춰 비교했다.\n기술\nR, ggplot2, Shiny\n팀 기여\n팀은 전력 사용량 예측식을 비교했다.\n본인 기여\n나는 계절별 시각화와 이상치 검토를 수행했다.\n결과\n일별 전력 MAPE 14.8%  9.6%로 감소\n서준호 · 학기 마지막 30일, 시간 순서 검증"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 195,
+    "prediction_characters": 192,
+    "insertions": 0,
+    "deletions": 3,
+    "substitutions": 0,
+    "errors": 3,
+    "cer": 0.015384615384615385,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 144,
+    "prediction_characters": 142,
+    "insertions": 0,
+    "deletions": 2,
+    "substitutions": 0,
+    "errors": 2,
+    "cer": 0.013888888888888888,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "R",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "R",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "ggplot2",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "ggplot2",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "Shiny",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Shiny",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "전력 사용량 예측식",
+      "statement": "팀은 전력 사용량 예측식을 비교했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "기술\nR, ggplot2, Shiny\n팀 기여\n팀은 전력 사용량 예측식을 비교했다.\n본인 기여\n나는",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "계절별 시각화와 이상치 검토",
+      "statement": "나는 계절별 시각화와 이상치 검토를 수행했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "본인 기여\n나는 계절별 시각화와 이상치 검토를 수행했다.\n결과\n일별 전력",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "일별 전력 MAPE",
+      "before": "14.8",
+      "after": "9.6",
+      "unit": "%",
+      "direction": "감소",
+      "statement": "일별 전력 MAPE 14.8% → 9.6%",
+      "category": "metrics",
+      "state": "preserved",
+      "parsed_relation": {
+        "metric": "일별 전력 MAPE",
+        "before": "14.8",
+        "after": "9.6",
+        "before_unit": "%",
+        "after_unit": "%",
+        "connector": "destination_particle_and_direction",
+        "direction_word": "감소"
+      },
+      "evidence": "일별 전력 MAPE 14.8%  9.6%로 감소",
+      "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+    }
+  ]
+}

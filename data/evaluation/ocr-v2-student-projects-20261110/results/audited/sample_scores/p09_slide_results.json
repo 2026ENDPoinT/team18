@@ -1,0 +1,76 @@
+{
+  "id": "p09_slide_results",
+  "project_id": "p09",
+  "original_id": "p09",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_results",
+  "format": "slide",
+  "facts": "key_facts/p09_slide_results.json",
+  "image": "images/p09_slide_results.png",
+  "ground_truth": "ground_truth/p09_slide_results.txt",
+  "reading_order": "ground_truth/p09_slide_results.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#755235",
+  "image_sha256": "dad3d745170af59b1663a1486780aef543b138d9ed1316ed2722e9a3525c03b5",
+  "ground_truth_sha256": "d8c871f6a7de26f56caa589944344cc453aa3d5189f81bebc1c2d3e05989fef6",
+  "facts_sha256": "ca23051b5933ff8b9a00e821f07f1369daf1432eba4e209dbc027098d5a8e204",
+  "reading_order_sha256": "b87ba8d601713e0e1030d93eb3abe0701593d9e4a055f224e20906e61cdec52a",
+  "status": "success",
+  "seconds": 1.6591252079997503,
+  "error": null,
+  "prediction": "predictions/p09_slide_results.txt",
+  "prediction_sha256": "3034988742e49b2839e3db84d80f7fc8b41797763c270d67177f0497116525c7",
+  "raw_return": [
+    [
+      1,
+      "격리된 코드 채점기 / 결과\n시험 조건과 관찰 결과\n초당 채점 처리량\n초당 채점 처리량 12건/s → 31건/s\n증가한 결과를 확인했다.\n개선 전\n12건/s\n측정 조건: 짧은 정답 프로그램 300개 동시\n실행 4개\n개선 후\n외부 공개 전에 격리 우회와 자원 제한을 별도로\n31건/s\n검증해야 한다.\n막대 길이는 같은 척도로 표시\n임예린 합성 실험 결과"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 199,
+    "prediction_characters": 196,
+    "insertions": 39,
+    "deletions": 42,
+    "substitutions": 0,
+    "errors": 81,
+    "cer": 0.40703517587939697,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 144,
+    "prediction_characters": 142,
+    "insertions": 28,
+    "deletions": 30,
+    "substitutions": 0,
+    "errors": 58,
+    "cer": 0.4027777777777778,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "metric_main",
+      "name": "초당 채점 처리량",
+      "before": "12",
+      "after": "31",
+      "unit": "건/s",
+      "direction": "증가",
+      "statement": "초당 채점 처리량 12건/s → 31건/s",
+      "category": "metrics",
+      "state": "preserved",
+      "parsed_relation": {
+        "metric": "초당 채점 처리량",
+        "before": "12",
+        "after": "31",
+        "before_unit": "건/s",
+        "after_unit": "건/s",
+        "connector": "directed_arrow",
+        "direction_word": "증가"
+      },
+      "evidence": "초당 채점 처리량 12건/s → 31건/s\n증가",
+      "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+    }
+  ]
+}

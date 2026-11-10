@@ -1,0 +1,548 @@
+[
+  {
+    "page": "p01_intro",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "예약 API p95",
+      "before": "420",
+      "after": "180",
+      "before_unit": "ms",
+      "after_unit": "ms",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "예약 API p95 420ms  180ms로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p01_slide_bullets",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "예약 API p95",
+      "before": "420",
+      "after": "180",
+      "before_unit": "ms",
+      "after_unit": "ms",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "예약 API p95 420ms  180ms로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p02_intro",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "오프라인 저장 성공률",
+      "before": "91",
+      "after": "99",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "증가"
+    },
+    "evidence": "오프라인 저장 성공률 91%  99%로 증가",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p02_slide_bullets",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "오프라인 저장 성공률",
+      "before": "91",
+      "after": "99",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "증가"
+    },
+    "evidence": "오프라인 저장 성공률 91%  99%로 증가",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p03_intro",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "잔반량 MAE",
+      "before": "18.4",
+      "after": "11.2",
+      "before_unit": "kg",
+      "after_unit": "kg",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "잔반량 MAE 18.4kg  11.2kg로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p03_slide_bullets",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "잔반량 MAE",
+      "before": "18.4",
+      "after": "11.2",
+      "before_unit": "kg",
+      "after_unit": "kg",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "잔반량 MAE 18.4kg  11.2kg로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p04_intro",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "패킷 손실률",
+      "before": "3.2",
+      "after": "0.8",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "패킷 손실률 3.2%  0.8%로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p04_slide_bullets",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "패킷 손실률",
+      "before": "3.2",
+      "after": "0.8",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "패킷 손실률 3.2%  0.8%로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p05_intro",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "수어 분류 정확도",
+      "before": "82.1",
+      "after": "90.4",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "증가"
+    },
+    "evidence": "수어 분류 정확도 82.1%  90.4%로 증가",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p05_slide_bullets",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "수어 분류 정확도",
+      "before": "82.1",
+      "after": "90.4",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "증가"
+    },
+    "evidence": "수어 분류 정확도 82.1%  90.4%로 증가",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p05_slide_results",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "수어 분류 정확도",
+      "before": "82.1",
+      "after": "90.4",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "directed_arrow",
+      "direction_word": null
+    },
+    "evidence": "수어 분류 정확도 82.1% →\n90.4%",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p06_intro",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "평균 프레임 시간",
+      "before": "38",
+      "after": "21",
+      "before_unit": "ms",
+      "after_unit": "ms",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "평균 프레임 시간 38ms  21ms로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p06_slide_bullets",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "평균 프레임 시간",
+      "before": "38",
+      "after": "21",
+      "before_unit": "ms",
+      "after_unit": "ms",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "평균 프레임 시간 38ms  21ms로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p06_slide_results",
+    "fact_id": "metric_main",
+    "original_state": "preserved",
+    "audited_state": "preserved",
+    "original_parsed_relation": {
+      "metric": "평균 프레임 시간",
+      "before": "38",
+      "after": "21",
+      "before_unit": "ms",
+      "after_unit": "ms",
+      "connector": "→"
+    },
+    "audited_relation": {
+      "metric": "평균 프레임 시간",
+      "before": "38",
+      "after": "21",
+      "before_unit": "ms",
+      "after_unit": "ms",
+      "connector": "directed_arrow",
+      "direction_word": "감소"
+    },
+    "evidence": "평균 프레임 시간 38ms → 21ms\n감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p07_intro",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "좌석 조회 중앙값",
+      "before": "680",
+      "after": "240",
+      "before_unit": "ms",
+      "after_unit": "ms",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "좌석 조회 중앙값 680ms  240ms로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p07_slide_bullets",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "좌석 조회 중앙값",
+      "before": "680",
+      "after": "240",
+      "before_unit": "ms",
+      "after_unit": "ms",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "좌석 조회 중앙값 680ms  240ms로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p07_slide_results",
+    "fact_id": "metric_main",
+    "original_state": "mislinked",
+    "audited_state": "preserved",
+    "original_parsed_relation": {
+      "metric": "좌석 조회 중앙값",
+      "before": "680",
+      "after": "240",
+      "before_unit": "ms",
+      "after_unit": "ms좌석조회중앙값",
+      "connector": "→"
+    },
+    "audited_relation": {
+      "metric": "좌석 조회 중앙값",
+      "before": "680",
+      "after": "240",
+      "before_unit": "ms",
+      "after_unit": "ms",
+      "connector": "directed_arrow",
+      "direction_word": null
+    },
+    "evidence": "좌석 조회 중앙값 680ms →\n240ms",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p08_intro",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "일별 전력 MAPE",
+      "before": "14.8",
+      "after": "9.6",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "일별 전력 MAPE 14.8%  9.6%로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p08_slide_bullets",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "일별 전력 MAPE",
+      "before": "14.8",
+      "after": "9.6",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "일별 전력 MAPE 14.8%  9.6%로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p08_slide_results",
+    "fact_id": "metric_main",
+    "original_state": "preserved",
+    "audited_state": "preserved",
+    "original_parsed_relation": {
+      "metric": "일별 전력 MAPE",
+      "before": "14.8",
+      "after": "9.6",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "→"
+    },
+    "audited_relation": {
+      "metric": "일별 전력 MAPE",
+      "before": "14.8",
+      "after": "9.6",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "directed_arrow",
+      "direction_word": "감소"
+    },
+    "evidence": "일별 전력 MAPE 14.8% → 9.6%\n감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p09_intro",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "초당 채점 처리량",
+      "before": "12",
+      "after": "31",
+      "before_unit": "건/s",
+      "after_unit": "건/s",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "증가"
+    },
+    "evidence": "초당 채점 처리량 12건/s  31건/s로 증가",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p09_slide_results",
+    "fact_id": "metric_main",
+    "original_state": "preserved",
+    "audited_state": "preserved",
+    "original_parsed_relation": {
+      "metric": "초당 채점 처리량",
+      "before": "12",
+      "after": "31",
+      "before_unit": "건/s",
+      "after_unit": "건/s",
+      "connector": "→"
+    },
+    "audited_relation": {
+      "metric": "초당 채점 처리량",
+      "before": "12",
+      "after": "31",
+      "before_unit": "건/s",
+      "after_unit": "건/s",
+      "connector": "directed_arrow",
+      "direction_word": "증가"
+    },
+    "evidence": "초당 채점 처리량 12건/s → 31건/s\n증가",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p10_intro",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "경로 평균 오차",
+      "before": "24",
+      "after": "9",
+      "before_unit": "m",
+      "after_unit": "m",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "감소"
+    },
+    "evidence": "경로 평균 오차 24m  9m로 감소",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p10_slide_results",
+    "fact_id": "metric_main",
+    "original_state": "mislinked",
+    "audited_state": "preserved",
+    "original_parsed_relation": {
+      "metric": "경로 평균 오차",
+      "before": "24",
+      "after": "9",
+      "before_unit": "m",
+      "after_unit": "m경",
+      "connector": "→"
+    },
+    "audited_relation": {
+      "metric": "경로 평균 오차",
+      "before": "24",
+      "after": "9",
+      "before_unit": "m",
+      "after_unit": "m",
+      "connector": "directed_arrow",
+      "direction_word": null
+    },
+    "evidence": "경로 평균 오차 24m → 9m",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p11_intro",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "검색 Recall@5",
+      "before": "61",
+      "after": "83",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "증가"
+    },
+    "evidence": "검색 Recall@5 61%  83%로 증가",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p11_slide_results",
+    "fact_id": "metric_main",
+    "original_state": "preserved",
+    "audited_state": "preserved",
+    "original_parsed_relation": {
+      "metric": "검색 Recall@5",
+      "before": "61",
+      "after": "83",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "→"
+    },
+    "audited_relation": {
+      "metric": "검색 Recall@5",
+      "before": "61",
+      "after": "83",
+      "before_unit": "%",
+      "after_unit": "%",
+      "connector": "directed_arrow",
+      "direction_word": "증가"
+    },
+    "evidence": "검색 Recall@5 61% → 83%\n증가",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p12_intro",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "영상 처리 속도",
+      "before": "18",
+      "after": "27",
+      "before_unit": "fps",
+      "after_unit": "fps",
+      "connector": "destination_particle_and_direction",
+      "direction_word": "증가"
+    },
+    "evidence": "영상 처리 속도 18fps  27fps로 증가",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  },
+  {
+    "page": "p12_slide_results",
+    "fact_id": "metric_main",
+    "original_state": "indeterminate",
+    "audited_state": "preserved",
+    "original_parsed_relation": null,
+    "audited_relation": {
+      "metric": "영상 처리 속도",
+      "before": "18",
+      "after": "27",
+      "before_unit": "fps",
+      "after_unit": "fps",
+      "connector": "explicit_before_after_labels",
+      "direction_word": null
+    },
+    "evidence": "영상 처리 속도\n증가한 결과를 확인했다.\n개선 전\n18fps\n측정 조건: 같은 장치 720p 시험 영상 5분\n야간과 우천 영상에서 탐지 정확도를 추가\n개선 후\n27fps",
+    "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+  }
+]

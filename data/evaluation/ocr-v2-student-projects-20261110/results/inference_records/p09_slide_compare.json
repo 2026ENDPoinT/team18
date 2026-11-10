@@ -1,0 +1,14 @@
+{
+  "id": "p09_slide_compare",
+  "status": "success",
+  "seconds": 1.5618755420000525,
+  "error": null,
+  "prediction": "predictions/p09_slide_compare.txt",
+  "prediction_sha256": "50d5f13e96cd254799f0fab8811f18962755a02b01ed75967c576558a117deb7",
+  "raw_return": [
+    [
+      1,
+      "격리된 코드 채점기 / 역할 분담\nRust, Docker, Linux\n팀 전체 구현\n내가 맡은 역할\n채점 규칙과 제출 웹을 구성했다\n격리 실행기와 시간 제한을 구현했다\n컴파일 실패와 실행 시간 조과를 서로 다른\n담당자: 임예린\n결과로 반환한다.\n구현 범위는 위 항목으로 구분했다.\n2026 시스템 설계 · 4인 팀 · 역할 분담 기록"
+    ]
+  ]
+}

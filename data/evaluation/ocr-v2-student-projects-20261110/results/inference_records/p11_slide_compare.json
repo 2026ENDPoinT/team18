@@ -1,0 +1,14 @@
+{
+  "id": "p11_slide_compare",
+  "status": "success",
+  "seconds": 1.5826545410000108,
+  "error": null,
+  "prediction": "predictions/p11_slide_compare.txt",
+  "prediction_sha256": "f212d94b82a14c9d2a29fd97dd0c40350ce697a517cfe0f39133fad6b2af0e00",
+  "raw_return": [
+    [
+      1,
+      "강의 문장 찾기 / 역할 분담\nGo, Elasticsearch, Vue.js\n팀 전체 구현\n내가 맡은 역할\n검색 순위 실험과 결과 화면을 만들었다\n문서 색인 파이프라인을 구현했다\n검색 결과에는 원문 위치와 마지막 수정 날짜를\n담당자: 오채원\n함께 표시한다.\n구현 범위는 위 항목으로 구분했다.\n2026 정보검색 수업 3인 팀 역할 분담 기록"
+    ]
+  ]
+}

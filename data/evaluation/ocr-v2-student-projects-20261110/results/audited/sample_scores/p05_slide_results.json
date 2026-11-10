@@ -1,0 +1,76 @@
+{
+  "id": "p05_slide_results",
+  "project_id": "p05",
+  "original_id": "p05",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_results",
+  "format": "slide",
+  "facts": "key_facts/p05_slide_results.json",
+  "image": "images/p05_slide_results.png",
+  "ground_truth": "ground_truth/p05_slide_results.txt",
+  "reading_order": "ground_truth/p05_slide_results.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#713b66",
+  "image_sha256": "a27a8fdd2e7da8bf5bde19e8c4bdc6d51fc44ea778c1994aa7b742724b736c2f",
+  "ground_truth_sha256": "0d8d23c67737075ccbfdf8da3bee73096d2fb80f924fdf1b05d67f976d87aff9",
+  "facts_sha256": "09723e60055f5f8986cc4092ba76026c74f0e4a7c3124ecd94ce7e5430328d80",
+  "reading_order_sha256": "cd2b554b4a2900ade64823e4a8ec670bf4077f9256a23fedddfd4dde8f25a31c",
+  "status": "success",
+  "seconds": 1.672715958000481,
+  "error": null,
+  "prediction": "predictions/p05_slide_results.txt",
+  "prediction_sha256": "3e3d3b556c2bca1b75cb6e157a039c3d713e25637a09595acfa7632f9362d16d",
+  "raw_return": [
+    [
+      1,
+      "손짓 한 단어 / 결과\n시험 조건과 관찰 결과\n수어 분류 정확도\n수어 분류 정확도 82.1% →\n90.4%\n개선 전\n82.1%\n증가한 결과를 확인했다.\n측정 조건: 참여자 분리 평가, 고정 단어 12개\n개선 후\n90.4%\n연속 수어 번역이나 실생활 통역 성능을\n주장하는 프로젝트는 아니다.\n막대 길이는 같은 척도로 표시\n정민서 합성 실험 결과"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 193,
+    "prediction_characters": 191,
+    "insertions": 33,
+    "deletions": 35,
+    "substitutions": 8,
+    "errors": 76,
+    "cer": 0.39378238341968913,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 140,
+    "prediction_characters": 139,
+    "insertions": 24,
+    "deletions": 25,
+    "substitutions": 7,
+    "errors": 56,
+    "cer": 0.4,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "metric_main",
+      "name": "수어 분류 정확도",
+      "before": "82.1",
+      "after": "90.4",
+      "unit": "%",
+      "direction": "증가",
+      "statement": "수어 분류 정확도 82.1% → 90.4%",
+      "category": "metrics",
+      "state": "preserved",
+      "parsed_relation": {
+        "metric": "수어 분류 정확도",
+        "before": "82.1",
+        "after": "90.4",
+        "before_unit": "%",
+        "after_unit": "%",
+        "connector": "directed_arrow",
+        "direction_word": null
+      },
+      "evidence": "수어 분류 정확도 82.1% →\n90.4%",
+      "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+    }
+  ]
+}

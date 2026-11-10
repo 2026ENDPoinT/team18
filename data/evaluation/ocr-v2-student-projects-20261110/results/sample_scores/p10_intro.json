@@ -1,0 +1,118 @@
+{
+  "id": "p10_intro",
+  "project_id": "p10",
+  "original_id": "p10",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "intro_bullets",
+  "format": "introduction",
+  "facts": "key_facts/p10_intro.json",
+  "image": "images/p10_intro.png",
+  "ground_truth": "ground_truth/p10_intro.txt",
+  "reading_order": "ground_truth/p10_intro.reading_order.json",
+  "width": 1240,
+  "height": 1754,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#386352",
+  "image_sha256": "e6b61e1c44e30995ad508e693894659801f11a4542e85e87d4a86e135f2afb93",
+  "ground_truth_sha256": "885ef6ae316d43cd5834139581d53547ae46f65c6f83dfd0a30f561b2254a763",
+  "facts_sha256": "7d312d4fb5ffa9aac609ae0844b7c063a6b97bd5cb75d841b5fb9186cd3f8262",
+  "reading_order_sha256": "8a0d6117682542b2816f17b8e9d99a2b693db1a2bf48fccb6fcacdbc0c773196",
+  "status": "success",
+  "seconds": 2.561012541999844,
+  "error": null,
+  "prediction": "predictions/p10_intro.txt",
+  "prediction_sha256": "b919d719635408d36dad3b99ddf2cceec69c8da74c6de65f1dd065141dc621b0",
+  "raw_return": [
+    [
+      1,
+      "한 바퀴 산책 기록\n안드로이드 앱 프로젝트 소개서\n장우진 2026 앱 개발 실습 2인 팀\n문제와 사용자\n• 교정 산책 경로와 메모를 기기에 저장하는 앱을 제작했다. 위치가 순간적으로 튀어\n이동 거리가 과장되는 상황을 먼저 해결했다.\n구현 기술\n• Kotlin, Jetpack Compose, Room\n역할과 구현\n• 팀은 경로 지도와 기록 목록을 제작했다.\n• 나는 위치 필터와 로컬 저장을 구현했다.\n• 나는 시간 간격과 속도를 함께 확인해 비정상 좌표를 걸렀다. 다른 팀원은 기록 선택과\n지도 확대 동작을 연결했다.\n실험 결과\n· 경로 평균 오차 24m  9m로 감소\n· 운동장 기준 경로를 10회 걸어 비교\n다음 단계\n• 고층 건물 사이와 실내에서는 위치 품질을 보장하지 않는다.\n합성 학생 프로젝트 P10"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 405,
+    "prediction_characters": 398,
+    "insertions": 0,
+    "deletions": 7,
+    "substitutions": 2,
+    "errors": 9,
+    "cer": 0.022222222222222223,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 295,
+    "prediction_characters": 291,
+    "insertions": 0,
+    "deletions": 4,
+    "substitutions": 2,
+    "errors": 6,
+    "cer": 0.020338983050847456,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Kotlin",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Kotlin",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "Jetpack Compose",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Jetpack Compose",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "Room",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Room",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "경로 지도와 기록 목록",
+      "statement": "팀은 경로 지도와 기록 목록을 제작했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "구현 기술\n• Kotlin, Jetpack Compose, Room\n역할과 구현\n• 팀은 경로 지도와 기록 목록을 제작했다.\n• 나는 위치 필",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "위치 필터와 로컬 저장",
+      "statement": "나는 위치 필터와 로컬 저장을 구현했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "• 나는 위치 필터와 로컬 저장을 구현했다.\n• 나는 시간 간",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "경로 평균 오차",
+      "before": "24",
+      "after": "9",
+      "unit": "m",
+      "direction": "감소",
+      "statement": "경로 평균 오차 24m → 9m",
+      "category": "metrics",
+      "parsed_relation": null,
+      "state": "indeterminate",
+      "evidence": "경로 평균 오차 24m  9m로 감소\n· 운동장 기준 경로를 10회 걸어 비교\n다음 단계\n• 고층 건물 사이와 실내에서는 위치 품질을 보장하지 않는다.\n합성 학생 프로젝트 P10",
+      "reason": "metric remains, but no complete directed tuple or labelled before/after pair"
+    }
+  ]
+}

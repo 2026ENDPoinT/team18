@@ -1,0 +1,17 @@
+{
+  "project_id": "p06",
+  "technology": [],
+  "roles": [],
+  "metrics": [
+    {
+      "id": "metric_main",
+      "name": "평균 프레임 시간",
+      "before": "38",
+      "after": "21",
+      "unit": "ms",
+      "direction": "감소",
+      "statement": "평균 프레임 시간 38ms → 21ms"
+    }
+  ],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

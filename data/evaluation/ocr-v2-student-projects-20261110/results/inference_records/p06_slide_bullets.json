@@ -1,0 +1,14 @@
+{
+  "id": "p06_slide_bullets",
+  "status": "success",
+  "seconds": 1.6401688750001995,
+  "error": null,
+  "prediction": "predictions/p06_slide_bullets.txt",
+  "prediction_sha256": "701bf91c954869afdb218908a747e00b143660157384fd61a72b8f0604182834",
+  "raw_return": [
+    [
+      1,
+      "궤도 실험실\n교육용 게임 구현과 검증\n문제\n행성의 질량과 초기 속도를 바꾸며 궤도를 관찰하는 교육용 게임이다.\n기술\nC#, Unity, .NET\n팀 기여\n팀은 물리 규칙과 튜토리얼을 설계했다.\n본인 기여\n나는 오브젝트 풀과 프레임 계측기를 구현했다.\n결과\n평균 프레임 시간 38ms  21ms로 감소\n한시우 동일 노트북 물체 200개 장면을 60초 실행"
+    ]
+  ]
+}

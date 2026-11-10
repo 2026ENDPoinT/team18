@@ -1,0 +1,126 @@
+{
+  "id": "p12_intro",
+  "project_id": "p12",
+  "original_id": "p12",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "intro_bullets",
+  "format": "introduction",
+  "facts": "key_facts/p12_intro.json",
+  "image": "images/p12_intro.png",
+  "ground_truth": "ground_truth/p12_intro.txt",
+  "reading_order": "ground_truth/p12_intro.reading_order.json",
+  "width": 1240,
+  "height": 1754,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#4d5461",
+  "image_sha256": "335eb00beeb318a6571cbbd4b4aefaadb4a70a9332b673d530bf4861bc08e81f",
+  "ground_truth_sha256": "66fe574df466c0b3576c6b75503ef67fb36f5f62da61e2dca923df542488958c",
+  "facts_sha256": "5e6bb1af2ab80eab8553d17661a204036b9a00ef3ab60c01cdf23d51faa4dd73",
+  "reading_order_sha256": "82564bd46d2f531911d127a822aa04772cad76824a356fb209266aa873d8a1e8",
+  "status": "success",
+  "seconds": 2.5662976249996063,
+  "error": null,
+  "prediction": "predictions/p12_intro.txt",
+  "prediction_sha256": "db8ac697d4dd5d805efa2fe52824c037532d84ff3e38cb9aba0eb18100d24396",
+  "raw_return": [
+    [
+      1,
+      "자전거 통행 관찰기\n엣지 AI 프로젝트 소개서\n배지호 2026 캡스톤 디자인 4인 팀\n문제와 사용자\n· 자전거 도로의 짧은 영상에서 통행량을 세는 시제품이다. 얼굴이나 번호판을\n저장하지 않고 구간별 집계만 남기는 방향으로 설계했다.\n구현 기술\n· OpenCV, C++, ONNX Runtime\n역할과 구현\n· 팀은 객체 탐지 모델과 집계 기준을 개발했다.\n• 나는 추론 실행부와 프레임 큐를 최적화했다.\n• 입력 복사를 줄이고 오래된 프레임은 버려 지연 누적을 막았다. 학습 데이터의 라벨\n수정은 다른 팀원이 담당했다.\n실험 결과\n• 영상 처리 속도 18fps  27fps로 증가\n• 같은 장치, 720p 시험 영상 5분\n다음 단계\n· 야간과 우천 영상에서 탐지 정확도를 추가 확인해야 한다.\n합성 학생 프로젝트 P12"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 409,
+    "prediction_characters": 402,
+    "insertions": 0,
+    "deletions": 7,
+    "substitutions": 4,
+    "errors": 11,
+    "cer": 0.02689486552567237,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 302,
+    "prediction_characters": 298,
+    "insertions": 0,
+    "deletions": 4,
+    "substitutions": 4,
+    "errors": 8,
+    "cer": 0.026490066225165563,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "OpenCV",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "OpenCV",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "C++",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "C++",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "ONNX Runtime",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "ONNX Runtime",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "객체 탐지 모델과 집계 기준",
+      "statement": "팀은 객체 탐지 모델과 집계 기준을 개발했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "구현 기술\n· OpenCV, C++, ONNX Runtime\n역할과 구현\n· 팀은 객체 탐지 모델과 집계 기준을 개발했다.\n• 나는 추론 실",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "추론 실행부와 프레임 큐",
+      "statement": "나는 추론 실행부와 프레임 큐를 최적화했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "• 나는 추론 실행부와 프레임 큐를 최적화했다.\n• 입력 복사",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "영상 처리 속도",
+      "before": "18",
+      "after": "27",
+      "unit": "fps",
+      "direction": "증가",
+      "statement": "영상 처리 속도 18fps → 27fps",
+      "category": "metrics",
+      "state": "preserved",
+      "parsed_relation": {
+        "metric": "영상 처리 속도",
+        "before": "18",
+        "after": "27",
+        "before_unit": "fps",
+        "after_unit": "fps",
+        "connector": "destination_particle_and_direction",
+        "direction_word": "증가"
+      },
+      "evidence": "영상 처리 속도 18fps  27fps로 증가",
+      "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "id": "p02_intro",
+  "project_id": "p02",
+  "original_id": "p02",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "intro_prose",
+  "format": "introduction",
+  "facts": "key_facts/p02_intro.json",
+  "image": "images/p02_intro.png",
+  "ground_truth": "ground_truth/p02_intro.txt",
+  "reading_order": "ground_truth/p02_intro.reading_order.json",
+  "width": 1240,
+  "height": 1754,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#3a477c",
+  "image_sha256": "3f707f0b00bbc5738c667aa4483352de316b6326a8c33d7ec7848cb9f8858054",
+  "ground_truth_sha256": "0ddc5180390bc0b35a1e5da0cd100879e3f51f4df1658f7764bd752bd31bf8bc",
+  "facts_sha256": "baa5d8599bd045840f2eb7d15e15c9fb795988d5528962322805568b30ffaca9",
+  "reading_order_sha256": "e0f725ab22b8acff25e47c811de98c4c58f13aec8f85a76b94652bad2c151432",
+  "status": "success",
+  "seconds": 2.596996708000006,
+  "error": null,
+  "prediction": "predictions/p02_intro.txt",
+  "prediction_sha256": "8c9b264fc3820367813d97f9930095923565b1c6a5744fd0eb5b8d5318a37536",
+  "raw_return": [
+    [
+      1,
+      "길벗 캠퍼스\n모바일 앱 프로젝트 소개서\n이서연 2026 여름방학 3인 팀\n개발 배경과 기여\n낯선 건물로 이동하는 신입생을 위해 경사와 계단 정보를 보여 주는 앱을 만들었다\n통신이 끊긴 지하 연결 통로에서도 경로 메모를 남길 수 있게 했다.\n사용한 기술은 Flutter, Dart SQLite이다.\n팀은 추천 모델을 개발했다. 나는 데이터 수집 API를 구현했다\n담당 범위를 먼저 나누었다. 팀은 추천 모델을 개발했고 나는 데이터 수집 API를\n구현했다. 저장 대기열과 재전송 기록은 내가 점검했다.\n검증 결과 오프라인 저장 성공률 91%  99%로 증가했다. 비행기 모드 전환을\n포함한 입력 100회 조건이다.\n사용자는 계단 구간을 직접 표시하고 수정 의견을 보낼 수 있다.\n접근성 경로의 안전성은 현장 조사와 장애 학생의 사용 검토가 더 필요하다.\n합성 학생 프로젝트 · P02"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 445,
+    "prediction_characters": 436,
+    "insertions": 0,
+    "deletions": 9,
+    "substitutions": 0,
+    "errors": 9,
+    "cer": 0.020224719101123594,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 332,
+    "prediction_characters": 325,
+    "insertions": 0,
+    "deletions": 7,
+    "substitutions": 0,
+    "errors": 7,
+    "cer": 0.02108433734939759,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Flutter",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Flutter",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "Dart",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Dart",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "SQLite",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "SQLite",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "추천 모델",
+      "statement": "팀은 추천 모델을 개발했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "팀은 추천 모델을 개발했다. 나는 데이터 수",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "데이터 수집 API",
+      "statement": "나는 데이터 수집 API를 구현했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "나는 데이터 수집 API를 구현했다\n담당 범위를 먼저",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "오프라인 저장 성공률",
+      "before": "91",
+      "after": "99",
+      "unit": "%",
+      "direction": "증가",
+      "statement": "오프라인 저장 성공률 91% → 99%",
+      "category": "metrics",
+      "state": "preserved",
+      "parsed_relation": {
+        "metric": "오프라인 저장 성공률",
+        "before": "91",
+        "after": "99",
+        "before_unit": "%",
+        "after_unit": "%",
+        "connector": "destination_particle_and_direction",
+        "direction_word": "증가"
+      },
+      "evidence": "오프라인 저장 성공률 91%  99%로 증가",
+      "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "project_id": "p08",
+  "technology": [
+    {
+      "id": "tech_1",
+      "name": "R"
+    },
+    {
+      "id": "tech_2",
+      "name": "ggplot2"
+    },
+    {
+      "id": "tech_3",
+      "name": "Shiny"
+    }
+  ],
+  "roles": [
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "전력 사용량 예측식",
+      "statement": "팀은 전력 사용량 예측식을 비교했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "계절별 시각화와 이상치 검토",
+      "statement": "나는 계절별 시각화와 이상치 검토를 수행했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "metric_main",
+      "name": "일별 전력 MAPE",
+      "before": "14.8",
+      "after": "9.6",
+      "unit": "%",
+      "direction": "감소",
+      "statement": "일별 전력 MAPE 14.8% → 9.6%"
+    }
+  ],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

@@ -1,0 +1,118 @@
+{
+  "id": "p02_slide_bullets",
+  "project_id": "p02",
+  "original_id": "p02",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_bullets",
+  "format": "slide",
+  "facts": "key_facts/p02_slide_bullets.json",
+  "image": "images/p02_slide_bullets.png",
+  "ground_truth": "ground_truth/p02_slide_bullets.txt",
+  "reading_order": "ground_truth/p02_slide_bullets.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#3a477c",
+  "image_sha256": "c332d178296939ed8ec6176c08d2bc8f9593b51c3f247d7c137d3e065709b0a4",
+  "ground_truth_sha256": "17ee161cc4c1c938d6a37bb7ba72215c2c324cdeb3acf395c7ab9d37a84a59d2",
+  "facts_sha256": "baa5d8599bd045840f2eb7d15e15c9fb795988d5528962322805568b30ffaca9",
+  "reading_order_sha256": "b58b7824dace9b09913733c32d4b742509736fd5274294c476851db3c59e4e9b",
+  "status": "success",
+  "seconds": 1.5769798339997578,
+  "error": null,
+  "prediction": "predictions/p02_slide_bullets.txt",
+  "prediction_sha256": "18aea917fc9b325a22dde9f9b2e257375f264872c04dde82424b71c12ddda88e",
+  "raw_return": [
+    [
+      1,
+      "길벗 캠퍼스\n모바일 앱 구현과 검증\n문제\n낯선 건물로 이동하는 신입생을 위해 경사와 계단 정보를 보여 주는 앱을 만들었다.\n기술\nFlutter, Dart, SQLite\n팀 기여\n팀은 추천 모델을 개발했다.\n본인 기여\n나는 데이터 수집 API를 구현했다.\n결과\n오프라인 저장 성공률 91%  99%로 증가\n이서연· 비행기 모드 전환을 포함한 입력 100회"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 201,
+    "prediction_characters": 197,
+    "insertions": 0,
+    "deletions": 4,
+    "substitutions": 0,
+    "errors": 4,
+    "cer": 0.01990049751243781,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 149,
+    "prediction_characters": 147,
+    "insertions": 0,
+    "deletions": 2,
+    "substitutions": 0,
+    "errors": 2,
+    "cer": 0.013422818791946308,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Flutter",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Flutter",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "Dart",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Dart",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "SQLite",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "SQLite",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "추천 모델",
+      "statement": "팀은 추천 모델을 개발했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "기술\nFlutter, Dart, SQLite\n팀 기여\n팀은 추천 모델을 개발했다.\n본인 기여\n나는",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "데이터 수집 API",
+      "statement": "나는 데이터 수집 API를 구현했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "본인 기여\n나는 데이터 수집 API를 구현했다.\n결과\n오프라인",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "오프라인 저장 성공률",
+      "before": "91",
+      "after": "99",
+      "unit": "%",
+      "direction": "증가",
+      "statement": "오프라인 저장 성공률 91% → 99%",
+      "category": "metrics",
+      "parsed_relation": null,
+      "state": "indeterminate",
+      "evidence": "오프라인 저장 성공률 91%  99%로 증가\n이서연· 비행기 모드 전환을 포함한 입력 100회",
+      "reason": "metric remains, but no complete directed tuple or labelled before/after pair"
+    }
+  ]
+}

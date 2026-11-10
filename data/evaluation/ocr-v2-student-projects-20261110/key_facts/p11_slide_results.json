@@ -1,0 +1,17 @@
+{
+  "project_id": "p11",
+  "technology": [],
+  "roles": [],
+  "metrics": [
+    {
+      "id": "metric_main",
+      "name": "검색 Recall@5",
+      "before": "61",
+      "after": "83",
+      "unit": "%",
+      "direction": "증가",
+      "statement": "검색 Recall@5 61% → 83%"
+    }
+  ],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

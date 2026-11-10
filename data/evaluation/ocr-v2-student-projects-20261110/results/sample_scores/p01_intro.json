@@ -1,0 +1,118 @@
+{
+  "id": "p01_intro",
+  "project_id": "p01",
+  "original_id": "p01",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "intro_prose",
+  "format": "introduction",
+  "facts": "key_facts/p01_intro.json",
+  "image": "images/p01_intro.png",
+  "ground_truth": "ground_truth/p01_intro.txt",
+  "reading_order": "ground_truth/p01_intro.reading_order.json",
+  "width": 1240,
+  "height": 1754,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#165b70",
+  "image_sha256": "e93320ae75abf92e1e264be13067020d439f70b29aa81af5e684ef7ec0cd9c0f",
+  "ground_truth_sha256": "d99177ccd4138dc4772da670840718c1f3d55dd012aa340aaa46677590710d06",
+  "facts_sha256": "d36c6b4bc05208ca72fcefe88ef5deb0a4fd533066a7c1b06af5cf03442533ac",
+  "reading_order_sha256": "f6ded131310b65e6e82e931d9d8032c33862b852bdfa88c7ccf40591d5ebf9be",
+  "status": "success",
+  "seconds": 2.7389216659994418,
+  "error": null,
+  "prediction": "predictions/p01_intro.txt",
+  "prediction_sha256": "22e8780ec901e49455228066e95069074a4529c862ab00f1e698a4175f6db428",
+  "raw_return": [
+    [
+      1,
+      "모여라 동아리방\n웹 서비스 프로젝트 소개서\n김도윤 2026 봄학기 4인 팀\n동아리방 예약이 단체 채팅에 흩어져 같은 시간에 두 팀이 찾아오는 일이 있었다.\n빈 시간을 확인하고 예약을 확정하는 과정을 한 화면으로 묶었다.\n사용한 기술은 Next.js, TypeScript, PostgreSQL이다.\n팀은 예약 화면과 관리자 승인 기능을 개발했다 나는 중복 예약 차단 API와\n트랜잭션 처리를 구현했다.\n나는 동시에 들어온 요청을 재현한 뒤 예약 구간에 잠금을 적용했다. 팀원은\n이용자 인터뷰를 바탕으로 주간 달력 화면을 개선했다.\n검증 결과 예약 API p95 420ms  180ms로 감소했다. 동시 요청 50건 같은\n로컬 서버에서 측정 조건이다.\n예약 충돌 때는 기존 예약을 지우지 않고 실패 사유를 반환한다.\n학기 초 접속 폭증과 실제 교내 계정 연동은 아직 검증하지 않았다\n합성 학생 프로젝트 · P01"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 461,
+    "prediction_characters": 452,
+    "insertions": 0,
+    "deletions": 9,
+    "substitutions": 0,
+    "errors": 9,
+    "cer": 0.019522776572668113,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 347,
+    "prediction_characters": 340,
+    "insertions": 0,
+    "deletions": 7,
+    "substitutions": 0,
+    "errors": 7,
+    "cer": 0.020172910662824207,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Next.js",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Next.js",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "TypeScript",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "TypeScript",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "PostgreSQL",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "PostgreSQL",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "예약 화면과 관리자 승인 기능",
+      "statement": "팀은 예약 화면과 관리자 승인 기능을 개발했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "팀은 예약 화면과 관리자 승인 기능을 개발했다 나는 중복 예약 차",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "중복 예약 차단 API와 트랜잭션 처리",
+      "statement": "나는 중복 예약 차단 API와 트랜잭션 처리를 구현했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "팀은 예약 화면과 관리자 승인 기능을 개발했다 나는 중복 예약 차단 API와\n트랜잭션 처리를 구현했다.\n나는 동시에 들",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "예약 API p95",
+      "before": "420",
+      "after": "180",
+      "unit": "ms",
+      "direction": "감소",
+      "statement": "예약 API p95 420ms → 180ms",
+      "category": "metrics",
+      "parsed_relation": null,
+      "state": "indeterminate",
+      "evidence": "예약 API p95 420ms  180ms로 감소했다. 동시 요청 50건 같은\n로컬 서버에서 측정 조건이다.\n예약 충돌 때는 기존 예약을 지우지 않고 실패 사유를 반환한다.\n학기 초 접속 폭증과 실제 교내 계정 연동은 아직 검증하지 않았다",
+      "reason": "metric remains, but no complete directed tuple or labelled before/after pair"
+    }
+  ]
+}
