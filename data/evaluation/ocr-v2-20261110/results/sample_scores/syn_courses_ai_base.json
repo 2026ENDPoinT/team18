@@ -1,0 +1,37 @@
+{
+  "id": "syn_courses_ai_base",
+  "original_id": "syn_courses_ai",
+  "kind": "synthetic",
+  "category": "과목 목록",
+  "variant": "base",
+  "image": "images/syn_courses_ai_base.png",
+  "ground_truth": "ground_truth/syn_courses_ai.txt",
+  "width": 1240,
+  "height": 1754,
+  "image_sha256": "4c04b49d7f05560d2448b935f9144721e13c427ed6fb5af96bee094444d6543e",
+  "ground_truth_sha256": "bbb018f6565c6d02e95e947419dbb1e77745a9de733482cf8e821852edd49623",
+  "prediction": "predictions/syn_courses_ai_base.txt",
+  "status": "success",
+  "seconds": 2.3654575000000477,
+  "error": null,
+  "with_whitespace": {
+    "reference_characters": 228,
+    "prediction_characters": 227,
+    "insertions": 21,
+    "deletions": 22,
+    "substitutions": 21,
+    "errors": 64,
+    "cer": 0.2807017543859649,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 173,
+    "prediction_characters": 173,
+    "insertions": 16,
+    "deletions": 16,
+    "substitutions": 3,
+    "errors": 35,
+    "cer": 0.2023121387283237,
+    "exact_match": false
+  }
+}

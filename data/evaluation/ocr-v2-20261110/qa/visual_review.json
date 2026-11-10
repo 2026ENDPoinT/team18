@@ -1,0 +1,10 @@
+{
+  "review_completed_before_ocr": true,
+  "reviewer": "Codex visual review; no independent human double annotation",
+  "synthetic": "All six original pages and blur contact sheet visually inspected; base text readable, no missing glyphs/cropping/overlap; font cmap and every drawn bbox checked programmatically. Half-size images are deterministic resizes of reviewed originals.",
+  "real": "All three entire rendered PDF pages inspected. Digital author text was used only as a reference, with visible spacing, row-major cell order, bullets, headers and footers transcribed. real_03 detailed crop confirms original typo 제인요청서, retained uncorrected.",
+  "ambiguities": [
+    "Display tracking vs whitespace cannot always be inferred uniquely.",
+    "Merged cells and spread reading order follow protocol, which differs from simple y-sorting."
+  ]
+}

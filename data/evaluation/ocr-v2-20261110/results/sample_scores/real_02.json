@@ -1,0 +1,39 @@
+{
+  "id": "real_02",
+  "original_id": "real_02",
+  "kind": "real",
+  "variant": "base",
+  "category": "한국산업기술시험원 교육 정보2 2.pdf",
+  "image": "images/real_02.png",
+  "ground_truth": "ground_truth/real_02.txt",
+  "width": 1190,
+  "height": 1682,
+  "pdf_scale": 2,
+  "source_pdf_sha256": "34dacca79f87b1416be013a56cb483b5cd1e2725f76fc871b3f42ab675d1ad46",
+  "image_sha256": "2ca3a18ec78e958c95c063d7b0ef077b45c685e1e37dd5e422ce7d5d7ba1ea15",
+  "ground_truth_sha256": "b2d22c69ad55f09c4f98f6c5cc271316413ddf0e8d7c29888604df2901bb1571",
+  "prediction": "predictions/real_02.txt",
+  "status": "success",
+  "seconds": 3.4043232500002887,
+  "error": null,
+  "with_whitespace": {
+    "reference_characters": 658,
+    "prediction_characters": 658,
+    "insertions": 19,
+    "deletions": 19,
+    "substitutions": 40,
+    "errors": 78,
+    "cer": 0.11854103343465046,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 512,
+    "prediction_characters": 512,
+    "insertions": 21,
+    "deletions": 21,
+    "substitutions": 10,
+    "errors": 52,
+    "cer": 0.1015625,
+    "exact_match": false
+  }
+}

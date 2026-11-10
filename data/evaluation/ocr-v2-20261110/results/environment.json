@@ -1,0 +1,67 @@
+{
+  "commit": "46e777ed1a1e180188c0f2ff17384fd58932a780",
+  "branch": "ocr_test",
+  "started_at_utc": "2026-11-10T04:32:13.575466+00:00",
+  "python": "3.12.12 (main, Oct  9 2025, 11:07:00) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "os": "macOS-26.7.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "hardware": {
+    "chip_type": "Apple M4",
+    "physical_memory": "16 GB",
+    "machine_model": "Mac16,12",
+    "number_processors": "proc 10:4:6:0"
+  },
+  "cpu_count": 10,
+  "torch_threads": 2,
+  "torch_interop_threads": 1,
+  "cuda_available": false,
+  "mps_available": false,
+  "import_seconds": 0.5515521659999649,
+  "package_versions": {
+    "torch": "2.15.0",
+    "torchvision": "0.29.2",
+    "transformers": "5.22.2",
+    "pillow": "13.0.0",
+    "numpy": "2.5.4",
+    "opencv-python-headless": "5.0.0.93",
+    "pypdfium2": "5.15.2",
+    "rapidfuzz": "3.14.6"
+  },
+  "source_hashes": {
+    "ai/local/ocr.py": "3099cc18827c0720d4e6a64add51b6f31962be0985787fd14bb6bd8dac44fb2b",
+    "ai/intake.py": "fece51dd5c482eceee3c819c12f8d8e1e063b97685afac9561812ea6802a959c",
+    "ai/workflow.py": "0c8b272e1b25af11e971babc0c7d1eb37dbe2b7ab095ad7c3e6485b252394837",
+    "ai/gemini/roadmap.mjs": "53816bd6d81697943bdc457d115a8b20ff947257bcea556a5dd77deb49415688",
+    "ai/models/ocr-v2/config.json": "4d26d3e410649546cae9033b681eb0352fbe8adc975a70cb7d4c4305b5fff6bf",
+    "ai/models/ocr-v2/evaluation.json": "c44b0cc6af890716221d1dd0a345b94f5922b4c56482ab09e55c8218c2f78406",
+    "ai/models/ocr-v2/model.safetensors": "0bd0f071a847dd55468333f25b10e4bd9a639c2b492c2540860d4049952d2e6d",
+    "ai/models/ocr-v2/preprocessor_config.json": "d3f593e7c77f72e17c3aa7ffed2fac68d0e373a71967dbd4b6e1b0b81a5df290",
+    "ai/models/ocr-detector/config.json": "b42d76ab6325d5234e1afc9987b73dc592b0ec8437c8a29d46ba6209b79252eb",
+    "ai/models/ocr-detector/model.safetensors": "89a96a8adc4e9cd0c994098edc76022e496d35844392562b4694c8fbc583f2da",
+    "ai/models/ocr-detector/preprocessor_config.json": "74421569a28a78d417db320f9bc039ce0997a1defe2b35f259dfc74299c9f1ed"
+  },
+  "manifest_sha256": "7d0074fff18a4876bcaf91068db8d9e0254dac053006b15e49d06603b4067565",
+  "settings": {
+    "model": "local",
+    "orientation": "auto",
+    "layout": "rows",
+    "crop_padding": 0
+  },
+  "error_scoring": "error predictions replaced by empty string for conservative full-input CER; successful-return-only also reported",
+  "timing": "PNG bytes already in memory -> LocalOCR.extract -> returned text; 1 trial per input, separate non-scored warmup",
+  "model_load_seconds": 19.283301333000054,
+  "device": "cpu",
+  "detector_class": "PPOCRV6SmallDetForObjectDetection",
+  "recognizer_class": "PPOCRV6SmallRecForTextRecognition",
+  "recognizer_parameters": 6671094,
+  "detector_parameters": 2460709,
+  "warmup_output": [
+    [
+      1,
+      "모델 실행 준비 123"
+    ]
+  ],
+  "warmup_seconds": 1.4809450839998135,
+  "source_unchanged_after_run": true,
+  "finished_at_utc": "2026-11-10T04:33:26.237601+00:00"
+}
