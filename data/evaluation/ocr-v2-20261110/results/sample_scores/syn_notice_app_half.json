@@ -1,0 +1,37 @@
+{
+  "id": "syn_notice_app_half",
+  "original_id": "syn_notice_app",
+  "kind": "synthetic",
+  "category": "공모전 공고",
+  "variant": "half",
+  "image": "images/syn_notice_app_half.png",
+  "ground_truth": "ground_truth/syn_notice_app.txt",
+  "width": 620,
+  "height": 877,
+  "image_sha256": "b448724af554599197bb3534544ccb9632ec8128c0fe88932d52ed2b54738c04",
+  "ground_truth_sha256": "44c5486b396933a70b449fe708876ab7429f4fa53111dd2423ca14c970d4eb00",
+  "prediction": "predictions/syn_notice_app_half.txt",
+  "status": "success",
+  "seconds": 1.3952722080002786,
+  "error": null,
+  "with_whitespace": {
+    "reference_characters": 376,
+    "prediction_characters": 376,
+    "insertions": 0,
+    "deletions": 0,
+    "substitutions": 0,
+    "errors": 0,
+    "cer": 0.0,
+    "exact_match": true
+  },
+  "without_whitespace": {
+    "reference_characters": 292,
+    "prediction_characters": 292,
+    "insertions": 0,
+    "deletions": 0,
+    "substitutions": 0,
+    "errors": 0,
+    "cer": 0.0,
+    "exact_match": true
+  }
+}

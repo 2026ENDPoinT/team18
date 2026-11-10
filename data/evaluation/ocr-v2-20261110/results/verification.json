@@ -1,0 +1,6 @@
+{
+  "verified_samples": 21,
+  "verified_metrics": 42,
+  "method": "independent standard-library Levenshtein DP, input hashes, normalization and micro aggregation checks",
+  "all_passed": true
+}

@@ -1,0 +1,37 @@
+{
+  "id": "syn_project_data_half",
+  "original_id": "syn_project_data",
+  "kind": "synthetic",
+  "category": "프로젝트 소개",
+  "variant": "half",
+  "image": "images/syn_project_data_half.png",
+  "ground_truth": "ground_truth/syn_project_data.txt",
+  "width": 620,
+  "height": 877,
+  "image_sha256": "edea791d32aa5b7689b8192f9d5099755746997f2f849d0ba01e6853cf4c9ea7",
+  "ground_truth_sha256": "452246a79ce83aa440a81504de6c9c1744764f3d4b2ed8ed8cf85507a655ffbb",
+  "prediction": "predictions/syn_project_data_half.txt",
+  "status": "success",
+  "seconds": 1.4217939999998634,
+  "error": null,
+  "with_whitespace": {
+    "reference_characters": 333,
+    "prediction_characters": 333,
+    "insertions": 0,
+    "deletions": 0,
+    "substitutions": 0,
+    "errors": 0,
+    "cer": 0.0,
+    "exact_match": true
+  },
+  "without_whitespace": {
+    "reference_characters": 257,
+    "prediction_characters": 257,
+    "insertions": 0,
+    "deletions": 0,
+    "substitutions": 0,
+    "errors": 0,
+    "cer": 0.0,
+    "exact_match": true
+  }
+}

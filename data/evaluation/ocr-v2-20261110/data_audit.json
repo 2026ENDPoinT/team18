@@ -1,0 +1,126 @@
+{
+  "existing_raster_or_pdf_hashes": {
+    "data/reference/external-fixtures/pdf/v1/sample.pdf": "20f0f96c20a73c9b4786c15fd1198726ad740684ca52d482cd74ae3dfaf32089",
+    "docs/test-files/blank.pdf": "59be5d5fcfff9756bb58c04ef3a981e106565d58b6c2acb2ff1aabbe37112724",
+    "docs/test-files/invalid-format.pdf": "abb97396d7c13be5cbcf59d40555a8066759242020afec06363d9298136df95f",
+    "docs/test-files/project-ready.pdf": "20f0f96c20a73c9b4786c15fd1198726ad740684ca52d482cd74ae3dfaf32089"
+  },
+  "previous_selected_documents_indices_0_to_3": [
+    {
+      "category": "Notices",
+      "index": 0,
+      "name": "(대량) 경상북도_포항시_열린포항소식지 13.pdf"
+    },
+    {
+      "category": "Notices",
+      "index": 1,
+      "name": "(대량) 경상북도_포항시_열린포항소식지 14.pdf"
+    },
+    {
+      "category": "Notices",
+      "index": 2,
+      "name": "(대량) 경상북도_포항시_열린포항소식지 15.pdf"
+    },
+    {
+      "category": "Notices",
+      "index": 3,
+      "name": "[대량] 구미도시공사_채용 정보 1.pdf"
+    },
+    {
+      "category": "Manuals",
+      "index": 0,
+      "name": "(제1유형) 국토교통부_규제안내서 2.pdf"
+    },
+    {
+      "category": "Manuals",
+      "index": 1,
+      "name": "(제1유형) 식품의약품안전처_식중독예방 대국민 홍보자료 서비스(수시)_1.pdf"
+    },
+    {
+      "category": "Manuals",
+      "index": 2,
+      "name": "(제1유형) 식품의약품안전처_식중독예방 대국민 홍보자료 서비스(수시)_2.pdf"
+    },
+    {
+      "category": "Manuals",
+      "index": 3,
+      "name": "(제1유형)_개인정보보호위원회_개인정보 유출 등 사고 대응 매뉴얼 5.pdf"
+    },
+    {
+      "category": "Reports",
+      "index": 0,
+      "name": "(제1유형) 산림청 국립산림과학원_제주의 숲과 난초 83.pdf"
+    },
+    {
+      "category": "Reports",
+      "index": 1,
+      "name": "(제1유형)_고용노동부_기업체노동비용조사_보고서 150.pdf"
+    },
+    {
+      "category": "Reports",
+      "index": 2,
+      "name": "(제1유형)_행정안전부_정책연구과제 96.pdf"
+    },
+    {
+      "category": "Reports",
+      "index": 3,
+      "name": "[제1유형, 대량] 한국소비자원_시장조사 보고서 9.pdf"
+    }
+  ],
+  "real_selected": [
+    {
+      "id": "real_01",
+      "name": "[대량] 제주특별자치도교육청_홈페이지 구인정보 3.pdf",
+      "url": "https://huggingface.co/datasets/ONTHEIT/KDoc-OCRBench-V2/resolve/e94ba5be6b3c6ec4fed85b0789fc73395f6930fb/pdfs/%5B%EB%8C%80%EB%9F%89%5D%20%EC%A0%9C%EC%A3%BC%ED%8A%B9%EB%B3%84%EC%9E%90%EC%B9%98%EB%8F%84%EA%B5%90%EC%9C%A1%EC%B2%AD_%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%80%20%EA%B5%AC%EC%9D%B8%EC%A0%95%EB%B3%B4%203.pdf",
+      "file": "real_01.pdf",
+      "sha256": "ab0f7b8c904975b090d8b7efe63b3eb4f6655c720be07a36914f484cce833a21",
+      "filename": "[대량] 제주특별자치도교육청_홈페이지 구인정보 3.pdf",
+      "license": "이용허락범위 제한없음",
+      "source_url": "https://www.data.go.kr/data/15100874/fileData.do#",
+      "attribution": "",
+      "same_file_in_prior_selected": false,
+      "same_sha256_as_tracked_pdf": []
+    },
+    {
+      "id": "real_02",
+      "name": "한국산업기술시험원 교육 정보2 2.pdf",
+      "url": "https://huggingface.co/datasets/ONTHEIT/KDoc-OCRBench-V2/resolve/e94ba5be6b3c6ec4fed85b0789fc73395f6930fb/pdfs/%ED%95%9C%EA%B5%AD%EC%82%B0%EC%97%85%EA%B8%B0%EC%88%A0%EC%8B%9C%ED%97%98%EC%9B%90%20%EA%B5%90%EC%9C%A1%20%EC%A0%95%EB%B3%B42%202.pdf",
+      "file": "real_02.pdf",
+      "sha256": "34dacca79f87b1416be013a56cb483b5cd1e2725f76fc871b3f42ab675d1ad46",
+      "filename": "한국산업기술시험원 교육 정보2 2.pdf",
+      "license": "이용허락범위 제한없음",
+      "source_url": "https://www.data.go.kr/data/15007900/fileData.do",
+      "attribution": "",
+      "same_file_in_prior_selected": false,
+      "same_sha256_as_tracked_pdf": []
+    },
+    {
+      "id": "real_03",
+      "name": "인사혁신처_국가공무원인재개발원 교육운영계획 61.pdf",
+      "url": "https://huggingface.co/datasets/ONTHEIT/KDoc-OCRBench-V2/resolve/e94ba5be6b3c6ec4fed85b0789fc73395f6930fb/pdfs/%EC%9D%B8%EC%82%AC%ED%98%81%EC%8B%A0%EC%B2%98_%EA%B5%AD%EA%B0%80%EA%B3%B5%EB%AC%B4%EC%9B%90%EC%9D%B8%EC%9E%AC%EA%B0%9C%EB%B0%9C%EC%9B%90%20%EA%B5%90%EC%9C%A1%EC%9A%B4%EC%98%81%EA%B3%84%ED%9A%8D%2061.pdf",
+      "file": "real_03.pdf",
+      "sha256": "b48b8c6e699121f9fe1bed5e33a7e8f6dedf26377efb05ff4312e0b1ef941d09",
+      "filename": "인사혁신처_국가공무원인재개발원 교육운영계획 61.pdf",
+      "license": "이용허락범위 제한없음",
+      "source_url": "https://www.data.go.kr/data/15105424/fileData.do",
+      "attribution": "",
+      "same_file_in_prior_selected": false,
+      "same_sha256_as_tracked_pdf": []
+    }
+  ],
+  "exact_full_reference_matches_in_existing_evaluation_records": [],
+  "known_training": "ocr-v2: NCS phrases 1200 train, 100 val, 100 test; seed42; Malgun/Malgun Bold; predecessor NCS300 train; only CTC head tuned; university model not default",
+  "unverifiable": [
+    "NCS CSV and actual training/validation image manifests absent; cannot audit exact phrase or image intersection.",
+    "Original Qota-OCR and detector pretraining data not fully available; public PDF contamination cannot be ruled out.",
+    "Prior development may include unrecorded documents; absence from checked-in reports is not a proof."
+  ],
+  "synthetic": "Six newly authored distinct full texts; different source text from previous benchmark. Common terms/course names can overlap training phrases. Font family Nanum Gothic existed in previous benchmark but whole pages and references are new.",
+  "repository_fixtures": "docs/test-files/project-ready PDF/DOCX/TXT etc are generated extraction fixtures, not real document/full-image CER gold; not included in scored set.",
+  "git": {
+    "commit": "46e777ed1a1e180188c0f2ff17384fd58932a780",
+    "branch": "ocr_test",
+    "tracked_diff": "",
+    "branches": "  P0\n  P1-external-api\n  ai_0\n  faet진로-입력-기반-강의-추천\n  main\n  mockup\n* ocr_test\n  remotes/origin/HEAD -> origin/main\n  remotes/origin/P0\n  remotes/origin/P1-external-api\n  remotes/origin/ai_0\n  remotes/origin/codex/ocr-benchmark-20261109\n  remotes/origin/faet진로-입력-기반-강의-추천\n  remotes/origin/main\n  remotes/origin/mockup\n  remotes/origin/ocr_test\n"
+  }
+}

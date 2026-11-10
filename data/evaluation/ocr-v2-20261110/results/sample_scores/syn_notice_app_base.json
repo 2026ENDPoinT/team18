@@ -1,0 +1,37 @@
+{
+  "id": "syn_notice_app_base",
+  "original_id": "syn_notice_app",
+  "kind": "synthetic",
+  "category": "공모전 공고",
+  "variant": "base",
+  "image": "images/syn_notice_app_base.png",
+  "ground_truth": "ground_truth/syn_notice_app.txt",
+  "width": 1240,
+  "height": 1754,
+  "image_sha256": "1d70b9cc80789ec1e23cf8bc237e9bee811d9c7c4316c65b813ae756b61d4bfc",
+  "ground_truth_sha256": "44c5486b396933a70b449fe708876ab7429f4fa53111dd2423ca14c970d4eb00",
+  "prediction": "predictions/syn_notice_app_base.txt",
+  "status": "success",
+  "seconds": 2.557666374999826,
+  "error": null,
+  "with_whitespace": {
+    "reference_characters": 376,
+    "prediction_characters": 370,
+    "insertions": 0,
+    "deletions": 6,
+    "substitutions": 0,
+    "errors": 6,
+    "cer": 0.015957446808510637,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 292,
+    "prediction_characters": 287,
+    "insertions": 0,
+    "deletions": 5,
+    "substitutions": 0,
+    "errors": 5,
+    "cer": 0.017123287671232876,
+    "exact_match": false
+  }
+}

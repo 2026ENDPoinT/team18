@@ -1,0 +1,37 @@
+{
+  "id": "syn_notice_research_base",
+  "original_id": "syn_notice_research",
+  "kind": "synthetic",
+  "category": "공모전 공고",
+  "variant": "base",
+  "image": "images/syn_notice_research_base.png",
+  "ground_truth": "ground_truth/syn_notice_research.txt",
+  "width": 1240,
+  "height": 1754,
+  "image_sha256": "38afd2180f1211e4f7755a3439743160b2c33a92e4f6fcb21ee80490bfeaeee9",
+  "ground_truth_sha256": "3bfccc5944a37c8940b244ec2e3869d40afcf1638497ad39c9eecb16da572515",
+  "prediction": "predictions/syn_notice_research_base.txt",
+  "status": "success",
+  "seconds": 2.4879714999997304,
+  "error": null,
+  "with_whitespace": {
+    "reference_characters": 371,
+    "prediction_characters": 369,
+    "insertions": 0,
+    "deletions": 2,
+    "substitutions": 0,
+    "errors": 2,
+    "cer": 0.005390835579514825,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 290,
+    "prediction_characters": 289,
+    "insertions": 0,
+    "deletions": 1,
+    "substitutions": 0,
+    "errors": 1,
+    "cer": 0.0034482758620689655,
+    "exact_match": false
+  }
+}

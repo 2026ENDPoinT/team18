@@ -1,0 +1,37 @@
+{
+  "id": "syn_notice_research_half",
+  "original_id": "syn_notice_research",
+  "kind": "synthetic",
+  "category": "공모전 공고",
+  "variant": "half",
+  "image": "images/syn_notice_research_half.png",
+  "ground_truth": "ground_truth/syn_notice_research.txt",
+  "width": 620,
+  "height": 877,
+  "image_sha256": "29497089f4f1636b88ece08625522b8391e29f00798f936060a3d29285877326",
+  "ground_truth_sha256": "3bfccc5944a37c8940b244ec2e3869d40afcf1638497ad39c9eecb16da572515",
+  "prediction": "predictions/syn_notice_research_half.txt",
+  "status": "success",
+  "seconds": 1.7441529590000755,
+  "error": null,
+  "with_whitespace": {
+    "reference_characters": 371,
+    "prediction_characters": 371,
+    "insertions": 0,
+    "deletions": 0,
+    "substitutions": 0,
+    "errors": 0,
+    "cer": 0.0,
+    "exact_match": true
+  },
+  "without_whitespace": {
+    "reference_characters": 290,
+    "prediction_characters": 290,
+    "insertions": 0,
+    "deletions": 0,
+    "substitutions": 0,
+    "errors": 0,
+    "cer": 0.0,
+    "exact_match": true
+  }
+}

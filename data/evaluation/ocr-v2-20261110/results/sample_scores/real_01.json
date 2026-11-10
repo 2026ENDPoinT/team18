@@ -1,0 +1,39 @@
+{
+  "id": "real_01",
+  "original_id": "real_01",
+  "kind": "real",
+  "variant": "base",
+  "category": "[대량] 제주특별자치도교육청_홈페이지 구인정보 3.pdf",
+  "image": "images/real_01.png",
+  "ground_truth": "ground_truth/real_01.txt",
+  "width": 1190,
+  "height": 1682,
+  "pdf_scale": 2,
+  "source_pdf_sha256": "ab0f7b8c904975b090d8b7efe63b3eb4f6655c720be07a36914f484cce833a21",
+  "image_sha256": "9731efbac8b76f7a20e6cafc7d695d892b4cc1b6f0e8695e2be7103aaddfbe68",
+  "ground_truth_sha256": "a4a33a1d6dc4f58ae928532f798e47257f6bed9830c806e12075eb12e62d1882",
+  "prediction": "predictions/real_01.txt",
+  "status": "success",
+  "seconds": 3.041656542000055,
+  "error": null,
+  "with_whitespace": {
+    "reference_characters": 808,
+    "prediction_characters": 806,
+    "insertions": 25,
+    "deletions": 27,
+    "substitutions": 36,
+    "errors": 88,
+    "cer": 0.10891089108910891,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 590,
+    "prediction_characters": 589,
+    "insertions": 17,
+    "deletions": 18,
+    "substitutions": 18,
+    "errors": 53,
+    "cer": 0.08983050847457627,
+    "exact_match": false
+  }
+}

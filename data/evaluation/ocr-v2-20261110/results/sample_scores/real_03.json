@@ -1,0 +1,39 @@
+{
+  "id": "real_03",
+  "original_id": "real_03",
+  "kind": "real",
+  "variant": "base",
+  "category": "인사혁신처_국가공무원인재개발원 교육운영계획 61.pdf",
+  "image": "images/real_03.png",
+  "ground_truth": "ground_truth/real_03.txt",
+  "width": 2155,
+  "height": 1475,
+  "pdf_scale": 2,
+  "source_pdf_sha256": "b48b8c6e699121f9fe1bed5e33a7e8f6dedf26377efb05ff4312e0b1ef941d09",
+  "image_sha256": "bb572af08f0f2726067a599c4d2f866e721a7f2cdf3ad020937d8b644c6cbd50",
+  "ground_truth_sha256": "328906897c320876bbf130165d36bbb0726c0cd9a81f64f1ef12f915c7be0cc2",
+  "prediction": "predictions/real_03.txt",
+  "status": "success",
+  "seconds": 6.477820416999748,
+  "error": null,
+  "with_whitespace": {
+    "reference_characters": 1689,
+    "prediction_characters": 1609,
+    "insertions": 457,
+    "deletions": 537,
+    "substitutions": 358,
+    "errors": 1352,
+    "cer": 0.8004736530491415,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 1197,
+    "prediction_characters": 1162,
+    "insertions": 370,
+    "deletions": 405,
+    "substitutions": 145,
+    "errors": 920,
+    "cer": 0.7685881370091896,
+    "exact_match": false
+  }
+}

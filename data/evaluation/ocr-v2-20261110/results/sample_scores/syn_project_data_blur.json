@@ -1,0 +1,37 @@
+{
+  "id": "syn_project_data_blur",
+  "original_id": "syn_project_data",
+  "kind": "synthetic",
+  "category": "프로젝트 소개",
+  "variant": "blur",
+  "image": "images/syn_project_data_blur.png",
+  "ground_truth": "ground_truth/syn_project_data.txt",
+  "width": 1240,
+  "height": 1754,
+  "image_sha256": "9b17dc829d6a2025ee498c380821bc417b4fd12f5247d26507ec0bc28eb269b3",
+  "ground_truth_sha256": "452246a79ce83aa440a81504de6c9c1744764f3d4b2ed8ed8cf85507a655ffbb",
+  "prediction": "predictions/syn_project_data_blur.txt",
+  "status": "success",
+  "seconds": 2.373556459000156,
+  "error": null,
+  "with_whitespace": {
+    "reference_characters": 333,
+    "prediction_characters": 332,
+    "insertions": 0,
+    "deletions": 1,
+    "substitutions": 2,
+    "errors": 3,
+    "cer": 0.009009009009009009,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 257,
+    "prediction_characters": 256,
+    "insertions": 0,
+    "deletions": 1,
+    "substitutions": 1,
+    "errors": 2,
+    "cer": 0.007782101167315175,
+    "exact_match": false
+  }
+}

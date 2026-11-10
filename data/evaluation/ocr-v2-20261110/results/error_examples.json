@@ -1,0 +1,44 @@
+[
+  {
+    "sample": "syn_courses_cs_base",
+    "reference": "A0",
+    "prediction": "AO",
+    "context": "데이터베이스 성적: 숫자 0이 영문 O로 치환"
+  },
+  {
+    "sample": "syn_courses_cs_base",
+    "reference": "B0",
+    "prediction": "BO",
+    "context": "컴퓨터네트워크 성적: 숫자 0이 영문 O로 치환"
+  },
+  {
+    "sample": "syn_courses_ai_base",
+    "reference": "선형대수학\t3\t이수\t미적분학",
+    "prediction": "이수\n미적분학\n선형대수학\n3",
+    "context": "과목명·학점·상태·선수과목의 출력 순서 변경"
+  },
+  {
+    "sample": "syn_project_data_base",
+    "reference": "R² 0.87",
+    "prediction": "R2 0.87",
+    "context": "결정계수 기호가 일반 숫자로 바뀜"
+  },
+  {
+    "sample": "syn_project_web_base",
+    "reference": "182ms → 96ms",
+    "prediction": "182ms  96ms",
+    "context": "성능 개선을 나타내는 화살표 누락"
+  },
+  {
+    "sample": "real_03",
+    "reference": "생성형 AI를 활용한 손쉬운 공공데이터 분석\t14\t6\t8\t-",
+    "prediction": "생성형 AI를 활용한 손쉬운 공공데이터 분석\n14\n8\n6",
+    "context": "해당 과정의 강의 6시간·참여 8시간 순서 변경 및 대시 누락"
+  },
+  {
+    "sample": "real_03",
+    "reference": "",
+    "prediction": "安\n&\n自\n心",
+    "context": "상단 장식 아이콘에서 존재하지 않는 텍스트 생성"
+  }
+]

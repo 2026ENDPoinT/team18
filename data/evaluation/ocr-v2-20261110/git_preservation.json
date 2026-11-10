@@ -1,0 +1,19 @@
+{
+  "commit": "46e777ed1a1e180188c0f2ff17384fd58932a780",
+  "branch": "ocr_test",
+  "tracked_diff": "",
+  "status": "?? data/evaluation/ocr-v2-20261110/\n",
+  "all_evaluated_code_and_weights_match_commit": {
+    "ai/local/ocr.py": true,
+    "ai/intake.py": true,
+    "ai/workflow.py": true,
+    "ai/gemini/roadmap.mjs": true,
+    "ai/models/ocr-v2/config.json": true,
+    "ai/models/ocr-v2/evaluation.json": true,
+    "ai/models/ocr-v2/model.safetensors": true,
+    "ai/models/ocr-v2/preprocessor_config.json": true,
+    "ai/models/ocr-detector/config.json": true,
+    "ai/models/ocr-detector/model.safetensors": true,
+    "ai/models/ocr-detector/preprocessor_config.json": true
+  }
+}
