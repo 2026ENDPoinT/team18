@@ -1,0 +1,75 @@
+{
+  "id": "p08_slide_results",
+  "project_id": "p08",
+  "original_id": "p08",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_results",
+  "format": "slide",
+  "facts": "key_facts/p08_slide_results.json",
+  "image": "images/p08_slide_results.png",
+  "ground_truth": "ground_truth/p08_slide_results.txt",
+  "reading_order": "ground_truth/p08_slide_results.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#3a477c",
+  "image_sha256": "c366421520cdc0bc7ac6ec8e814b58f77adef2b3bbebbc94514eb10f9143ab17",
+  "ground_truth_sha256": "52efb05ec980319c23dd07b2e883a0b5605dc771574847828997a6e309c2351b",
+  "facts_sha256": "70546656040833362453bba295845a5f3ae7e955ca53ed81227408a60f146739",
+  "reading_order_sha256": "6fdae32152b8f77e7d373ffcdc134c1fc78ca7dea54253c40911976e989d068e",
+  "status": "success",
+  "seconds": 1.5800653750002311,
+  "error": null,
+  "prediction": "predictions/p08_slide_results.txt",
+  "prediction_sha256": "4986b30d6c83411cd8f9d939e3c0c9415d2275d5cac02541da08516da27d1669",
+  "raw_return": [
+    [
+      1,
+      "우리 건물 전기 일기 / 결과\n시험 조건과 관찰 결과\n일별 전력 MAPE\n일별 전력 MAPE 14.8% → 9.6%\n감소한 결과를 확인했다.\n14.8%\n측정 조건: 학기 마지막 30일 시간 순서 검증\n9.6%\n오차 감소가 전기 요금 절감으로 이어졌다고\n해석할 수는 없다.\n개선 전\n개선 후\n서준호 합성 실험 결과"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 177,
+    "prediction_characters": 174,
+    "insertions": 21,
+    "deletions": 24,
+    "substitutions": 0,
+    "errors": 45,
+    "cer": 0.2542372881355932,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 128,
+    "prediction_characters": 126,
+    "insertions": 15,
+    "deletions": 17,
+    "substitutions": 0,
+    "errors": 32,
+    "cer": 0.25,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "metric_main",
+      "name": "일별 전력 MAPE",
+      "before": "14.8",
+      "after": "9.6",
+      "unit": "%",
+      "direction": "감소",
+      "statement": "일별 전력 MAPE 14.8% → 9.6%",
+      "category": "metrics",
+      "parsed_relation": {
+        "metric": "일별 전력 MAPE",
+        "before": "14.8",
+        "after": "9.6",
+        "before_unit": "%",
+        "after_unit": "%",
+        "connector": "→"
+      },
+      "state": "preserved",
+      "evidence": "일별 전력 MAPE 14.8% → 9.6%\n감소한 결과를 확인했다.\n14.8%\n측정",
+      "reason": "metric / ordered values / units / direction parsed in one relation"
+    }
+  ]
+}

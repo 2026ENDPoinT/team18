@@ -1,0 +1,37 @@
+{
+  "project_id": "p11",
+  "technology": [
+    {
+      "id": "tech_1",
+      "name": "Go"
+    },
+    {
+      "id": "tech_2",
+      "name": "Elasticsearch"
+    },
+    {
+      "id": "tech_3",
+      "name": "Vue.js"
+    }
+  ],
+  "roles": [
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "검색 순위 실험과 결과 화면",
+      "statement": "팀은 검색 순위 실험과 결과 화면을 만들었다.",
+      "presentation": "heading_scope",
+      "header": "팀 전체 구현"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "문서 색인 파이프라인",
+      "statement": "나는 문서 색인 파이프라인을 구현했다.",
+      "presentation": "heading_scope",
+      "header": "내가 맡은 역할"
+    }
+  ],
+  "metrics": [],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

@@ -1,0 +1,104 @@
+{
+  "id": "p02_slide_compare",
+  "project_id": "p02",
+  "original_id": "p02",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_compare",
+  "format": "slide",
+  "facts": "key_facts/p02_slide_compare.json",
+  "image": "images/p02_slide_compare.png",
+  "ground_truth": "ground_truth/p02_slide_compare.txt",
+  "reading_order": "ground_truth/p02_slide_compare.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#3a477c",
+  "image_sha256": "0fb5f805fc6d4ffb4e8b9f18809ad12ca7043f5652ac81285579cd2e63f256d5",
+  "ground_truth_sha256": "608c3dae6adfcc8aa721bbe0024092e45b11fb6581bd322e606b679f9169496c",
+  "facts_sha256": "47b2f023f075f2a42225bb1b02581860e95deaac28210e30953994e8c489ab8e",
+  "reading_order_sha256": "3906557ebc74b41f11b341bbb6fd5fb3b5ff0128a0bc0593762a0eabe4ef7ed9",
+  "status": "success",
+  "seconds": 1.486214249999648,
+  "error": null,
+  "prediction": "predictions/p02_slide_compare.txt",
+  "prediction_sha256": "f751a1f692bdba862dfcc70c4692d9bb31f74285f2fb142eb98c34fd7cbc0f23",
+  "raw_return": [
+    [
+      1,
+      "길벗 캠퍼스 역할 분담\nFlutter, Dart, SQLite\n팀 전체 구현\n내가 맡은 역할\n추천 모델을 개발했다\n데이터 수집 API를 구현했다\n사용자는 계단 구간을 직접 표시하고 수정 의견을\n담당자: 이서연\n보낼 수 있다.\n구현 범위는 위 항목으로 구분했다.\n2026 여름방학 3인 팀 역할 분담 기록"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 175,
+    "prediction_characters": 169,
+    "insertions": 26,
+    "deletions": 32,
+    "substitutions": 11,
+    "errors": 69,
+    "cer": 0.3942857142857143,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 129,
+    "prediction_characters": 126,
+    "insertions": 19,
+    "deletions": 22,
+    "substitutions": 11,
+    "errors": 52,
+    "cer": 0.40310077519379844,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Flutter",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Flutter",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "Dart",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Dart",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "SQLite",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "SQLite",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "추천 모델",
+      "statement": "팀은 추천 모델을 개발했다.",
+      "presentation": "heading_scope",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "길벗 캠퍼스 역할 분담\nFlutter, Dart, SQLite\n팀 전체 구현\n내가 맡은 역할\n추천 모델을 개발했다\n데이터 수집 API를 구현했다\n사용자는 계단 구간을 직접 표시하고 수정 의견을\n담당자: 이서연",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "데이터 수집 API",
+      "statement": "나는 데이터 수집 API를 구현했다.",
+      "presentation": "heading_scope",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "길벗 캠퍼스 역할 분담\nFlutter, Dart, SQLite\n팀 전체 구현\n내가 맡은 역할\n추천 모델을 개발했다\n데이터 수집 API를 구현했다\n사용자는 계단 구간을 직접 표시하고 수정 의견을\n담당자: 이서연\n보낼 수 있다.\n구현 범위는 위 항",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "id": "p03_slide_compare",
+  "project_id": "p03",
+  "original_id": "p03",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_compare",
+  "format": "slide",
+  "facts": "key_facts/p03_slide_compare.json",
+  "image": "images/p03_slide_compare.png",
+  "ground_truth": "ground_truth/p03_slide_compare.txt",
+  "reading_order": "ground_truth/p03_slide_compare.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#755235",
+  "image_sha256": "52fde1835c6951fafa3751f5d274f81ffb803683a827e9ed6a4812bf9a4d1d76",
+  "ground_truth_sha256": "086691dfda94fcdc4f17a9ca75c26912b85f3948df9f9b1e29d59bc12a0e5bba",
+  "facts_sha256": "3f9e998436721076a9671fe07f7b68580c72d0e83abb0d37b4893ec7b0a86618",
+  "reading_order_sha256": "fcd23f7db8da0189762b0bc64cc50b04d988b751be2efe273d1a8c2e1ec33909",
+  "status": "success",
+  "seconds": 1.598423415999605,
+  "error": null,
+  "prediction": "predictions/p03_slide_compare.txt",
+  "prediction_sha256": "f6a8b2a708cfd6598821be55f13427506b766c22a56a2b901b9ced0dd194be36",
+  "raw_return": [
+    [
+      1,
+      "잔반을 줄이는 식단 노트 / 역할 분담\nPython, pandas, scikit-learn\n팀 전체 구현\n내가 맡은 역할\n식수 예측 회귀 모델을 학습했다\n결측 기록 정제와 잔반 대시보드를\n작성했다\n대시보드는 메뉴별 평균과 측정 누락일을 함께\n담당자: 박하준\n보여 준다.\n구현 범위는 위 항목으로 구분했다.\n2026 봄학기 · 4인 팀· 역할 분담 기록"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 197,
+    "prediction_characters": 196,
+    "insertions": 16,
+    "deletions": 17,
+    "substitutions": 37,
+    "errors": 70,
+    "cer": 0.3553299492385787,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 147,
+    "prediction_characters": 147,
+    "insertions": 12,
+    "deletions": 12,
+    "substitutions": 33,
+    "errors": 57,
+    "cer": 0.3877551020408163,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Python",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Python",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "pandas",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "pandas",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "scikit-learn",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "scikit-learn",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "식수 예측 회귀 모델",
+      "statement": "팀은 식수 예측 회귀 모델을 학습했다.",
+      "presentation": "heading_scope",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "잔반을 줄이는 식단 노트 / 역할 분담\nPython, pandas, scikit-learn\n팀 전체 구현\n내가 맡은 역할\n식수 예측 회귀 모델을 학습했다\n결측 기록 정제와 잔반 대시보드를\n작성했다\n대시보드는 메뉴별 평균과 측정 누락일을 함께\n담당자",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "결측 기록 정제와 잔반 대시보드",
+      "statement": "나는 결측 기록 정제와 잔반 대시보드를 작성했다.",
+      "presentation": "heading_scope",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "잔반을 줄이는 식단 노트 / 역할 분담\nPython, pandas, scikit-learn\n팀 전체 구현\n내가 맡은 역할\n식수 예측 회귀 모델을 학습했다\n결측 기록 정제와 잔반 대시보드를\n작성했다\n대시보드는 메뉴별 평균과 측정 누락일을 함께\n담당자: 박하준\n보여 준다.\n구현 범위는 위 항목으",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    }
+  ]
+}

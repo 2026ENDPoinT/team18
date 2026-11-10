@@ -1,0 +1,104 @@
+{
+  "id": "p01_slide_compare",
+  "project_id": "p01",
+  "original_id": "p01",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_compare",
+  "format": "slide",
+  "facts": "key_facts/p01_slide_compare.json",
+  "image": "images/p01_slide_compare.png",
+  "ground_truth": "ground_truth/p01_slide_compare.txt",
+  "reading_order": "ground_truth/p01_slide_compare.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#165b70",
+  "image_sha256": "3f6cd1ebbd64370b5d580255ee0793ba9fa648aade513e3370d09712169e0495",
+  "ground_truth_sha256": "5bb07d94109f91b946356c626c16d11d3358d41010ec4988f270ac72c7f2677a",
+  "facts_sha256": "b8c9a4e4fe1b4d9eca38bc9bf3176800efbf36cd95f38459daa39d0d8397eb9d",
+  "reading_order_sha256": "be05d1238d324bea2c951c46ea0077678ae81ebc7636fe2fd023b194d5efd267",
+  "status": "success",
+  "seconds": 1.6988658330001272,
+  "error": null,
+  "prediction": "predictions/p01_slide_compare.txt",
+  "prediction_sha256": "7bfaa6385b6656931cd9ac93be6e1e49de397b3cc6388e305228aae0a366e459",
+  "raw_return": [
+    [
+      1,
+      "모여라 동아리방 / 역할 분담\nNext.js, TypeScript, PostgreSQL\n팀 전체 구현\n내가 맡은 역할\n예약 화면과 관리자 승인 기능을\n중복 예약 차단 API와 트랜잭션 처리를\n개발했다\n구현했다\n예약 충돌 때는 기존 예약을 지우지 않고 실패\n담당자: 김도윤\n사유를 반환한다.\n구현 범위는 위 항목으로 구분했다.\n2026 봄학기 · 4인 팀· 역할 분담 기록"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 208,
+    "prediction_characters": 207,
+    "insertions": 19,
+    "deletions": 20,
+    "substitutions": 42,
+    "errors": 81,
+    "cer": 0.3894230769230769,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 156,
+    "prediction_characters": 156,
+    "insertions": 6,
+    "deletions": 6,
+    "substitutions": 53,
+    "errors": 65,
+    "cer": 0.4166666666666667,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Next.js",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Next.js",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "TypeScript",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "TypeScript",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "PostgreSQL",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "PostgreSQL",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "예약 화면과 관리자 승인 기능",
+      "statement": "팀은 예약 화면과 관리자 승인 기능을 개발했다.",
+      "presentation": "heading_scope",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "모여라 동아리방 / 역할 분담\nNext.js, TypeScript, PostgreSQL\n팀 전체 구현\n내가 맡은 역할\n예약 화면과 관리자 승인 기능을\n중복 예약 차단 API와 트랜잭션 처리를\n개발했다\n구현했다\n예약 충돌 때는 기존 예약을 지우지 않고 실패\n담",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "중복 예약 차단 API와 트랜잭션 처리",
+      "statement": "나는 중복 예약 차단 API와 트랜잭션 처리를 구현했다.",
+      "presentation": "heading_scope",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "모여라 동아리방 / 역할 분담\nNext.js, TypeScript, PostgreSQL\n팀 전체 구현\n내가 맡은 역할\n예약 화면과 관리자 승인 기능을\n중복 예약 차단 API와 트랜잭션 처리를\n개발했다\n구현했다\n예약 충돌 때는 기존 예약을 지우지 않고 실패\n담당자: 김도윤\n사유를 반환한다.\n구현 범",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    }
+  ]
+}

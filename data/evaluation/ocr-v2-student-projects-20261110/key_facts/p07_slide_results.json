@@ -1,0 +1,17 @@
+{
+  "project_id": "p07",
+  "technology": [],
+  "roles": [],
+  "metrics": [
+    {
+      "id": "metric_main",
+      "name": "좌석 조회 중앙값",
+      "before": "680",
+      "after": "240",
+      "unit": "ms",
+      "direction": "감소",
+      "statement": "좌석 조회 중앙값 680ms → 240ms"
+    }
+  ],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

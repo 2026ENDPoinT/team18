@@ -1,0 +1,11 @@
+{
+  "all_passed": true,
+  "verified_pages": 36,
+  "independent_CER_DP_checks": 72,
+  "verified_fact_decisions": 168,
+  "verified_groups": 20,
+  "input_prediction_and_rubric_hashes_verified": true,
+  "previous_evaluation_unchanged": true,
+  "service_code_and_models_unchanged": true,
+  "fact_verification_note": "rerun frozen deterministic scorer and audit aggregation/evidence; not an independent human semantic validation"
+}

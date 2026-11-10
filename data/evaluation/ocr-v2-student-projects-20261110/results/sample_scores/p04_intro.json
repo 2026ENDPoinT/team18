@@ -1,0 +1,118 @@
+{
+  "id": "p04_intro",
+  "project_id": "p04",
+  "original_id": "p04",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "intro_prose",
+  "format": "introduction",
+  "facts": "key_facts/p04_intro.json",
+  "image": "images/p04_intro.png",
+  "ground_truth": "ground_truth/p04_intro.txt",
+  "reading_order": "ground_truth/p04_intro.reading_order.json",
+  "width": 1240,
+  "height": 1754,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#386352",
+  "image_sha256": "723480a455d5a9fc27d25272c9391cf0e0632000fd28ce1bb549410f0b3b7c86",
+  "ground_truth_sha256": "cd96e6ea1bdb19a419e8b4b9aa4bcaee1343d93c9885bed7a7e321e3cd751e0c",
+  "facts_sha256": "ff8c58581add551499add16dc2a1c80fe312a95b0be5b744b01a997ccaacb08d",
+  "reading_order_sha256": "7e4a4775ecd8511b82a2801a71b7ffccf617974595b764c61fa6f312d8736a28",
+  "status": "success",
+  "seconds": 2.6679685420003807,
+  "error": null,
+  "prediction": "predictions/p04_intro.txt",
+  "prediction_sha256": "8f17e0c31604cc93b9a8801cc9f516db4b4098254e91c4100163077f3b9cc5d2",
+  "raw_return": [
+    [
+      1,
+      "연구실 공기 알리미\n임베디드 시스템 프로젝트 소개서\n최지우 2026 캡스톤 3인 팀\n개발 배경과 기여\n창문이 없는 실습실에서 환기 시점을 놓치지 않도록 센서 값을 모았다. 네트워크가\n잠깐 끊겨도 측정 기록이 이어지는 장치를 목표로 삼았다.\n사용한 기술은 C++, MQTT, ESP32이다.\n팀은 센서 회로와 모니터링 화면을 제작했다. 나는 재연결 버퍼와 메시지 재전송을\n구현했다.\n펌웨어 담당인 나는 끊김 구간의 데이터를 순번과 함께 보관했다. 팀원이 만든\n화면에서는 중복 수신값을 구별해 표시했다.\n검증 결과, 패킷 손실률 3.2%  0.8%로 감소했다. 연결 중단을 포함한 메시지\n5,000개 조건이다.\n환기 알림은 측정치가 연속으로 기준을 넘을 때만 켜진다.\n센서 보정 오차와 장기간 전원 안정성은 후속 실험 대상으로 남겼다.\n합성 학생 프로젝트 · P04"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 431,
+    "prediction_characters": 426,
+    "insertions": 0,
+    "deletions": 5,
+    "substitutions": 0,
+    "errors": 5,
+    "cer": 0.01160092807424594,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 326,
+    "prediction_characters": 323,
+    "insertions": 0,
+    "deletions": 3,
+    "substitutions": 0,
+    "errors": 3,
+    "cer": 0.009202453987730062,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "C++",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "C++",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "MQTT",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "MQTT",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "ESP32",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "ESP32",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "센서 회로와 모니터링 화면",
+      "statement": "팀은 센서 회로와 모니터링 화면을 제작했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "팀은 센서 회로와 모니터링 화면을 제작했다. 나는 재연결 버",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "재연결 버퍼와 메시지 재전송",
+      "statement": "나는 재연결 버퍼와 메시지 재전송을 구현했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "나는 재연결 버퍼와 메시지 재전송을\n구현했다.\n펌웨어 담당인",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "패킷 손실률",
+      "before": "3.2",
+      "after": "0.8",
+      "unit": "%",
+      "direction": "감소",
+      "statement": "패킷 손실률 3.2% → 0.8%",
+      "category": "metrics",
+      "parsed_relation": null,
+      "state": "indeterminate",
+      "evidence": "패킷 손실률 3.2%  0.8%로 감소했다. 연결 중단을 포함한 메시지\n5,000개 조건이다.\n환기 알림은 측정치가 연속으로 기준을 넘을 때만 켜진다.\n센서 보정 오차와 장기간 전원 안정성은 후속 실험 대상으로 남겼다.\n합성",
+      "reason": "metric remains, but no complete directed tuple or labelled before/after pair"
+    }
+  ]
+}

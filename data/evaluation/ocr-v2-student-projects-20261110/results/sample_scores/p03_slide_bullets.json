@@ -1,0 +1,118 @@
+{
+  "id": "p03_slide_bullets",
+  "project_id": "p03",
+  "original_id": "p03",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_bullets",
+  "format": "slide",
+  "facts": "key_facts/p03_slide_bullets.json",
+  "image": "images/p03_slide_bullets.png",
+  "ground_truth": "ground_truth/p03_slide_bullets.txt",
+  "reading_order": "ground_truth/p03_slide_bullets.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#755235",
+  "image_sha256": "9f822f363c5bb4fd25a2375a694d13ee71dd068c5f8b095252fca374e7b1f11d",
+  "ground_truth_sha256": "2bf15837a8a8849763f5bbf58e9864bc3575e9e1868cd1690c5f7c45a3e1887a",
+  "facts_sha256": "bf6a2378f828b8c507f4d38c58a1c830a4dc0bb89d1dc01cf6f8402c89743443",
+  "reading_order_sha256": "a6b545c2851ac7ba96abcdc6ac2c3cc7fb8416d96173bf26dfc98d12cd450e72",
+  "status": "success",
+  "seconds": 1.503822042000138,
+  "error": null,
+  "prediction": "predictions/p03_slide_bullets.txt",
+  "prediction_sha256": "6fd641cc25fee8e1cf6868a352c4c2c62f5c2816bc460cee1d5334edb9dda148",
+  "raw_return": [
+    [
+      1,
+      "잔반을 줄이는 식단 노트\n데이터 분석 구현과 검증\n· 학생식당의 요일별 잔반량과 메뉴 기록을 연결해 다음 주 준비량을 살펴보았다.\n· Python, pandas, scikit-learn\n· 팀은 식수 예측 회귀 모델을 학습했다.\n· 나는 결측 기록 정제와 잔반 대시보드를 작성했다.\n• 잔반량 MAE 18.4kg  11.2kg로 감소\n박하준 마지막 4주를 시간 순서대로 분리한 평가"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 218,
+    "prediction_characters": 213,
+    "insertions": 0,
+    "deletions": 5,
+    "substitutions": 4,
+    "errors": 9,
+    "cer": 0.04128440366972477,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 165,
+    "prediction_characters": 162,
+    "insertions": 0,
+    "deletions": 3,
+    "substitutions": 4,
+    "errors": 7,
+    "cer": 0.04242424242424243,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Python",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Python",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "pandas",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "pandas",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "scikit-learn",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "scikit-learn",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "식수 예측 회귀 모델",
+      "statement": "팀은 식수 예측 회귀 모델을 학습했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "· Python, pandas, scikit-learn\n· 팀은 식수 예측 회귀 모델을 학습했다.\n· 나는 결측 기",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "결측 기록 정제와 잔반 대시보드",
+      "statement": "나는 결측 기록 정제와 잔반 대시보드를 작성했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "· 나는 결측 기록 정제와 잔반 대시보드를 작성했다.\n• 잔반량 MA",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "잔반량 MAE",
+      "before": "18.4",
+      "after": "11.2",
+      "unit": "kg",
+      "direction": "감소",
+      "statement": "잔반량 MAE 18.4kg → 11.2kg",
+      "category": "metrics",
+      "parsed_relation": null,
+      "state": "indeterminate",
+      "evidence": "잔반량 MAE 18.4kg  11.2kg로 감소\n박하준 마지막 4주를 시간 순서대로 분리한 평가",
+      "reason": "metric remains, but no complete directed tuple or labelled before/after pair"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "p06_slide_results",
+  "status": "success",
+  "seconds": 1.642004457999974,
+  "error": null,
+  "prediction": "predictions/p06_slide_results.txt",
+  "prediction_sha256": "5afefdbf85307d0d4a09139e7924edad3dd3f38bfba7a9689455cdcbd9d33bf7",
+  "raw_return": [
+    [
+      1,
+      "궤도 실험실 / 결과\n시험 조건과 관찰 결과\n평균 프레임 시간\n평균 프레임 시간 38ms → 21ms\n감소한 결과를 확인했다.\n38ms\n측정 조건: 동일 노트북 물체 200개 장면을\n60초 실행\n21ms\n중력 계산의 정밀도 개선은 이번 담당 범위에\n포함되지 않았다.\n개선 전\n개선 후\n한시우 합성 실험 결과"
+    ]
+  ]
+}

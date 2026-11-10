@@ -1,0 +1,104 @@
+{
+  "id": "p04_slide_compare",
+  "project_id": "p04",
+  "original_id": "p04",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_compare",
+  "format": "slide",
+  "facts": "key_facts/p04_slide_compare.json",
+  "image": "images/p04_slide_compare.png",
+  "ground_truth": "ground_truth/p04_slide_compare.txt",
+  "reading_order": "ground_truth/p04_slide_compare.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#386352",
+  "image_sha256": "35542e0ea87e3fe0e8646130d36eecff438d16e94654da9542516f78b4b7ca69",
+  "ground_truth_sha256": "8ce42e3b1c2b761f586b1b9716c43bbe81e85bd8f3bdd23ae10b90fa6992a828",
+  "facts_sha256": "d3ffa7401b0c960c835726159953d830e87535ab5fc9bc3bec9cca2ea9d8f24d",
+  "reading_order_sha256": "dd8b5be5a5bb3cdefc361e644368854d9bffb919b939cc53c3571944cd5df05a",
+  "status": "success",
+  "seconds": 1.5827872919999209,
+  "error": null,
+  "prediction": "predictions/p04_slide_compare.txt",
+  "prediction_sha256": "5f5614b121a3412a8cd902a6f5b8d0e74b94f7684c8ce22dd7d40f36fbad009a",
+  "raw_return": [
+    [
+      1,
+      "연구실 공기 알리미 / 역할 분담\nC++, MQTT, ESP32\n팀 전체 구현\n내가 맡은 역할\n센서 회로와 모니터링 화면을 제작했다\n재연결 버퍼와 메시지 재전송을\n구현했다\n환기 알림은 측정치가 연속으로 기준을 넘을 때만\n담당자: 최지우\n켜진다.\n구현 범위는 위 항목으로 구분했다.\n2026 캡스톤 3인 팀 역할 분담 기록"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 183,
+    "prediction_characters": 179,
+    "insertions": 16,
+    "deletions": 20,
+    "substitutions": 33,
+    "errors": 69,
+    "cer": 0.3770491803278688,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 135,
+    "prediction_characters": 133,
+    "insertions": 11,
+    "deletions": 13,
+    "substitutions": 31,
+    "errors": 55,
+    "cer": 0.4074074074074074,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "C++",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "C++",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "MQTT",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "MQTT",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "ESP32",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "ESP32",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "센서 회로와 모니터링 화면",
+      "statement": "팀은 센서 회로와 모니터링 화면을 제작했다.",
+      "presentation": "heading_scope",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "연구실 공기 알리미 / 역할 분담\nC++, MQTT, ESP32\n팀 전체 구현\n내가 맡은 역할\n센서 회로와 모니터링 화면을 제작했다\n재연결 버퍼와 메시지 재전송을\n구현했다\n환기 알림은 측정치가 연속으로 기준을 넘을 때만\n담당자",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "재연결 버퍼와 메시지 재전송",
+      "statement": "나는 재연결 버퍼와 메시지 재전송을 구현했다.",
+      "presentation": "heading_scope",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "연구실 공기 알리미 / 역할 분담\nC++, MQTT, ESP32\n팀 전체 구현\n내가 맡은 역할\n센서 회로와 모니터링 화면을 제작했다\n재연결 버퍼와 메시지 재전송을\n구현했다\n환기 알림은 측정치가 연속으로 기준을 넘을 때만\n담당자: 최지우\n켜진다.\n구현 범위는 위 항목으",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    }
+  ]
+}

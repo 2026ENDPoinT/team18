@@ -1,0 +1,14 @@
+{
+  "id": "p02_slide_compare",
+  "status": "success",
+  "seconds": 1.486214249999648,
+  "error": null,
+  "prediction": "predictions/p02_slide_compare.txt",
+  "prediction_sha256": "f751a1f692bdba862dfcc70c4692d9bb31f74285f2fb142eb98c34fd7cbc0f23",
+  "raw_return": [
+    [
+      1,
+      "길벗 캠퍼스 역할 분담\nFlutter, Dart, SQLite\n팀 전체 구현\n내가 맡은 역할\n추천 모델을 개발했다\n데이터 수집 API를 구현했다\n사용자는 계단 구간을 직접 표시하고 수정 의견을\n담당자: 이서연\n보낼 수 있다.\n구현 범위는 위 항목으로 구분했다.\n2026 여름방학 3인 팀 역할 분담 기록"
+    ]
+  ]
+}

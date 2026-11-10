@@ -1,0 +1,104 @@
+{
+  "id": "p10_slide_compare",
+  "project_id": "p10",
+  "original_id": "p10",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_compare",
+  "format": "slide",
+  "facts": "key_facts/p10_slide_compare.json",
+  "image": "images/p10_slide_compare.png",
+  "ground_truth": "ground_truth/p10_slide_compare.txt",
+  "reading_order": "ground_truth/p10_slide_compare.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#386352",
+  "image_sha256": "03c120592d9260edbd16e70f4f3e1cf9a34f6c464db5bb0707b2595434c481b1",
+  "ground_truth_sha256": "53bdc130d942712413fd2097d79d2d264783d4b2bad2533a1af6420caa11ee6a",
+  "facts_sha256": "f50266bdf5c648922e086d15e8ee3bcc4febe76f0304f2a3e485af2dd63071fa",
+  "reading_order_sha256": "4ee3241ad865ab58bc02f459c0c3a599c114070f54f09e876b0a722ed4513bad",
+  "status": "success",
+  "seconds": 1.5545571669999845,
+  "error": null,
+  "prediction": "predictions/p10_slide_compare.txt",
+  "prediction_sha256": "4e6da7df822bf877a29700d4dd7df03d46ed3b2a0c82729c20bc5fab8139a0e2",
+  "raw_return": [
+    [
+      1,
+      "한 바퀴 산책 기록 / 역할 분담\nKotlin, Jetpack Compose, Room\n팀 전체 구현\n내가 맡은 역할\n경로 지도와 기록 목록을 제작했다\n위치 필터와 로컬 저장을 구현했다\n개인 경로는 기본적으로 기기 안에만 남도록\n담당자: 장우진\n구성했다.\n구현 범위는 위 항목으로 구분했다.\n2026 앱 개발 실습 2인 팀 역할 분담 기록"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 193,
+    "prediction_characters": 189,
+    "insertions": 16,
+    "deletions": 20,
+    "substitutions": 27,
+    "errors": 63,
+    "cer": 0.32642487046632124,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 142,
+    "prediction_characters": 140,
+    "insertions": 11,
+    "deletions": 13,
+    "substitutions": 27,
+    "errors": 51,
+    "cer": 0.3591549295774648,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Kotlin",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Kotlin",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "Jetpack Compose",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Jetpack Compose",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "Room",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Room",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "경로 지도와 기록 목록",
+      "statement": "팀은 경로 지도와 기록 목록을 제작했다.",
+      "presentation": "heading_scope",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "한 바퀴 산책 기록 / 역할 분담\nKotlin, Jetpack Compose, Room\n팀 전체 구현\n내가 맡은 역할\n경로 지도와 기록 목록을 제작했다\n위치 필터와 로컬 저장을 구현했다\n개인 경로는 기본적으로 기기 안에만 남도록\n담당자: 장우진\n구",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "위치 필터와 로컬 저장",
+      "statement": "나는 위치 필터와 로컬 저장을 구현했다.",
+      "presentation": "heading_scope",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "한 바퀴 산책 기록 / 역할 분담\nKotlin, Jetpack Compose, Room\n팀 전체 구현\n내가 맡은 역할\n경로 지도와 기록 목록을 제작했다\n위치 필터와 로컬 저장을 구현했다\n개인 경로는 기본적으로 기기 안에만 남도록\n담당자: 장우진\n구성했다.\n구현 범위는 위 항목으로",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    }
+  ]
+}

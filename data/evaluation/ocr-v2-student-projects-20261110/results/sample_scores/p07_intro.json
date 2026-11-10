@@ -1,0 +1,118 @@
+{
+  "id": "p07_intro",
+  "project_id": "p07",
+  "original_id": "p07",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "intro_bullets",
+  "format": "introduction",
+  "facts": "key_facts/p07_intro.json",
+  "image": "images/p07_intro.png",
+  "ground_truth": "ground_truth/p07_intro.txt",
+  "reading_order": "ground_truth/p07_intro.reading_order.json",
+  "width": 1240,
+  "height": 1754,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#165b70",
+  "image_sha256": "d8b5babd41fbd3da58af13c03b5a953557372b572364c37c30d17238661e6572",
+  "ground_truth_sha256": "599449a811c60e778177849a7a2d0e2ad9beefd3a28c43186c07cf1cf3a1d808",
+  "facts_sha256": "528e86869cb4e02146648e5d96e24e8cfbfb862313c9b8f1cf4910686f87c67c",
+  "reading_order_sha256": "19be173a9f9e11536fade29e263d2c3a59b20edb6d2a2e154a867a33e250795e",
+  "status": "success",
+  "seconds": 2.672517834000246,
+  "error": null,
+  "prediction": "predictions/p07_intro.txt",
+  "prediction_sha256": "01bd2adc38f2a821b6577eb37aba92bf5051c5ea9116f624d91666f347b1fd80",
+  "raw_return": [
+    [
+      1,
+      "도서관 자리 신호\n웹 대시보드 프로젝트 소개서\n윤수빈 2026 가을학기 4인 팀\n문제와 사용자\n· 열람실의 혼잡 정보를 층별로 보여 주고 마지막 갱신 시각을 표시하는 서비스다.\n오래된 자료를 최신 상태처럼 보이지 않게 하는 것을 중요하게 보았다.\n구현 기술\n• React, Spring Boot, Redis\n역할과 구현\n· 팀은 혼잡도 집계 서버와 화면을 개발했다.\n• 나는 조회 캐시와 만료 정책을 설계했다.\n· 캐시가 만료되면 원본 저장소를 조회한다. 수집이 멈추면 사용자가 알 수 있도록\n갱신 지연 문구를 넣었다.\n실험 결과\n• 좌석 조회 중앙값 680ms  240ms로 감소\n· 동일 요청 목록 1,000회 재생\n다음 단계\n· 실제 출입 센서 연결과 시험 기간 운영은 아직 하지 않았다.\n합성 학생 프로젝트 ·P07"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 410,
+    "prediction_characters": 404,
+    "insertions": 0,
+    "deletions": 6,
+    "substitutions": 5,
+    "errors": 11,
+    "cer": 0.026829268292682926,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 300,
+    "prediction_characters": 297,
+    "insertions": 0,
+    "deletions": 3,
+    "substitutions": 5,
+    "errors": 8,
+    "cer": 0.02666666666666667,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "React",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "React",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "Spring Boot",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Spring Boot",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "Redis",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Redis",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "혼잡도 집계 서버와 화면",
+      "statement": "팀은 혼잡도 집계 서버와 화면을 개발했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "구현 기술\n• React, Spring Boot, Redis\n역할과 구현\n· 팀은 혼잡도 집계 서버와 화면을 개발했다.\n• 나는 조회 캐",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "조회 캐시와 만료 정책",
+      "statement": "나는 조회 캐시와 만료 정책을 설계했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "• 나는 조회 캐시와 만료 정책을 설계했다.\n· 캐시가 만료",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "좌석 조회 중앙값",
+      "before": "680",
+      "after": "240",
+      "unit": "ms",
+      "direction": "감소",
+      "statement": "좌석 조회 중앙값 680ms → 240ms",
+      "category": "metrics",
+      "parsed_relation": null,
+      "state": "indeterminate",
+      "evidence": "좌석 조회 중앙값 680ms  240ms로 감소\n· 동일 요청 목록 1,000회 재생\n다음 단계\n· 실제 출입 센서 연결과 시험 기간 운영은 아직 하지 않았다.\n합성 학생 프로젝트 ·P07",
+      "reason": "metric remains, but no complete directed tuple or labelled before/after pair"
+    }
+  ]
+}

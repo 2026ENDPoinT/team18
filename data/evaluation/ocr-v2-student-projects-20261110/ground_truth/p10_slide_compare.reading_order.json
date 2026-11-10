@@ -1,0 +1,137 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "page title and technology",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "left heading then left content",
+      "line_start": 3,
+      "line_end": 6
+    },
+    {
+      "name": "right heading then right content",
+      "line_start": 7,
+      "line_end": 10
+    },
+    {
+      "name": "footer",
+      "line_start": 11,
+      "line_end": 11
+    }
+  ],
+  "lines": [
+    {
+      "text": "한 바퀴 산책 기록 / 역할 분담",
+      "bbox": [
+        75,
+        56,
+        735,
+        107
+      ],
+      "font_size_px": 53
+    },
+    {
+      "text": "Kotlin, Jetpack Compose, Room",
+      "bbox": [
+        78,
+        141,
+        515,
+        170
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "팀 전체 구현",
+      "bbox": [
+        85,
+        231,
+        304,
+        271
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "경로 지도와 기록 목록을 제작했다",
+      "bbox": [
+        85,
+        333,
+        615,
+        369
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "개인 경로는 기본적으로 기기 안에만 남도록",
+      "bbox": [
+        85,
+        520,
+        629,
+        550
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "구성했다.",
+      "bbox": [
+        85,
+        566,
+        206,
+        596
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "내가 맡은 역할",
+      "bbox": [
+        875,
+        231,
+        1133,
+        271
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "위치 필터와 로컬 저장을 구현했다",
+      "bbox": [
+        875,
+        333,
+        1405,
+        368
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "담당자: 장우진",
+      "bbox": [
+        875,
+        520,
+        1060,
+        550
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "구현 범위는 위 항목으로 구분했다.",
+      "bbox": [
+        875,
+        600,
+        1308,
+        630
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "2026 앱 개발 실습 · 2인 팀 · 역할 분담 기록",
+      "bbox": [
+        80,
+        820,
+        538,
+        844
+      ],
+      "font_size_px": 24
+    }
+  ]
+}

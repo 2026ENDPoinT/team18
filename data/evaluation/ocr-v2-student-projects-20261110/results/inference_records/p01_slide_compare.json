@@ -1,0 +1,14 @@
+{
+  "id": "p01_slide_compare",
+  "status": "success",
+  "seconds": 1.6988658330001272,
+  "error": null,
+  "prediction": "predictions/p01_slide_compare.txt",
+  "prediction_sha256": "7bfaa6385b6656931cd9ac93be6e1e49de397b3cc6388e305228aae0a366e459",
+  "raw_return": [
+    [
+      1,
+      "모여라 동아리방 / 역할 분담\nNext.js, TypeScript, PostgreSQL\n팀 전체 구현\n내가 맡은 역할\n예약 화면과 관리자 승인 기능을\n중복 예약 차단 API와 트랜잭션 처리를\n개발했다\n구현했다\n예약 충돌 때는 기존 예약을 지우지 않고 실패\n담당자: 김도윤\n사유를 반환한다.\n구현 범위는 위 항목으로 구분했다.\n2026 봄학기 · 4인 팀· 역할 분담 기록"
+    ]
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "p11_slide_results",
+  "project_id": "p11",
+  "original_id": "p11",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_results",
+  "format": "slide",
+  "facts": "key_facts/p11_slide_results.json",
+  "image": "images/p11_slide_results.png",
+  "ground_truth": "ground_truth/p11_slide_results.txt",
+  "reading_order": "ground_truth/p11_slide_results.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#713b66",
+  "image_sha256": "22f3454ebbdfc6dacb259bad43125abe8c52b0d2b4f07d2e83f1c9975439c15e",
+  "ground_truth_sha256": "4c0cfc864b6be7558a6a07353672954c64725d50d005a2843eb10ee1592d260e",
+  "facts_sha256": "82e8ceb40ab0bb8d53b16fffcee7315758bd84f2336bd1f0849988998ff25080",
+  "reading_order_sha256": "9e4915c65101829dd2df327a09887f9d406490a020ed714169442a177eca06d5",
+  "status": "success",
+  "seconds": 1.5906504999993558,
+  "error": null,
+  "prediction": "predictions/p11_slide_results.txt",
+  "prediction_sha256": "ca3da73c8fc6563b1179205eccd0f4e5470b4c0e7736fc132564b3e3f67f6ec8",
+  "raw_return": [
+    [
+      1,
+      "강의 문장 찾기 / 결과\n시험 조건과 관찰 결과\n검색 Recall@5\n검색 Recall@5 61% → 83%\n증가한 결과를 확인했다.\n개선 전\n61%\n측정 조건: 고정 질의 60개와 수동 관련성 목록\n질의 수가 작아서 낯선 전공 용어에 대한 추가\n개선 후\n평가가 필요하다.\n83%\n막대 길이는 같은 척도로 표시\n오채원 합성 실험 결과"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 188,
+    "prediction_characters": 186,
+    "insertions": 35,
+    "deletions": 37,
+    "substitutions": 0,
+    "errors": 72,
+    "cer": 0.3829787234042553,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 136,
+    "prediction_characters": 135,
+    "insertions": 24,
+    "deletions": 25,
+    "substitutions": 0,
+    "errors": 49,
+    "cer": 0.3602941176470588,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "metric_main",
+      "name": "검색 Recall@5",
+      "before": "61",
+      "after": "83",
+      "unit": "%",
+      "direction": "증가",
+      "statement": "검색 Recall@5 61% → 83%",
+      "category": "metrics",
+      "parsed_relation": {
+        "metric": "검색 Recall@5",
+        "before": "61",
+        "after": "83",
+        "before_unit": "%",
+        "after_unit": "%",
+        "connector": "→"
+      },
+      "state": "preserved",
+      "evidence": "검색 Recall@5 61% → 83%\n증가한 결과를 확인했다.\n개선 전\n61%\n측",
+      "reason": "metric / ordered values / units / direction parsed in one relation"
+    }
+  ]
+}

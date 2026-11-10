@@ -1,0 +1,118 @@
+{
+  "id": "p01_slide_bullets",
+  "project_id": "p01",
+  "original_id": "p01",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_bullets",
+  "format": "slide",
+  "facts": "key_facts/p01_slide_bullets.json",
+  "image": "images/p01_slide_bullets.png",
+  "ground_truth": "ground_truth/p01_slide_bullets.txt",
+  "reading_order": "ground_truth/p01_slide_bullets.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#165b70",
+  "image_sha256": "8ff8c2ec602de4a6b13dfdd4f3b18349896de7c84518ed26c47100881e8681c4",
+  "ground_truth_sha256": "43247d66bf756a69177bb0f654ef2403d382cca26f01986350d937b201e8900d",
+  "facts_sha256": "d36c6b4bc05208ca72fcefe88ef5deb0a4fd533066a7c1b06af5cf03442533ac",
+  "reading_order_sha256": "6d277fab9491d7e92aa0e8d2e6607e6372cdb6f0c8e550a3c956a20ef6e1056b",
+  "status": "success",
+  "seconds": 1.5012187500005894,
+  "error": null,
+  "prediction": "predictions/p01_slide_bullets.txt",
+  "prediction_sha256": "a035145e11bbc39f70f3abab18883baf93163200bd31074a5d6f8cff1f60d002",
+  "raw_return": [
+    [
+      1,
+      "모여라 동아리방\n웹 서비스 구현과 검증\n• 동아리방 예약이 단체 채팅에 흩어져 같은 시간에 두 팀이 찾아오는 일이 있었다.\n· Next.js, TypeScript, PostgreSQL\n• 팀은 예약 화면과 관리자 승인 기능을 개발했다.\n· 나는 중복 예약 차단 API와 트랜잭션 처리를 구현했다.\n• 예약 API p95 420ms  180ms로 감소\n김도윤 동시 요청 50건 같은 로컬 서버에서 측정"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 229,
+    "prediction_characters": 223,
+    "insertions": 0,
+    "deletions": 6,
+    "substitutions": 2,
+    "errors": 8,
+    "cer": 0.034934497816593885,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 172,
+    "prediction_characters": 168,
+    "insertions": 0,
+    "deletions": 4,
+    "substitutions": 2,
+    "errors": 6,
+    "cer": 0.03488372093023256,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Next.js",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Next.js",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "TypeScript",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "TypeScript",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "PostgreSQL",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "PostgreSQL",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "예약 화면과 관리자 승인 기능",
+      "statement": "팀은 예약 화면과 관리자 승인 기능을 개발했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "js, TypeScript, PostgreSQL\n• 팀은 예약 화면과 관리자 승인 기능을 개발했다.\n· 나는 중복 예",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "중복 예약 차단 API와 트랜잭션 처리",
+      "statement": "나는 중복 예약 차단 API와 트랜잭션 처리를 구현했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "· 나는 중복 예약 차단 API와 트랜잭션 처리를 구현했다.\n• 예약 API",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "예약 API p95",
+      "before": "420",
+      "after": "180",
+      "unit": "ms",
+      "direction": "감소",
+      "statement": "예약 API p95 420ms → 180ms",
+      "category": "metrics",
+      "parsed_relation": null,
+      "state": "indeterminate",
+      "evidence": "예약 API p95 420ms  180ms로 감소\n김도윤 동시 요청 50건 같은 로컬 서버에서 측정",
+      "reason": "metric remains, but no complete directed tuple or labelled before/after pair"
+    }
+  ]
+}

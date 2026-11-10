@@ -1,0 +1,14 @@
+{
+  "id": "p05_slide_results",
+  "status": "success",
+  "seconds": 1.672715958000481,
+  "error": null,
+  "prediction": "predictions/p05_slide_results.txt",
+  "prediction_sha256": "3e3d3b556c2bca1b75cb6e157a039c3d713e25637a09595acfa7632f9362d16d",
+  "raw_return": [
+    [
+      1,
+      "손짓 한 단어 / 결과\n시험 조건과 관찰 결과\n수어 분류 정확도\n수어 분류 정확도 82.1% →\n90.4%\n개선 전\n82.1%\n증가한 결과를 확인했다.\n측정 조건: 참여자 분리 평가, 고정 단어 12개\n개선 후\n90.4%\n연속 수어 번역이나 실생활 통역 성능을\n주장하는 프로젝트는 아니다.\n막대 길이는 같은 척도로 표시\n정민서 합성 실험 결과"
+    ]
+  ]
+}

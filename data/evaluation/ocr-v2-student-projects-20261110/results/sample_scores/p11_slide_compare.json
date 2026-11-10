@@ -1,0 +1,104 @@
+{
+  "id": "p11_slide_compare",
+  "project_id": "p11",
+  "original_id": "p11",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_compare",
+  "format": "slide",
+  "facts": "key_facts/p11_slide_compare.json",
+  "image": "images/p11_slide_compare.png",
+  "ground_truth": "ground_truth/p11_slide_compare.txt",
+  "reading_order": "ground_truth/p11_slide_compare.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#713b66",
+  "image_sha256": "65f459a209711d623f884cfc5fb9725ff74351fdb4b2989761653cd79e8b3dc3",
+  "ground_truth_sha256": "9eb1adee3a09011d088510713dae6c278e5814b779f94f90650db848601d9392",
+  "facts_sha256": "710a3310eef56906b7b408bf5a4fba928c06f7c2430c62acbc70fdac35694606",
+  "reading_order_sha256": "e82b5d961874a634f13c1839ee06d4355ecc4c6687f5314cf75dbbebe6bfb48e",
+  "status": "success",
+  "seconds": 1.5826545410000108,
+  "error": null,
+  "prediction": "predictions/p11_slide_compare.txt",
+  "prediction_sha256": "f212d94b82a14c9d2a29fd97dd0c40350ce697a517cfe0f39133fad6b2af0e00",
+  "raw_return": [
+    [
+      1,
+      "강의 문장 찾기 / 역할 분담\nGo, Elasticsearch, Vue.js\n팀 전체 구현\n내가 맡은 역할\n검색 순위 실험과 결과 화면을 만들었다\n문서 색인 파이프라인을 구현했다\n검색 결과에는 원문 위치와 마지막 수정 날짜를\n담당자: 오채원\n함께 표시한다.\n구현 범위는 위 항목으로 구분했다.\n2026 정보검색 수업 3인 팀 역할 분담 기록"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 194,
+    "prediction_characters": 190,
+    "insertions": 27,
+    "deletions": 31,
+    "substitutions": 13,
+    "errors": 71,
+    "cer": 0.36597938144329895,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 144,
+    "prediction_characters": 142,
+    "insertions": 20,
+    "deletions": 22,
+    "substitutions": 13,
+    "errors": 55,
+    "cer": 0.3819444444444444,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Go",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Go",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "Elasticsearch",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Elasticsearch",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "Vue.js",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Vue.js",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "검색 순위 실험과 결과 화면",
+      "statement": "팀은 검색 순위 실험과 결과 화면을 만들었다.",
+      "presentation": "heading_scope",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "강의 문장 찾기 / 역할 분담\nGo, Elasticsearch, Vue.js\n팀 전체 구현\n내가 맡은 역할\n검색 순위 실험과 결과 화면을 만들었다\n문서 색인 파이프라인을 구현했다\n검색 결과에는 원문 위치와 마지막 수정 날짜를\n담당자: 오채원",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "문서 색인 파이프라인",
+      "statement": "나는 문서 색인 파이프라인을 구현했다.",
+      "presentation": "heading_scope",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": null,
+      "state": "indeterminate",
+      "evidence": "강의 문장 찾기 / 역할 분담\nGo, Elasticsearch, Vue.js\n팀 전체 구현\n내가 맡은 역할\n검색 순위 실험과 결과 화면을 만들었다\n문서 색인 파이프라인을 구현했다\n검색 결과에는 원문 위치와 마지막 수정 날짜를\n담당자: 오채원\n함께 표시한다.\n구현 범위는 위 항",
+      "reason": "both column headings precede task bodies; text-only column ownership ambiguous"
+    }
+  ]
+}

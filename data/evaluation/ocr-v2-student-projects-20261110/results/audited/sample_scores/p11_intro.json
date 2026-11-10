@@ -1,0 +1,126 @@
+{
+  "id": "p11_intro",
+  "project_id": "p11",
+  "original_id": "p11",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "intro_bullets",
+  "format": "introduction",
+  "facts": "key_facts/p11_intro.json",
+  "image": "images/p11_intro.png",
+  "ground_truth": "ground_truth/p11_intro.txt",
+  "reading_order": "ground_truth/p11_intro.reading_order.json",
+  "width": 1240,
+  "height": 1754,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#713b66",
+  "image_sha256": "2bc6140be91e17e3ab573fce89c1c08a4cdbd70757a0146f64c107d8d3f606e9",
+  "ground_truth_sha256": "1416ec9c3bc80a72faec95b2e944197ba056b69c1168572568865f54d32b664d",
+  "facts_sha256": "1dfec65e651a5e35b297a5d522a095a281a38fae033005c0e7ce60c7d164eb53",
+  "reading_order_sha256": "76c14af816489aea1b1c4488c483d6c8bdc944f42eada767e990294db42c516a",
+  "status": "success",
+  "seconds": 2.5982088749997274,
+  "error": null,
+  "prediction": "predictions/p11_intro.txt",
+  "prediction_sha256": "df75be423d4dcd38b3f97eebb6e288308f9d303ca43a80301d14b179cf490a10",
+  "raw_return": [
+    [
+      1,
+      "강의 문장 찾기\n검색 서비스 프로젝트 소개서\n오채원 2026 정보검색 수업 3인 팀\n문제와 사용자\n• 공개 강의 메모에서 필요한 문장을 찾는 검색 서비스를 개발했다. 비슷한 과목\n이름 때문에 원하는 문서가 뒤로 밀리는 문제를 다뤘다.\n구현 기술\n• Go, Elasticsearch, Vue.js\n역할과 구현\n• 팀은 검색 순위 실험과 결과 화면을 만들었다.\n• 나는 문서 색인 파이프라인을 구현했다.\n· 나는 문서 식별자와 변경 시각을 이용해 수정된 자료만 다시 색인했다. 질의별\n관련성 판정은 팀원들이 합의해 작성했다.\n실험 결과\n• 검색 Recall@5 61%  83%로 증가\n• 고정 질의 60개와 수동 관련성 목록\n다음 단계\n· 질의 수가 작아서 낯선 전공 용어에 대한 추가 평가가 필요하다.\n합성 학생 프로젝트 P11"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 413,
+    "prediction_characters": 406,
+    "insertions": 0,
+    "deletions": 7,
+    "substitutions": 2,
+    "errors": 9,
+    "cer": 0.021791767554479417,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 304,
+    "prediction_characters": 300,
+    "insertions": 0,
+    "deletions": 4,
+    "substitutions": 2,
+    "errors": 6,
+    "cer": 0.019736842105263157,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "Go",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Go",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "Elasticsearch",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Elasticsearch",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "Vue.js",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Vue.js",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "검색 순위 실험과 결과 화면",
+      "statement": "팀은 검색 순위 실험과 결과 화면을 만들었다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "js\n역할과 구현\n• 팀은 검색 순위 실험과 결과 화면을 만들었다.\n• 나는 문서 색",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "문서 색인 파이프라인",
+      "statement": "나는 문서 색인 파이프라인을 구현했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "• 나는 문서 색인 파이프라인을 구현했다.\n· 나는 문서 식",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "검색 Recall@5",
+      "before": "61",
+      "after": "83",
+      "unit": "%",
+      "direction": "증가",
+      "statement": "검색 Recall@5 61% → 83%",
+      "category": "metrics",
+      "state": "preserved",
+      "parsed_relation": {
+        "metric": "검색 Recall@5",
+        "before": "61",
+        "after": "83",
+        "before_unit": "%",
+        "after_unit": "%",
+        "connector": "destination_particle_and_direction",
+        "direction_word": "증가"
+      },
+      "evidence": "검색 Recall@5 61%  83%로 증가",
+      "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+    }
+  ]
+}

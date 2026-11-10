@@ -1,0 +1,47 @@
+{
+  "project_id": "p10",
+  "technology": [
+    {
+      "id": "tech_1",
+      "name": "Kotlin"
+    },
+    {
+      "id": "tech_2",
+      "name": "Jetpack Compose"
+    },
+    {
+      "id": "tech_3",
+      "name": "Room"
+    }
+  ],
+  "roles": [
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "경로 지도와 기록 목록",
+      "statement": "팀은 경로 지도와 기록 목록을 제작했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "위치 필터와 로컬 저장",
+      "statement": "나는 위치 필터와 로컬 저장을 구현했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "metric_main",
+      "name": "경로 평균 오차",
+      "before": "24",
+      "after": "9",
+      "unit": "m",
+      "direction": "감소",
+      "statement": "경로 평균 오차 24m → 9m"
+    }
+  ],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

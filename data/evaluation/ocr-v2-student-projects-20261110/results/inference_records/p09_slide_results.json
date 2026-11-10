@@ -1,0 +1,14 @@
+{
+  "id": "p09_slide_results",
+  "status": "success",
+  "seconds": 1.6591252079997503,
+  "error": null,
+  "prediction": "predictions/p09_slide_results.txt",
+  "prediction_sha256": "3034988742e49b2839e3db84d80f7fc8b41797763c270d67177f0497116525c7",
+  "raw_return": [
+    [
+      1,
+      "격리된 코드 채점기 / 결과\n시험 조건과 관찰 결과\n초당 채점 처리량\n초당 채점 처리량 12건/s → 31건/s\n증가한 결과를 확인했다.\n개선 전\n12건/s\n측정 조건: 짧은 정답 프로그램 300개 동시\n실행 4개\n개선 후\n외부 공개 전에 격리 우회와 자원 제한을 별도로\n31건/s\n검증해야 한다.\n막대 길이는 같은 척도로 표시\n임예린 합성 실험 결과"
+    ]
+  ]
+}

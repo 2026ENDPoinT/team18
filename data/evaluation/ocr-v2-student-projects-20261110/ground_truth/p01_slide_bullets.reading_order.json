@@ -1,0 +1,97 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "title",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "bullets top to bottom",
+      "line_start": 3,
+      "line_end": 7
+    }
+  ],
+  "lines": [
+    {
+      "text": "모여라 동아리방",
+      "bbox": [
+        80,
+        56,
+        467,
+        109
+      ],
+      "font_size_px": 56
+    },
+    {
+      "text": "웹 서비스 · 구현과 검증",
+      "bbox": [
+        82,
+        137,
+        365,
+        166
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "• 동아리방 예약이 단체 채팅에 흩어져 같은 시간에 두 팀이 찾아오는 일이 있었다.",
+      "bbox": [
+        90,
+        235,
+        1343,
+        271
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "• Next.js, TypeScript, PostgreSQL",
+      "bbox": [
+        90,
+        318,
+        653,
+        352
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "• 팀은 예약 화면과 관리자 승인 기능을 개발했다.",
+      "bbox": [
+        90,
+        394,
+        851,
+        428
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "• 나는 중복 예약 차단 API와 트랜잭션 처리를 구현했다.",
+      "bbox": [
+        90,
+        472,
+        951,
+        507
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "• 예약 API p95 420ms → 180ms로 감소",
+      "bbox": [
+        90,
+        551,
+        748,
+        587
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "김도윤 · 동시 요청 50건, 같은 로컬 서버에서 측정",
+      "bbox": [
+        85,
+        825,
+        571,
+        847
+      ],
+      "font_size_px": 23
+    }
+  ]
+}

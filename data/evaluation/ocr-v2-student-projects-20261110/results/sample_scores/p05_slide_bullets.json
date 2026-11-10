@@ -1,0 +1,118 @@
+{
+  "id": "p05_slide_bullets",
+  "project_id": "p05",
+  "original_id": "p05",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_bullets",
+  "format": "slide",
+  "facts": "key_facts/p05_slide_bullets.json",
+  "image": "images/p05_slide_bullets.png",
+  "ground_truth": "ground_truth/p05_slide_bullets.txt",
+  "reading_order": "ground_truth/p05_slide_bullets.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#713b66",
+  "image_sha256": "1e13b11292b33d8a566538b3aeff193169f6c46f3d9cf767363a5e494160c742",
+  "ground_truth_sha256": "b0979ce404a0de071232131c09d22b39e355fe31fcb90f2218826d16b4097a2f",
+  "facts_sha256": "e1d1543f34a3d378c14c441573c315c0dc7dacbb4d9bca0988a184192f172c93",
+  "reading_order_sha256": "963053596b38793e73c93f2f8cf588cba81859d1dde8dd522f2bb9e1df1be310",
+  "status": "success",
+  "seconds": 1.4937572919998274,
+  "error": null,
+  "prediction": "predictions/p05_slide_bullets.txt",
+  "prediction_sha256": "a5320c66b81e6b5bf17f544c81952eee1be73a2e6723eb738df6c984c69336fc",
+  "raw_return": [
+    [
+      1,
+      "손짓 한 단어\nAI 비전 구현과 검증\n• 고정된 단어 집합에서 손동작을 분류하는 학습 보조 도구를 제작했다.\n· PyTorch, OpenCV, FastAPI\n• 팀은 손동작 분류 모델을 학습했다.\n· 나는 영상 전처리와 추론 API를 연결했다.\n• 수어 분류 정확도 82.1%  90.4%로 증가\n정민서 ·참여자 분리 평가, 고정 단어 12개"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 195,
+    "prediction_characters": 191,
+    "insertions": 0,
+    "deletions": 4,
+    "substitutions": 2,
+    "errors": 6,
+    "cer": 0.03076923076923077,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 145,
+    "prediction_characters": 143,
+    "insertions": 0,
+    "deletions": 2,
+    "substitutions": 2,
+    "errors": 4,
+    "cer": 0.027586206896551724,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "PyTorch",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "PyTorch",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "OpenCV",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "OpenCV",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "FastAPI",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "FastAPI",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "손동작 분류 모델",
+      "statement": "팀은 손동작 분류 모델을 학습했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "· PyTorch, OpenCV, FastAPI\n• 팀은 손동작 분류 모델을 학습했다.\n· 나는 영상 전",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "영상 전처리와 추론 API",
+      "statement": "나는 영상 전처리와 추론 API를 연결했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "· 나는 영상 전처리와 추론 API를 연결했다.\n• 수어 분류 정",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "수어 분류 정확도",
+      "before": "82.1",
+      "after": "90.4",
+      "unit": "%",
+      "direction": "증가",
+      "statement": "수어 분류 정확도 82.1% → 90.4%",
+      "category": "metrics",
+      "parsed_relation": null,
+      "state": "indeterminate",
+      "evidence": "수어 분류 정확도 82.1%  90.4%로 증가\n정민서 ·참여자 분리 평가, 고정 단어 12개",
+      "reason": "metric remains, but no complete directed tuple or labelled before/after pair"
+    }
+  ]
+}

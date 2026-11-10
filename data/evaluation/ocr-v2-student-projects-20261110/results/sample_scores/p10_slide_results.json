@@ -1,0 +1,75 @@
+{
+  "id": "p10_slide_results",
+  "project_id": "p10",
+  "original_id": "p10",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_results",
+  "format": "slide",
+  "facts": "key_facts/p10_slide_results.json",
+  "image": "images/p10_slide_results.png",
+  "ground_truth": "ground_truth/p10_slide_results.txt",
+  "reading_order": "ground_truth/p10_slide_results.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#386352",
+  "image_sha256": "48fdd22873264cb97ddd68d66f6580b4821793a16f521bafeef115040b787753",
+  "ground_truth_sha256": "e93e6f0092ed4789b36aed25a1282f234463fda1cab4333bde92ab245a556ac4",
+  "facts_sha256": "f6d63a17625fec56053557d10170ca071897f8b9dcd83f4693ed73a3f16bf8e9",
+  "reading_order_sha256": "8cf269c322531ef7f0446bef1baeed7ee29e92e03cdba7778ded1a60c0333b14",
+  "status": "success",
+  "seconds": 1.6162491670002055,
+  "error": null,
+  "prediction": "predictions/p10_slide_results.txt",
+  "prediction_sha256": "03e7a8424cb867abc0a82c9b292e5911a2fae39d1850ecb3362a1fa7b6ff2ea4",
+  "raw_return": [
+    [
+      1,
+      "한 바퀴 산책 기록 / 결과\n시험 조건과 관찰 결과\n테스트 기록\n경로 평균 오차 24m → 9m\n경로 평균 오차\n감소한 결과를 확인했다.\n개선 전\n24m\n측정 조건: 운동장 기준 경로를 10회 걸어\n비교\n개선 후\n9m\n고층 건물 사이와 실내에서는 위치 품질을\n보장하지 않는다.\n상태: 비교 완료\n합성 앱 화면 표시된 시험값만 비교\n장우진 합성 실험 결과"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 201,
+    "prediction_characters": 197,
+    "insertions": 47,
+    "deletions": 51,
+    "substitutions": 2,
+    "errors": 100,
+    "cer": 0.4975124378109453,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 141,
+    "prediction_characters": 139,
+    "insertions": 32,
+    "deletions": 34,
+    "substitutions": 1,
+    "errors": 67,
+    "cer": 0.475177304964539,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "metric_main",
+      "name": "경로 평균 오차",
+      "before": "24",
+      "after": "9",
+      "unit": "m",
+      "direction": "감소",
+      "statement": "경로 평균 오차 24m → 9m",
+      "category": "metrics",
+      "parsed_relation": {
+        "metric": "경로 평균 오차",
+        "before": "24",
+        "after": "9",
+        "before_unit": "m",
+        "after_unit": "m경",
+        "connector": "→"
+      },
+      "state": "mislinked",
+      "evidence": "경로 평균 오차 24m → 9m\n경로 평균 오차\n감소한 결과를 확인했다.\n개선",
+      "reason": "metric / ordered values / units / direction parsed in one relation"
+    }
+  ]
+}

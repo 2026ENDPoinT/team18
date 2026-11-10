@@ -1,0 +1,157 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "page title and technology",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "left heading then left content",
+      "line_start": 3,
+      "line_end": 7
+    },
+    {
+      "name": "right heading then right content",
+      "line_start": 8,
+      "line_end": 12
+    },
+    {
+      "name": "footer",
+      "line_start": 13,
+      "line_end": 13
+    }
+  ],
+  "lines": [
+    {
+      "text": "모여라 동아리방 / 역할 분담",
+      "bbox": [
+        75,
+        53,
+        708,
+        105
+      ],
+      "font_size_px": 53
+    },
+    {
+      "text": "Next.js, TypeScript, PostgreSQL",
+      "bbox": [
+        78,
+        140,
+        498,
+        171
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "팀 전체 구현",
+      "bbox": [
+        85,
+        228,
+        307,
+        269
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "예약 화면과 관리자 승인 기능을",
+      "bbox": [
+        85,
+        330,
+        580,
+        367
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "개발했다",
+      "bbox": [
+        85,
+        388,
+        225,
+        424
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "예약 충돌 때는 기존 예약을 지우지 않고 실패",
+      "bbox": [
+        85,
+        518,
+        663,
+        548
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "사유를 반환한다.",
+      "bbox": [
+        85,
+        564,
+        304,
+        594
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "내가 맡은 역할",
+      "bbox": [
+        875,
+        228,
+        1137,
+        270
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "중복 예약 차단 API와 트랜잭션 처리를",
+      "bbox": [
+        875,
+        331,
+        1474,
+        367
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "구현했다",
+      "bbox": [
+        875,
+        388,
+        1015,
+        424
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "담당자: 김도윤",
+      "bbox": [
+        875,
+        519,
+        1069,
+        548
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "구현 범위는 위 항목으로 구분했다.",
+      "bbox": [
+        875,
+        598,
+        1321,
+        628
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "2026 봄학기 · 4인 팀 · 역할 분담 기록",
+      "bbox": [
+        80,
+        819,
+        468,
+        843
+      ],
+      "font_size_px": 24
+    }
+  ]
+}

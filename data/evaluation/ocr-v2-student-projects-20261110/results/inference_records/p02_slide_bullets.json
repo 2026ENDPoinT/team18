@@ -1,0 +1,14 @@
+{
+  "id": "p02_slide_bullets",
+  "status": "success",
+  "seconds": 1.5769798339997578,
+  "error": null,
+  "prediction": "predictions/p02_slide_bullets.txt",
+  "prediction_sha256": "18aea917fc9b325a22dde9f9b2e257375f264872c04dde82424b71c12ddda88e",
+  "raw_return": [
+    [
+      1,
+      "길벗 캠퍼스\n모바일 앱 구현과 검증\n문제\n낯선 건물로 이동하는 신입생을 위해 경사와 계단 정보를 보여 주는 앱을 만들었다.\n기술\nFlutter, Dart, SQLite\n팀 기여\n팀은 추천 모델을 개발했다.\n본인 기여\n나는 데이터 수집 API를 구현했다.\n결과\n오프라인 저장 성공률 91%  99%로 증가\n이서연· 비행기 모드 전환을 포함한 입력 100회"
+    ]
+  ]
+}

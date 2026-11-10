@@ -1,0 +1,76 @@
+{
+  "id": "p12_slide_results",
+  "project_id": "p12",
+  "original_id": "p12",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_results",
+  "format": "slide",
+  "facts": "key_facts/p12_slide_results.json",
+  "image": "images/p12_slide_results.png",
+  "ground_truth": "ground_truth/p12_slide_results.txt",
+  "reading_order": "ground_truth/p12_slide_results.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#4d5461",
+  "image_sha256": "e09ccc048bf9a9855edeb04dc21dc25e934b01096e96cb1010f725c0489c655f",
+  "ground_truth_sha256": "332b8de74b0f379b6ea1660862eb0b8f8fb9c4a0a7dd6000348b4628195a90a7",
+  "facts_sha256": "d8528f57d64c0ab0f7447a8b243e5b079c8f1e138008f7150b4dd7aa4b90a25a",
+  "reading_order_sha256": "996725f171e24fb6b6168c2a00407ee4dcb3fc360d0b5e7bbe16f8198db81875",
+  "status": "success",
+  "seconds": 1.6319861659994785,
+  "error": null,
+  "prediction": "predictions/p12_slide_results.txt",
+  "prediction_sha256": "e140d39a5378f1e0b3537a079e97dfbf90e894d71130d63e191653823df7e4e8",
+  "raw_return": [
+    [
+      1,
+      "자전거 통행 관찰기 / 결과\n시험 조건과 관찰 결과\n영상 처리 속도 18fps  27fps\n테스트 기록\n영상 처리 속도\n증가한 결과를 확인했다.\n개선 전\n18fps\n측정 조건: 같은 장치 720p 시험 영상 5분\n야간과 우천 영상에서 탐지 정확도를 추가\n개선 후\n27fps\n확인해야 한다.\n상태: 비교 완료\n합성 앱 화면 표시된 시험값만 비교\n배지호 합성 실험 결과"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 210,
+    "prediction_characters": 204,
+    "insertions": 52,
+    "deletions": 58,
+    "substitutions": 6,
+    "errors": 116,
+    "cer": 0.5523809523809524,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 151,
+    "prediction_characters": 147,
+    "insertions": 37,
+    "deletions": 41,
+    "substitutions": 5,
+    "errors": 83,
+    "cer": 0.5496688741721855,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "metric_main",
+      "name": "영상 처리 속도",
+      "before": "18",
+      "after": "27",
+      "unit": "fps",
+      "direction": "증가",
+      "statement": "영상 처리 속도 18fps → 27fps",
+      "category": "metrics",
+      "state": "preserved",
+      "parsed_relation": {
+        "metric": "영상 처리 속도",
+        "before": "18",
+        "after": "27",
+        "before_unit": "fps",
+        "after_unit": "fps",
+        "connector": "explicit_before_after_labels",
+        "direction_word": null
+      },
+      "evidence": "영상 처리 속도\n증가한 결과를 확인했다.\n개선 전\n18fps\n측정 조건: 같은 장치 720p 시험 영상 5분\n야간과 우천 영상에서 탐지 정확도를 추가\n개선 후\n27fps",
+      "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "p06_slide_results",
+  "project_id": "p06",
+  "original_id": "p06",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "slide_results",
+  "format": "slide",
+  "facts": "key_facts/p06_slide_results.json",
+  "image": "images/p06_slide_results.png",
+  "ground_truth": "ground_truth/p06_slide_results.txt",
+  "reading_order": "ground_truth/p06_slide_results.reading_order.json",
+  "width": 1600,
+  "height": 900,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#4d5461",
+  "image_sha256": "07aaf43fcfe2412530c815cf9469c787fad6fbfa9a274f186d08195ad495336b",
+  "ground_truth_sha256": "de1579c95938f5eca1a45395853469e297b2c14b9070913899ec53470d0d4b3e",
+  "facts_sha256": "926b7c27fe52b6f6540a46bc0bfac9f3107709c848a011d20601320956e1eac6",
+  "reading_order_sha256": "ba0daa95fe09892936b5a372508b37d3ec2241c837b8aa830855ffc436910ba1",
+  "status": "success",
+  "seconds": 1.642004457999974,
+  "error": null,
+  "prediction": "predictions/p06_slide_results.txt",
+  "prediction_sha256": "5afefdbf85307d0d4a09139e7924edad3dd3f38bfba7a9689455cdcbd9d33bf7",
+  "raw_return": [
+    [
+      1,
+      "궤도 실험실 / 결과\n시험 조건과 관찰 결과\n평균 프레임 시간\n평균 프레임 시간 38ms → 21ms\n감소한 결과를 확인했다.\n38ms\n측정 조건: 동일 노트북 물체 200개 장면을\n60초 실행\n21ms\n중력 계산의 정밀도 개선은 이번 담당 범위에\n포함되지 않았다.\n개선 전\n개선 후\n한시우 합성 실험 결과"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 174,
+    "prediction_characters": 171,
+    "insertions": 20,
+    "deletions": 23,
+    "substitutions": 0,
+    "errors": 43,
+    "cer": 0.2471264367816092,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 126,
+    "prediction_characters": 124,
+    "insertions": 14,
+    "deletions": 16,
+    "substitutions": 0,
+    "errors": 30,
+    "cer": 0.23809523809523808,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "metric_main",
+      "name": "평균 프레임 시간",
+      "before": "38",
+      "after": "21",
+      "unit": "ms",
+      "direction": "감소",
+      "statement": "평균 프레임 시간 38ms → 21ms",
+      "category": "metrics",
+      "parsed_relation": {
+        "metric": "평균 프레임 시간",
+        "before": "38",
+        "after": "21",
+        "before_unit": "ms",
+        "after_unit": "ms",
+        "connector": "→"
+      },
+      "state": "preserved",
+      "evidence": "평균 프레임 시간 38ms → 21ms\n감소한 결과를 확인했다.\n38ms\n측정 조",
+      "reason": "metric / ordered values / units / direction parsed in one relation"
+    }
+  ]
+}

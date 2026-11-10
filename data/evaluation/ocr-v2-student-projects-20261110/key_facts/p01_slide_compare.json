@@ -1,0 +1,37 @@
+{
+  "project_id": "p01",
+  "technology": [
+    {
+      "id": "tech_1",
+      "name": "Next.js"
+    },
+    {
+      "id": "tech_2",
+      "name": "TypeScript"
+    },
+    {
+      "id": "tech_3",
+      "name": "PostgreSQL"
+    }
+  ],
+  "roles": [
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "예약 화면과 관리자 승인 기능",
+      "statement": "팀은 예약 화면과 관리자 승인 기능을 개발했다.",
+      "presentation": "heading_scope",
+      "header": "팀 전체 구현"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "중복 예약 차단 API와 트랜잭션 처리",
+      "statement": "나는 중복 예약 차단 API와 트랜잭션 처리를 구현했다.",
+      "presentation": "heading_scope",
+      "header": "내가 맡은 역할"
+    }
+  ],
+  "metrics": [],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

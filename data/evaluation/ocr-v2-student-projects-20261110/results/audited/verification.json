@@ -1,0 +1,11 @@
+{
+  "all_passed": true,
+  "verified_pages": 36,
+  "verified_fact_decisions": 168,
+  "metric_connection_probes": 10,
+  "groups": 20,
+  "original_CER_DP_verification_reused": 72,
+  "original_scores_retained": true,
+  "CER_timing_prediction_and_frozen_input_unchanged": true,
+  "semantic_validation": "deterministic rerun, tuple and evidence checks; not independent human review"
+}

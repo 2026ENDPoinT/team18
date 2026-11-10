@@ -1,0 +1,14 @@
+{
+  "id": "p10_slide_compare",
+  "status": "success",
+  "seconds": 1.5545571669999845,
+  "error": null,
+  "prediction": "predictions/p10_slide_compare.txt",
+  "prediction_sha256": "4e6da7df822bf877a29700d4dd7df03d46ed3b2a0c82729c20bc5fab8139a0e2",
+  "raw_return": [
+    [
+      1,
+      "한 바퀴 산책 기록 / 역할 분담\nKotlin, Jetpack Compose, Room\n팀 전체 구현\n내가 맡은 역할\n경로 지도와 기록 목록을 제작했다\n위치 필터와 로컬 저장을 구현했다\n개인 경로는 기본적으로 기기 안에만 남도록\n담당자: 장우진\n구성했다.\n구현 범위는 위 항목으로 구분했다.\n2026 앱 개발 실습 2인 팀 역할 분담 기록"
+    ]
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "id": "p05_intro",
+  "project_id": "p05",
+  "original_id": "p05",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "intro_prose",
+  "format": "introduction",
+  "facts": "key_facts/p05_intro.json",
+  "image": "images/p05_intro.png",
+  "ground_truth": "ground_truth/p05_intro.txt",
+  "reading_order": "ground_truth/p05_intro.reading_order.json",
+  "width": 1240,
+  "height": 1754,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#713b66",
+  "image_sha256": "762e3a8ebab52044efe3136dd4e51c5a88b60e9aea23ad17108c9ae735c40526",
+  "ground_truth_sha256": "09dc9d302092ba00aac36f5086cf7e3ca437eebad50e3c58ed415f4c28a97583",
+  "facts_sha256": "e1d1543f34a3d378c14c441573c315c0dc7dacbb4d9bca0988a184192f172c93",
+  "reading_order_sha256": "e0effbb369102c9a69792ddfe55ada83eea62f898939f17398d853b47dae2680",
+  "status": "success",
+  "seconds": 2.6721414999992703,
+  "error": null,
+  "prediction": "predictions/p05_intro.txt",
+  "prediction_sha256": "5a3ffe8abe90997fd8a25b608faf4f40a4bf5e62a940c9617055c8ffa4c6969a",
+  "raw_return": [
+    [
+      1,
+      "손짓 한 단어\nAI 비전 프로젝트 소개서\n정민서 2026 여름 프로젝트 4인 팀\n고정된 단어 집합에서 손동작을 분류하는 학습 보조 도구를 제작했다. 영상\n촬영에 참여하지 않은 사람을 평가 집합으로 분리해 인물 정보 누출을 줄였다.\n사용한 기술은 PyTorch, OpenCV, FastAPI이다.\n팀은 손동작 분류 모델을 학습했다. 나는 영상 전처리와 추론 API를 연결했다.\n나는 프레임 간격과 입력 크기를 맞추고 잘못된 영상 요청을 거절하는 검증\n코드를 작성했다. 학습률과 모델 구조 선택은 다른 팀원이 맡았다.\n검증 결과 수어 분류 정확도 82.1%  90.4%로 증가했다. 참여자 분리 평가,\n고정 단어 12개 조건이다.\n오인식 영상을 다시 볼 수 있도록 예측 결과와 시간을 저장했다.\n연속 수어 번역이나 실생활 통역 성능을 주장하는 프로젝트는 아니다.\n합성 학생 프로젝트 · P05"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 447,
+    "prediction_characters": 441,
+    "insertions": 0,
+    "deletions": 6,
+    "substitutions": 0,
+    "errors": 6,
+    "cer": 0.013422818791946308,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 336,
+    "prediction_characters": 332,
+    "insertions": 0,
+    "deletions": 4,
+    "substitutions": 0,
+    "errors": 4,
+    "cer": 0.011904761904761904,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "PyTorch",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "PyTorch",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "OpenCV",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "OpenCV",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "FastAPI",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "FastAPI",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "손동작 분류 모델",
+      "statement": "팀은 손동작 분류 모델을 학습했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "팀은 손동작 분류 모델을 학습했다. 나는 영상 전처",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "영상 전처리와 추론 API",
+      "statement": "나는 영상 전처리와 추론 API를 연결했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "나는 영상 전처리와 추론 API를 연결했다.\n나는 프레임 간",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "수어 분류 정확도",
+      "before": "82.1",
+      "after": "90.4",
+      "unit": "%",
+      "direction": "증가",
+      "statement": "수어 분류 정확도 82.1% → 90.4%",
+      "category": "metrics",
+      "state": "preserved",
+      "parsed_relation": {
+        "metric": "수어 분류 정확도",
+        "before": "82.1",
+        "after": "90.4",
+        "before_unit": "%",
+        "after_unit": "%",
+        "connector": "destination_particle_and_direction",
+        "direction_word": "증가"
+      },
+      "evidence": "수어 분류 정확도 82.1%  90.4%로 증가",
+      "reason": "metric, ordered values, exact units, and explicit directional grammar or before/after labels form a connected fact"
+    }
+  ]
+}

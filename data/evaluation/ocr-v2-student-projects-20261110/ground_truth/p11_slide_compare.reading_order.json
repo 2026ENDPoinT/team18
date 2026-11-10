@@ -1,0 +1,137 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "page title and technology",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "left heading then left content",
+      "line_start": 3,
+      "line_end": 6
+    },
+    {
+      "name": "right heading then right content",
+      "line_start": 7,
+      "line_end": 10
+    },
+    {
+      "name": "footer",
+      "line_start": 11,
+      "line_end": 11
+    }
+  ],
+  "lines": [
+    {
+      "text": "강의 문장 찾기 / 역할 분담",
+      "bbox": [
+        75,
+        53,
+        673,
+        105
+      ],
+      "font_size_px": 53
+    },
+    {
+      "text": "Go, Elasticsearch, Vue.js",
+      "bbox": [
+        78,
+        139,
+        399,
+        171
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "팀 전체 구현",
+      "bbox": [
+        85,
+        228,
+        307,
+        269
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "검색 순위 실험과 결과 화면을 만들었다",
+      "bbox": [
+        85,
+        330,
+        695,
+        367
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "검색 결과에는 원문 위치와 마지막 수정 날짜를",
+      "bbox": [
+        85,
+        518,
+        684,
+        548
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "함께 표시한다.",
+      "bbox": [
+        85,
+        564,
+        275,
+        594
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "내가 맡은 역할",
+      "bbox": [
+        875,
+        228,
+        1137,
+        270
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "문서 색인 파이프라인을 구현했다",
+      "bbox": [
+        875,
+        330,
+        1395,
+        367
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "담당자: 오채원",
+      "bbox": [
+        875,
+        519,
+        1069,
+        548
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "구현 범위는 위 항목으로 구분했다.",
+      "bbox": [
+        875,
+        598,
+        1321,
+        628
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "2026 정보검색 수업 · 3인 팀 · 역할 분담 기록",
+      "bbox": [
+        80,
+        819,
+        544,
+        843
+      ],
+      "font_size_px": 24
+    }
+  ]
+}

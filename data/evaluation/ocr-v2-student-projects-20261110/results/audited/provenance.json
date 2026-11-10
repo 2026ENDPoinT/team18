@@ -1,0 +1,13 @@
+{
+  "stage": "post-inference scoring audit; not preregistered parser",
+  "created_at_utc": "2026-11-10T04:58:02.519416+00:00",
+  "frozen_manifest_sha256": "3fff6b170db13b25150c6ec6954585a3d00457ae5df7845b619a8e66eff788e7",
+  "original_summary_sha256": "aafeb55c7c07f47e1a51a5c2285082bd61568af7f287325ec1a5cdd90fe2c890",
+  "audit_script_sha256": "143e79aee8edbb6560a41765b2a7ec009236aa8c4d995b556208d7f8325beb06",
+  "policy_sha256": "ac2d83817a5ac5c33947b6097485aace5b7195670e3d4af24cd701992907b391",
+  "changed_decisions": 24,
+  "metric_facts_reviewed": 28,
+  "negative_and_positive_probes": 10,
+  "ground_truth_images_predictions_unchanged": true,
+  "external_LLM_calls": 0
+}

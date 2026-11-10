@@ -1,0 +1,14 @@
+{
+  "id": "p08_slide_results",
+  "status": "success",
+  "seconds": 1.5800653750002311,
+  "error": null,
+  "prediction": "predictions/p08_slide_results.txt",
+  "prediction_sha256": "4986b30d6c83411cd8f9d939e3c0c9415d2275d5cac02541da08516da27d1669",
+  "raw_return": [
+    [
+      1,
+      "우리 건물 전기 일기 / 결과\n시험 조건과 관찰 결과\n일별 전력 MAPE\n일별 전력 MAPE 14.8% → 9.6%\n감소한 결과를 확인했다.\n14.8%\n측정 조건: 학기 마지막 30일 시간 순서 검증\n9.6%\n오차 감소가 전기 요금 절감으로 이어졌다고\n해석할 수는 없다.\n개선 전\n개선 후\n서준호 합성 실험 결과"
+    ]
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "p04_slide_bullets",
+  "status": "success",
+  "seconds": 1.648976457999197,
+  "error": null,
+  "prediction": "predictions/p04_slide_bullets.txt",
+  "prediction_sha256": "5336a42e312b552be3a10e7f054c79da53d522c767f0cf3f69556b5b12b95bf1",
+  "raw_return": [
+    [
+      1,
+      "연구실 공기 알리미\n임베디드 시스템  구현과 검증\n문제\n창문이 없는 실습실에서 환기 시점을 놓치지 않도록 센서 값을 모았다.\n기술\nC++, MQTT, ESP32\n팀 기여\n팀은 센서 회로와 모니터링 화면을 제작했다.\n본인 기여\n나는 재연결 버퍼와 메시지 재전송을 구현했다.\n결과\n패킷 손실률 3.2%  0.8%로 감소\n최지우 연결 중단을 포함한 메시지 5,000개"
+    ]
+  ]
+}

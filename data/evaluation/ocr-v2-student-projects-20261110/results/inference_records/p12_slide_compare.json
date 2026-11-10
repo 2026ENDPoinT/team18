@@ -1,0 +1,14 @@
+{
+  "id": "p12_slide_compare",
+  "status": "success",
+  "seconds": 1.6111797080002361,
+  "error": null,
+  "prediction": "predictions/p12_slide_compare.txt",
+  "prediction_sha256": "3305aa4eaf625b3079b3430b0d92def815dd51c627826fac3296b10690690b37",
+  "raw_return": [
+    [
+      1,
+      "자전거 통행 관찰기 / 역할 분담\nOpenCV, C++, ONNX Runtime\n팀 전체 구현\n내가 맡은 역할\n객체 탐지 모델과 집계 기준을 개발했다\n추론 실행부와 프레임 큐를 최적화했다\n속도 실험은 모델 정확도가 좋아졌다는 근거로\n담당자: 배지호\n사용하지 않았다.\n구현 범위는 위 항목으로 구분했다.\n2026 캡스톤 디자인 4인 팀 역할 분담 기록"
+    ]
+  ]
+}

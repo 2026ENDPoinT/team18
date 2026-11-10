@@ -1,0 +1,147 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "page title and technology",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "left heading then left content",
+      "line_start": 3,
+      "line_end": 6
+    },
+    {
+      "name": "right heading then right content",
+      "line_start": 7,
+      "line_end": 11
+    },
+    {
+      "name": "footer",
+      "line_start": 12,
+      "line_end": 12
+    }
+  ],
+  "lines": [
+    {
+      "text": "잔반을 줄이는 식단 노트 / 역할 분담",
+      "bbox": [
+        75,
+        53,
+        888,
+        105
+      ],
+      "font_size_px": 53
+    },
+    {
+      "text": "Python, pandas, scikit-learn",
+      "bbox": [
+        78,
+        139,
+        449,
+        170
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "팀 전체 구현",
+      "bbox": [
+        85,
+        228,
+        307,
+        269
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "식수 예측 회귀 모델을 학습했다",
+      "bbox": [
+        85,
+        330,
+        580,
+        367
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "대시보드는 메뉴별 평균과 측정 누락일을 함께",
+      "bbox": [
+        85,
+        518,
+        676,
+        548
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "보여 준다.",
+      "bbox": [
+        85,
+        564,
+        217,
+        594
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "내가 맡은 역할",
+      "bbox": [
+        875,
+        228,
+        1137,
+        270
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "결측 기록 정제와 잔반 대시보드를",
+      "bbox": [
+        875,
+        331,
+        1405,
+        367
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "작성했다",
+      "bbox": [
+        875,
+        388,
+        1015,
+        424
+      ],
+      "font_size_px": 37
+    },
+    {
+      "text": "담당자: 박하준",
+      "bbox": [
+        875,
+        518,
+        1069,
+        548
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "구현 범위는 위 항목으로 구분했다.",
+      "bbox": [
+        875,
+        598,
+        1321,
+        628
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "2026 봄학기 · 4인 팀 · 역할 분담 기록",
+      "bbox": [
+        80,
+        819,
+        468,
+        843
+      ],
+      "font_size_px": 24
+    }
+  ]
+}

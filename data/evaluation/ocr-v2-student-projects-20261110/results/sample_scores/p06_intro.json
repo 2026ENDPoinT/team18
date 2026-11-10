@@ -1,0 +1,118 @@
+{
+  "id": "p06_intro",
+  "project_id": "p06",
+  "original_id": "p06",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "intro_prose",
+  "format": "introduction",
+  "facts": "key_facts/p06_intro.json",
+  "image": "images/p06_intro.png",
+  "ground_truth": "ground_truth/p06_intro.txt",
+  "reading_order": "ground_truth/p06_intro.reading_order.json",
+  "width": 1240,
+  "height": 1754,
+  "font": "NanumGothic-Regular.ttf",
+  "color": "#4d5461",
+  "image_sha256": "8fe282277fa63c84f4e8a389fda1e297927c5b05c3b92e3a14450741a4afb275",
+  "ground_truth_sha256": "feb2710a3dab454481283dad27eb89db600dcb6792a151c32eabe74e5bef97b2",
+  "facts_sha256": "4132b57556ce0e6b249c7954b413ff1acf4932db9004a773086e52bc05ba3837",
+  "reading_order_sha256": "18414d2607cbb9954e1184c984c5ada6b2be39082c37b304290f141d984ac38d",
+  "status": "success",
+  "seconds": 2.7289941670005646,
+  "error": null,
+  "prediction": "predictions/p06_intro.txt",
+  "prediction_sha256": "47de6c6cc612209a207dd526de58a843c21cc3e754bba350c73b5bd67617cb67",
+  "raw_return": [
+    [
+      1,
+      "궤도 실험실\n교육용 게임 프로젝트 소개서\n한시우 2026 게임 제작 실습 3인 팀\n개발 배경과 기여\n행성의 질량과 초기 속도를 바꾸며 궤도를 관찰하는 교육용 게임이다. 여러 물체를\n추가하면 화면이 끊기는 문제를 해결하는 데 집중했다\n사용한 기술은 C# Unity, .NET이다.\n팀은 물리 규칙과 튜토리얼을 설계했다. 나는 오브젝트 풀과 프레임 계측기를\n구현했다.\n매 프레임 생성하던 표시 객체를 재사용하도록 바꾸었다. 내 코드는 측정 로그를\n남기고 팀원은 로그를 보며 스테이지 구성을 조정했다.\n검증 결과 평균 프레임 시간 38ms  21ms로 감소했다. 동일 노트북 물체 200개\n장면을 60초 실행 조건이다.\n사용자는 실험을 잠시 멈추고 힘의 방향을 확인할 수 있다.\n중력 계산의 정밀도 개선은 이번 담당 범위에 포함되지 않았다\n합성 학생 프로젝트 · P06"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 437,
+    "prediction_characters": 427,
+    "insertions": 0,
+    "deletions": 10,
+    "substitutions": 0,
+    "errors": 10,
+    "cer": 0.02288329519450801,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 328,
+    "prediction_characters": 320,
+    "insertions": 0,
+    "deletions": 8,
+    "substitutions": 0,
+    "errors": 8,
+    "cer": 0.024390243902439025,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "C#",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "C#",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "Unity",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Unity",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": ".NET",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": ".NET",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "물리 규칙과 튜토리얼",
+      "statement": "팀은 물리 규칙과 튜토리얼을 설계했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "팀은 물리 규칙과 튜토리얼을 설계했다. 나는 오브젝트",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "오브젝트 풀과 프레임 계측기",
+      "statement": "나는 오브젝트 풀과 프레임 계측기를 구현했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "나는 오브젝트 풀과 프레임 계측기를\n구현했다.\n매 프레임 생성",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "평균 프레임 시간",
+      "before": "38",
+      "after": "21",
+      "unit": "ms",
+      "direction": "감소",
+      "statement": "평균 프레임 시간 38ms → 21ms",
+      "category": "metrics",
+      "parsed_relation": null,
+      "state": "indeterminate",
+      "evidence": "평균 프레임 시간 38ms  21ms로 감소했다. 동일 노트북 물체 200개\n장면을 60초 실행 조건이다.\n사용자는 실험을 잠시 멈추고 힘의 방향을 확인할 수 있다.\n중력 계산의 정밀도 개선은 이번 담당 범위에 포함되지 않았다\n합성 학",
+      "reason": "metric remains, but no complete directed tuple or labelled before/after pair"
+    }
+  ]
+}

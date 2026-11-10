@@ -1,0 +1,118 @@
+{
+  "id": "p08_intro",
+  "project_id": "p08",
+  "original_id": "p08",
+  "kind": "synthetic",
+  "variant": "base",
+  "layout": "intro_bullets",
+  "format": "introduction",
+  "facts": "key_facts/p08_intro.json",
+  "image": "images/p08_intro.png",
+  "ground_truth": "ground_truth/p08_intro.txt",
+  "reading_order": "ground_truth/p08_intro.reading_order.json",
+  "width": 1240,
+  "height": 1754,
+  "font": "NanumMyeongjo-Regular.ttf",
+  "color": "#3a477c",
+  "image_sha256": "29f34fee4ac770c1eac9dc70d0601c5900047120cbe52e253af4532c47ca0367",
+  "ground_truth_sha256": "f5a8bb8a8372c55713e204332053a94ceb2f3d2fd38b06272c8378915f15c676",
+  "facts_sha256": "e8b6bb35b340f40c1c55e5f3954a42795136091c34793aa97a873097c61e599a",
+  "reading_order_sha256": "1efb2a7e199b1326feeab075bcd3062b1bdd773c5f234acdbb1e2869a68ca624",
+  "status": "success",
+  "seconds": 2.604757334000169,
+  "error": null,
+  "prediction": "predictions/p08_intro.txt",
+  "prediction_sha256": "7c432ad278435cab017c3bb9c6c5427ec7b7c5f95ac01108013f90da03ca38d2",
+  "raw_return": [
+    [
+      1,
+      "우리 건물 전기 일기\n통계 분석 프로젝트 소개서\n서준호 2026 데이터 동아리 3인 팀\n문제와 사용자\n· 강의동 전력량을 날씨와 학사 일정에 맞춰 비교했다. 휴일의 낮은 사용량 때문에\n평일 평균이 왜곡되는 현상을 설명하는 보고서를 만들었다.\n구현 기술\n· R, ggplot2, Shiny\n역할과 구현\n· 팀은 전력 사용량 예측식을 비교했다.\n• 나는 계절별 시각화와 이상치 검토를 수행했다.\n· 예측값 옆에 실제 사용량을 함께 배치하고 누락 구간은 선으로 연결하지 않았다.\n모델 비교 결과는 날짜별 오차로 다시 확인했다.\n실험 결과\n• 일별 전력 MAPE 14.8%  9.6%로 감소\n• 학기 마지막 30일, 시간 순서 검증\n다음 단계\n· 오차 감소가 전기 요금 절감으로 이어졌다고 해석할 수는 없다.\n합성 학생 프로젝트  P08"
+    ]
+  ],
+  "with_whitespace": {
+    "reference_characters": 414,
+    "prediction_characters": 408,
+    "insertions": 0,
+    "deletions": 6,
+    "substitutions": 5,
+    "errors": 11,
+    "cer": 0.026570048309178744,
+    "exact_match": false
+  },
+  "without_whitespace": {
+    "reference_characters": 304,
+    "prediction_characters": 300,
+    "insertions": 0,
+    "deletions": 4,
+    "substitutions": 5,
+    "errors": 9,
+    "cer": 0.029605263157894735,
+    "exact_match": false
+  },
+  "fact_scores": [
+    {
+      "id": "tech_1",
+      "name": "R",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "R",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_2",
+      "name": "ggplot2",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "ggplot2",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "tech_3",
+      "name": "Shiny",
+      "category": "technology",
+      "state": "preserved",
+      "evidence": "Shiny",
+      "reason": "exact case and symbols with token boundary; whitespace only between words may wrap"
+    },
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "전력 사용량 예측식",
+      "statement": "팀은 전력 사용량 예측식을 비교했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현",
+      "category": "roles",
+      "predicted_owner": "team",
+      "state": "preserved",
+      "evidence": "구현 기술\n· R, ggplot2, Shiny\n역할과 구현\n· 팀은 전력 사용량 예측식을 비교했다.\n• 나는 계절별",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "계절별 시각화와 이상치 검토",
+      "statement": "나는 계절별 시각화와 이상치 검토를 수행했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할",
+      "category": "roles",
+      "predicted_owner": "self",
+      "state": "preserved",
+      "evidence": "• 나는 계절별 시각화와 이상치 검토를 수행했다.\n· 예측값 옆에",
+      "reason": "explicit grammatical subject"
+    },
+    {
+      "id": "metric_main",
+      "name": "일별 전력 MAPE",
+      "before": "14.8",
+      "after": "9.6",
+      "unit": "%",
+      "direction": "감소",
+      "statement": "일별 전력 MAPE 14.8% → 9.6%",
+      "category": "metrics",
+      "parsed_relation": null,
+      "state": "indeterminate",
+      "evidence": "일별 전력 MAPE 14.8%  9.6%로 감소\n• 학기 마지막 30일, 시간 순서 검증\n다음 단계\n· 오차 감소가 전기 요금 절감으로 이어졌다고 해석할 수는 없다.\n합성 학생 프로젝트  P08",
+      "reason": "metric remains, but no complete directed tuple or labelled before/after pair"
+    }
+  ]
+}

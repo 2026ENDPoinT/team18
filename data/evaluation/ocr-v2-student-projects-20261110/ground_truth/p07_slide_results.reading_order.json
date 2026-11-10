@@ -1,0 +1,197 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "title",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "left chart or synthetic screen: title then before label/value then after label/value then caption",
+      "line_start": 3,
+      "line_end": 10
+    },
+    {
+      "name": "right explanatory text top to bottom",
+      "line_start": 11,
+      "line_end": 16
+    },
+    {
+      "name": "footer",
+      "line_start": 17,
+      "line_end": 17
+    }
+  ],
+  "lines": [
+    {
+      "text": "도서관 자리 신호 / 결과",
+      "bbox": [
+        75,
+        56,
+        614,
+        107
+      ],
+      "font_size_px": 54
+    },
+    {
+      "text": "시험 조건과 관찰 결과",
+      "bbox": [
+        78,
+        140,
+        354,
+        169
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "테스트 기록",
+      "bbox": [
+        100,
+        239,
+        238,
+        267
+      ],
+      "font_size_px": 28
+    },
+    {
+      "text": "좌석 조회 중앙값",
+      "bbox": [
+        105,
+        316,
+        333,
+        347
+      ],
+      "font_size_px": 32
+    },
+    {
+      "text": "개선 전",
+      "bbox": [
+        110,
+        398,
+        202,
+        427
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "680ms",
+      "bbox": [
+        440,
+        402,
+        571,
+        435
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "개선 후",
+      "bbox": [
+        110,
+        505,
+        202,
+        534
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "240ms",
+      "bbox": [
+        440,
+        509,
+        571,
+        542
+      ],
+      "font_size_px": 42
+    },
+    {
+      "text": "상태: 비교 완료",
+      "bbox": [
+        108,
+        626,
+        282,
+        653
+      ],
+      "font_size_px": 27
+    },
+    {
+      "text": "합성 앱 화면 · 표시된 시험값만 비교",
+      "bbox": [
+        80,
+        735,
+        431,
+        758
+      ],
+      "font_size_px": 23
+    },
+    {
+      "text": "좌석 조회 중앙값 680ms →",
+      "bbox": [
+        930,
+        241,
+        1382,
+        278
+      ],
+      "font_size_px": 38
+    },
+    {
+      "text": "240ms",
+      "bbox": [
+        930,
+        302,
+        1050,
+        332
+      ],
+      "font_size_px": 38
+    },
+    {
+      "text": "감소한 결과를 확인했다.",
+      "bbox": [
+        930,
+        385,
+        1280,
+        418
+      ],
+      "font_size_px": 34
+    },
+    {
+      "text": "측정 조건: 동일 요청 목록 1,000회 재생",
+      "bbox": [
+        930,
+        464,
+        1432,
+        494
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "실제 출입 센서 연결과 시험 기간 운영은 아직",
+      "bbox": [
+        930,
+        538,
+        1472,
+        567
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "하지 않았다.",
+      "bbox": [
+        930,
+        582,
+        1082,
+        611
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "윤수빈 · 합성 실험 결과",
+      "bbox": [
+        80,
+        831,
+        309,
+        853
+      ],
+      "font_size_px": 23
+    }
+  ]
+}

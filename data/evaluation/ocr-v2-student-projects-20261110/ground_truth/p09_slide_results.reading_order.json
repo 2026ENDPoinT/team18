@@ -1,0 +1,177 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "title",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "left chart or synthetic screen: title then before label/value then after label/value then caption",
+      "line_start": 3,
+      "line_end": 8
+    },
+    {
+      "name": "right explanatory text top to bottom",
+      "line_start": 9,
+      "line_end": 14
+    },
+    {
+      "name": "footer",
+      "line_start": 15,
+      "line_end": 15
+    }
+  ],
+  "lines": [
+    {
+      "text": "격리된 코드 채점기 / 결과",
+      "bbox": [
+        75,
+        56,
+        665,
+        107
+      ],
+      "font_size_px": 54
+    },
+    {
+      "text": "시험 조건과 관찰 결과",
+      "bbox": [
+        78,
+        140,
+        354,
+        169
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "초당 채점 처리량",
+      "bbox": [
+        95,
+        236,
+        323,
+        267
+      ],
+      "font_size_px": 32
+    },
+    {
+      "text": "개선 전",
+      "bbox": [
+        95,
+        350,
+        181,
+        377
+      ],
+      "font_size_px": 28
+    },
+    {
+      "text": "12건/s",
+      "bbox": [
+        400.16129032258067,
+        360,
+        486.16129032258067,
+        387
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "개선 후",
+      "bbox": [
+        95,
+        530,
+        181,
+        557
+      ],
+      "font_size_px": 28
+    },
+    {
+      "text": "31건/s",
+      "bbox": [
+        630.0,
+        540,
+        716.0,
+        567
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "막대 길이는 같은 척도로 표시",
+      "bbox": [
+        95,
+        728,
+        383,
+        750
+      ],
+      "font_size_px": 23
+    },
+    {
+      "text": "초당 채점 처리량 12건/s → 31건/s",
+      "bbox": [
+        930,
+        241,
+        1497,
+        277
+      ],
+      "font_size_px": 38
+    },
+    {
+      "text": "증가한 결과를 확인했다.",
+      "bbox": [
+        930,
+        327,
+        1280,
+        360
+      ],
+      "font_size_px": 34
+    },
+    {
+      "text": "측정 조건: 짧은 정답 프로그램 300개, 동시",
+      "bbox": [
+        930,
+        406,
+        1470,
+        436
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "실행 4개",
+      "bbox": [
+        930,
+        452,
+        1040,
+        481
+      ],
+      "font_size_px": 30
+    },
+    {
+      "text": "외부 공개 전에 격리 우회와 자원 제한을 별도로",
+      "bbox": [
+        930,
+        526,
+        1499,
+        555
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "검증해야 한다.",
+      "bbox": [
+        930,
+        570,
+        1109,
+        599
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "임예린 · 합성 실험 결과",
+      "bbox": [
+        80,
+        831,
+        309,
+        853
+      ],
+      "font_size_px": 23
+    }
+  ]
+}

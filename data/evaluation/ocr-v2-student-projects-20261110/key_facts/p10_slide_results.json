@@ -1,0 +1,17 @@
+{
+  "project_id": "p10",
+  "technology": [],
+  "roles": [],
+  "metrics": [
+    {
+      "id": "metric_main",
+      "name": "경로 평균 오차",
+      "before": "24",
+      "after": "9",
+      "unit": "m",
+      "direction": "감소",
+      "statement": "경로 평균 오차 24m → 9m"
+    }
+  ],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

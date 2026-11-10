@@ -1,0 +1,47 @@
+{
+  "project_id": "p09",
+  "technology": [
+    {
+      "id": "tech_1",
+      "name": "Rust"
+    },
+    {
+      "id": "tech_2",
+      "name": "Docker"
+    },
+    {
+      "id": "tech_3",
+      "name": "Linux"
+    }
+  ],
+  "roles": [
+    {
+      "id": "role_team",
+      "owner": "team",
+      "action": "채점 규칙과 제출 웹",
+      "statement": "팀은 채점 규칙과 제출 웹을 구성했다.",
+      "presentation": "explicit_subject",
+      "header": "팀 전체 구현"
+    },
+    {
+      "id": "role_self",
+      "owner": "self",
+      "action": "격리 실행기와 시간 제한",
+      "statement": "나는 격리 실행기와 시간 제한을 구현했다.",
+      "presentation": "explicit_subject",
+      "header": "내가 맡은 역할"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "metric_main",
+      "name": "초당 채점 처리량",
+      "before": "12",
+      "after": "31",
+      "unit": "건/s",
+      "direction": "증가",
+      "statement": "초당 채점 처리량 12건/s → 31건/s"
+    }
+  ],
+  "scope": "primary declared contribution facts; not every ancillary narrative activity is a separate item"
+}

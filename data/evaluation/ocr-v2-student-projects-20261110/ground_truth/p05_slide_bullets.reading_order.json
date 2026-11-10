@@ -1,0 +1,97 @@
+{
+  "rule": "ordered visible lines; no final LF",
+  "regions": [
+    {
+      "name": "title",
+      "line_start": 1,
+      "line_end": 2
+    },
+    {
+      "name": "bullets top to bottom",
+      "line_start": 3,
+      "line_end": 7
+    }
+  ],
+  "lines": [
+    {
+      "text": "손짓 한 단어",
+      "bbox": [
+        80,
+        56,
+        377,
+        109
+      ],
+      "font_size_px": 56
+    },
+    {
+      "text": "AI 비전 · 구현과 검증",
+      "bbox": [
+        82,
+        137,
+        339,
+        166
+      ],
+      "font_size_px": 29
+    },
+    {
+      "text": "• 고정된 단어 집합에서 손동작을 분류하는 학습 보조 도구를 제작했다.",
+      "bbox": [
+        90,
+        235,
+        1177,
+        270
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "• PyTorch, OpenCV, FastAPI",
+      "bbox": [
+        90,
+        316,
+        570,
+        351
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "• 팀은 손동작 분류 모델을 학습했다.",
+      "bbox": [
+        90,
+        393,
+        661,
+        428
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "• 나는 영상 전처리와 추론 API를 연결했다.",
+      "bbox": [
+        90,
+        473,
+        761,
+        507
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "• 수어 분류 정확도 82.1% → 90.4%로 증가",
+      "bbox": [
+        90,
+        552,
+        800,
+        586
+      ],
+      "font_size_px": 36
+    },
+    {
+      "text": "정민서 · 참여자 분리 평가, 고정 단어 12개",
+      "bbox": [
+        85,
+        824,
+        499,
+        847
+      ],
+      "font_size_px": 23
+    }
+  ]
+}
