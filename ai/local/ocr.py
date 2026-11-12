@@ -40,8 +40,26 @@ def order_boxes(boxes, layout='rows'):
         return partition(left,depth+1)+partition(right,depth+1)
     return partition(boxes)
 
+def has_column_pairs(boxes, width):
+    """Detect repeated side-by-side text; this is a layout heuristic, not attribution."""
+    rects = [(min(p[0] for p in box), min(p[1] for p in box),
+              max(p[0] for p in box), max(p[1] for p in box)) for box in boxes[:500]]
+    pairs = 0
+    for i, a in enumerate(rects):
+        for b in rects[i + 1:]:
+            left, right = sorted((a, b), key=lambda r: r[0])
+            height = min(left[3] - left[1], right[3] - right[1])
+            overlap = max(0, min(left[3], right[3]) - max(left[1], right[1]))
+            if (height > 0 and overlap / height >= 0.5 and
+                    right[0] - left[2] > width * 0.08 and
+                    left[0] < width * 0.5 < right[2]):
+                pairs += 1
+                if pairs >= 3:
+                    return True
+    return False
+
 class LocalOCR:
-    def __init__(self, model='local', recognition_path=None, crop_padding=0, layout='rows', orientation=None):
+    def __init__(self, model='local', recognition_path=None, crop_padding=0, layout='auto', orientation=None):
         import torch
         from transformers import AutoImageProcessor, AutoModelForObjectDetection, AutoModelForTextRecognition
         self.torch = torch
@@ -53,6 +71,7 @@ class LocalOCR:
         rec_path = Path(recognition_path) if recognition_path is not None else paths[model]
         if not 0 <= crop_padding <= 20: raise ValueError('OCR 여백은 0~20 픽셀이어야 합니다.')
         self.crop_padding = crop_padding
+        if layout not in ('rows', 'columns', 'auto'): raise ValueError('알 수 없는 정렬 방식입니다.')
         self.layout = layout
         if orientation is None: orientation='auto' if model=='local' else 'none'
         if orientation not in ('none','auto'): raise ValueError('지원하지 않는 OCR 회전 설정입니다.')
@@ -98,7 +117,8 @@ class LocalOCR:
         with self.torch.inference_mode():
             image,boxes = self._orient(image) if self.orientation=='auto' else (image,self._detect(image))
             lines = []
-            for box in order_boxes(boxes,self.layout)[:500]:
+            layout = ('columns' if has_column_pairs(boxes, image.width) else 'rows') if self.layout == 'auto' else self.layout
+            for box in order_boxes(boxes,layout)[:500]:
                 xs, ys = [x for x,_ in box], [y for _,y in box]
                 pad=self.crop_padding
                 crop = image.crop((max(0,min(xs)-pad),max(0,min(ys)-pad),min(image.width,max(xs)+pad),min(image.height,max(ys)+pad)))
