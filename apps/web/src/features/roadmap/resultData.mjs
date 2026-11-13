@@ -6,10 +6,10 @@ export async function loadResultResources(apiRequest, id, receive) {
   receive(key, { phase: 'loading' });
   try {
    const data = path ? await apiRequest(path) : null;
-   receive(key, { phase: 'ready', data });
+   receive(key, { phase: 'ready', data, requestId: id });
    return data;
   } catch (error) {
-   receive(key, { phase: 'error', message: error.message });
+   receive(key, { phase: 'error', message: error.message, requestId: id, transient: error.status === 0 || error.status >= 500 });
    return null;
   }
  };

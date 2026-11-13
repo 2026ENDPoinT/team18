@@ -62,7 +62,7 @@ REST API 경험을 서비스 설계에 확장하는 방향을 제안할 수 있�
 LEVEL 3 insufficient_information: 분야·성격조차 알 수 없을 때만 sentences=[]로 제한하세요.
 각 문장은 실제 사용한 evidence ID와 정확한 원문 연속 인용문을 반환하세요. 제목·분야 인용도 가능합니다.
 basis=verified_fact는 인용문에서 확인한 활동 설명, basis=inference는 일반적인 특성이나 향후 경험 제안입니다.
-추론 문장은 “활용해 볼 수 있습니다”, “확장할 수 있습니다”, “시도해 볼 수 있습니다” 등의 가능성 표현을 쓰세요.
+basis=inference인 모든 문장은 제안임이 드러나게 “할 수 있습니다.” 또는 “해 볼 수 있어요.”처럼 가능성을 나타내는 말로 끝내세요.
 확인된 공고 성격과 추론한 경험을 구분하고, 추론한 기술이나 결과물을 공모전의 필수 조건으로 표현하지 마세요.
 제출·수행 의무는 상세 근거에서 확인된 경우에만 서술하세요. 부정·금지·미정인 내용을 확정 과제로 바꾸지 마세요.
 참가 자격, 상금, 마감일은 별도 카드에 표시되므로 추천 이유 본문에 쓰지 마세요. 취업·수상 가능성을 보장하지 마세요.
@@ -183,7 +183,7 @@ def _invalid(stage='schema'):
     raise GeminiError('gemini_invalid_response', '활동 추천 이유의 근거를 확인하지 못했습니다.')
 
 
-POSSIBILITY = re.compile(r'수 있|수도 있|볼 만|도움이 될|기회가 될|가능합니다')
+POSSIBILITY = re.compile(r'수(?:도)?\s*있|볼\s*만|도움이\s*될|기회가\s*될|가능(?:합니다|해요)')
 # Conditions belong in verified card metadata, never in generated recommendation prose.
 CONDITION = re.compile(r'참가\s*자격|참여\s*자격|지원\s*자격|참가\s*대상|상금|수상|마감|접수\s*(?:기간|일)|'
                        r'만\s*\d+\s*세|\d+\s*(?:명|원|만원|월|일)|취업\s*보장|'
@@ -193,7 +193,7 @@ REQUIREMENT = re.compile(r'필수|반드시|해야|하여야|요구(?:합니다|
                          r'(?:과제|결과물)(?:입니다|로|는)|(?:개발|분석|구현|제작|설계)(?:합니다|하는 활동)')
 
 
-def validate_reasons(data, result):
+def validate_reasons(data, result, *, allow_partial=False):
     try:
         parsed = result if isinstance(result, ActivityReasons) else ActivityReasons.model_validate(result)
     except (ValidationError, TypeError, ValueError):
@@ -214,85 +214,102 @@ def validate_reasons(data, result):
               ('대시보드', 'dashboard'), ('논문', 'paper'), ('앱', 'application'), ('서버', 'server')]
     terms += [(e['skill_name'],) for e in confirmed.values() if e.get('skill_name')]
 
+    valid, failed = [], []
     for aid, reason in supplied.items():
-        # Eligible activities must have usable prose. Empty answers are a provider
-        # failure, not a permanent successful cache of missing explanations.
-        perspectives = [s.perspective for s in reason.sentences]
-        if (not 2 <= len(perspectives) <= 3 or perspectives[0] != 'career'
-                or len(set(perspectives)) != len(perspectives)):
-            _invalid('perspectives')
-        paragraph = ' '.join(s.text for s in reason.sentences)
-        if not 80 <= len(paragraph) <= 260 or len(set(s.text for s in reason.sentences)) != len(reason.sentences):
-            _invalid('length_or_duplicate')
-        if CONDITION.search(paragraph) or any(word in paragraph for word in (
-                '역량 부족', '공고 제목에', '원문에서 확인', '역량이 부족')):
-            _invalid('overstatement')
-        allowed = {e['id']: e for e in expected[aid]['evidence']}
-        for sentence in reason.sentences:
-            if ('\n' in sentence.text or not re.search('[가-힣]', sentence.text)
-                    or len(re.findall(r'[.!?](?:\s|$)', sentence.text)) != 1):
-                _invalid('sentence')
-            quotes, details = [], []
-            for ref in sentence.evidence:
-                evidence = allowed.get(ref.evidence_id)
-                if not evidence or ref.quote not in evidence['text']:
-                    _invalid('quote')
-                if ref.quote not in supporting_text(evidence['text']):
-                    _invalid('negative_quote')
-                quotes.append(ref.quote)
-                if evidence['kind'] == 'detail':
-                    details.append(ref.quote)
-            activity_context = ' '.join(quotes)
-            detail_context = ' '.join(details)
-            if not set(sentence.experience_ids).issubset(confirmed):
-                _invalid('experience_scope')
-            if sentence.basis == 'inference' and not POSSIBILITY.search(sentence.text):
-                _invalid('inference_modality')
-            if sentence.experience_ids:
-                personal_context = ' '.join(json.dumps({k: confirmed[e].get(k) for k in
-                    ('skill_name', 'activity', 'role', 'output')}, ensure_ascii=False) for e in sentence.experience_ids)
-                if '경험' not in sentence.text:
-                    _invalid('experience_clause')
-                prior, extension = sentence.text.split('경험', 1)
-                if methods(prior) - methods(personal_context):
-                    _invalid('invented_personal_method')
-                for aliases in terms:
-                    if _term_pattern(aliases).search(prior) and not _term_pattern(aliases).search(personal_context):
-                        _invalid('invented_personal_experience')
-                # Application of a verified skill to a new domain is allowed.
-                # Only the historical clause is constrained to the user's record.
-                claim = extension
-            else:
-                if sentence.perspective == 'experience' or PERSONAL_CLAIM.search(sentence.text):
-                    _invalid('experience_missing')
-                claim = sentence.text
-            # A modal ending cannot turn an invented submission/mandatory task
-            # into a safe suggestion. Concrete requirements still need details.
-            if REQUIREMENT.search(claim):
-                if not TASK.search(detail_context):
-                    _invalid('unsupported_requirement')
-                if MANDATORY.search(claim) and not MANDATORY.search(detail_context):
-                    _invalid('unsupported_obligation')
-                if '제출' in claim and not re.search(r'제출|submit', detail_context, re.I):
-                    _invalid('unsupported_submission')
-                for aliases in terms:
-                    pattern = _term_pattern(aliases)
-                    if pattern.search(claim) and not pattern.search(detail_context):
-                        _invalid('unsupported_requirement_term')
-            if sentence.basis == 'verified_fact':
-                for aliases in terms:
-                    pattern = _term_pattern(aliases)
-                    if pattern.search(claim) and not pattern.search(activity_context):
-                        _invalid('unsupported_fact')
-                # Metadata can establish a theme, not confirmed task methods.
-                # Career-goal words themselves are not claims about the posting.
-                goal = ' '.join(data.get(k) or '' for k in ('career_goal', 'target_role'))
-                supported_methods = methods(activity_context)
-                if sentence.perspective == 'career':
-                    supported_methods |= methods(goal)
-                if methods(claim) - supported_methods:
-                    _invalid('unsupported_fact_method')
-    return parsed.model_dump()
+        try:
+            _validate_reason(data, expected[aid], reason, confirmed, terms)
+        except GeminiError:
+            if not allow_partial:
+                raise
+            failed.append(aid)
+        else:
+            valid.append(reason.model_dump())
+    if failed:
+        if not valid:
+            raise GeminiError('gemini_invalid_response', '활동 추천 이유의 근거를 확인하지 못했습니다.')
+        return {'reasons': valid, 'failed_activity_ids': failed, 'error_code': 'gemini_invalid_response'}
+    return {'reasons': valid}
+
+
+def _validate_reason(data, activity, reason, confirmed, terms):
+    # Eligible activities must have usable prose. Empty answers are a provider
+    # failure, not a permanent successful cache of missing explanations.
+    perspectives = [s.perspective for s in reason.sentences]
+    if (not 2 <= len(perspectives) <= 3 or perspectives[0] != 'career'
+            or len(set(perspectives)) != len(perspectives)):
+        _invalid('perspectives')
+    paragraph = ' '.join(s.text for s in reason.sentences)
+    if not 80 <= len(paragraph) <= 260 or len(set(s.text for s in reason.sentences)) != len(reason.sentences):
+        _invalid('length_or_duplicate')
+    if CONDITION.search(paragraph) or any(word in paragraph for word in (
+            '역량 부족', '공고 제목에', '원문에서 확인', '역량이 부족')):
+        _invalid('overstatement')
+    allowed = {e['id']: e for e in activity['evidence']}
+    for sentence in reason.sentences:
+        if ('\n' in sentence.text or not re.search('[가-힣]', sentence.text)
+                or len(re.findall(r'[.!?](?:\s|$)', sentence.text)) != 1):
+            _invalid('sentence')
+        quotes, details = [], []
+        for ref in sentence.evidence:
+            evidence = allowed.get(ref.evidence_id)
+            if not evidence or ref.quote not in evidence['text']:
+                _invalid('quote')
+            if ref.quote not in supporting_text(evidence['text']):
+                _invalid('negative_quote')
+            quotes.append(ref.quote)
+            if evidence['kind'] == 'detail':
+                details.append(ref.quote)
+        activity_context = ' '.join(quotes)
+        detail_context = ' '.join(details)
+        if not set(sentence.experience_ids).issubset(confirmed):
+            _invalid('experience_scope')
+        if sentence.basis == 'inference' and not POSSIBILITY.search(sentence.text):
+            _invalid('inference_modality')
+        if sentence.experience_ids:
+            personal_context = ' '.join(json.dumps({k: confirmed[e].get(k) for k in
+                ('skill_name', 'activity', 'role', 'output')}, ensure_ascii=False) for e in sentence.experience_ids)
+            if '경험' not in sentence.text:
+                _invalid('experience_clause')
+            prior, extension = sentence.text.split('경험', 1)
+            if methods(prior) - methods(personal_context):
+                _invalid('invented_personal_method')
+            for aliases in terms:
+                if _term_pattern(aliases).search(prior) and not _term_pattern(aliases).search(personal_context):
+                    _invalid('invented_personal_experience')
+            # Application of a verified skill to a new domain is allowed.
+            # Only the historical clause is constrained to the user's record.
+            claim = extension
+        else:
+            if sentence.perspective == 'experience' or PERSONAL_CLAIM.search(sentence.text):
+                _invalid('experience_missing')
+            claim = sentence.text
+        # A modal ending cannot turn an invented submission/mandatory task
+        # into a safe suggestion. Concrete requirements still need details.
+        if REQUIREMENT.search(claim):
+            if not TASK.search(detail_context):
+                _invalid('unsupported_requirement')
+            if MANDATORY.search(claim) and not MANDATORY.search(detail_context):
+                _invalid('unsupported_obligation')
+            if '제출' in claim and not re.search(r'제출|submit', detail_context, re.I):
+                _invalid('unsupported_submission')
+            for aliases in terms:
+                pattern = _term_pattern(aliases)
+                if pattern.search(claim) and not pattern.search(detail_context):
+                    _invalid('unsupported_requirement_term')
+        if sentence.basis == 'verified_fact':
+            for aliases in terms:
+                pattern = _term_pattern(aliases)
+                if pattern.search(claim) and not pattern.search(activity_context):
+                    _invalid('unsupported_fact')
+            # Metadata can establish a theme, not confirmed task methods.
+            # Career-goal words themselves are not claims about the posting.
+            goal = ' '.join(data.get(k) or '' for k in ('career_goal', 'target_role'))
+            supported_methods = methods(activity_context)
+            if sentence.perspective == 'career':
+                supported_methods |= methods(goal)
+            if methods(claim) - supported_methods:
+                _invalid('unsupported_fact_method')
+
 
 
 def _term_pattern(aliases):
@@ -303,7 +320,8 @@ def generate_reasons(data):
     eligible = [a for a in data['activities'] if evidence_level(a) != 'insufficient_information']
     if not eligible:
         return {'reasons': []}
-    return validate_reasons(data, _generate(ActivityReasons, INSTRUCTION, {**data, 'activities': eligible}, max_attempts=1))
+    response = _generate(ActivityReasons, INSTRUCTION, {**data, 'activities': eligible}, max_attempts=1)
+    return validate_reasons(data, response, allow_partial=True)
 
 
 def attach_reasons(ctx, rid, profile, result, *, generate=False):
@@ -315,16 +333,35 @@ def attach_reasons(ctx, rid, profile, result, *, generate=False):
     def call():
         return {**generate_reasons(data), 'source': 'gemini'}
 
-    def valid_cache(value):
+    def valid_cache(value, *, allow_partial=False):
         if not isinstance(value, dict) or value.get('source') != 'gemini':
             return False
         try:
-            validate_reasons(data, {'reasons': value.get('reasons')})
+            failed = value.get('failed_activity_ids', [])
+            if not isinstance(failed, list):
+                return False
+            if failed:
+                eligible = {a['activity_id'] for a in data['activities'] if evidence_level(a) != 'insufficient_information'}
+                if (not allow_partial or value.get('error_code') != 'gemini_invalid_response'
+                        or not set(failed) < eligible or len(set(failed)) != len(failed)):
+                    return False
+            remaining = [a for a in data['activities'] if a['activity_id'] not in failed]
+            validate_reasons({**data, 'activities': remaining}, {'reasons': value.get('reasons')})
             return True
-        except GeminiError:
+        except (GeminiError, TypeError):
             return False
 
     db, _, owner = ctx
+
+    def read_saved():
+        row = db.execute('''SELECT result_json FROM ai_requests WHERE owner_id=? AND operation='activity_reasons'
+            AND basis_hash=? AND status IN ('finished','failed') AND result_json IS NOT NULL
+            ORDER BY created_at DESC LIMIT 1''', (owner['owner_id'], key)).fetchone()
+        try:
+            return decode(row['result_json']) if row else fallback
+        except (ValueError, TypeError):
+            return {**fallback, 'error_code': 'gemini_invalid_response'}
+
     if generate and any(evidence_level(a) != 'insufficient_information' for a in data['activities']):
         try:
             saved = guarded_call(ctx, 'activity_reasons', key, call, units=1, cache=True,
@@ -335,18 +372,16 @@ def attach_reasons(ctx, rid, profile, result, *, generate=False):
         except Problem as error:
             if error.code not in ('ai_request_in_progress', 'ai_cooldown', 'ai_budget_exceeded'):
                 raise
-            saved = {**fallback, 'error_code': error.code}
+            previous = read_saved()
+            if valid_cache(previous, allow_partial=True):
+                saved = previous
+            else:
+                saved = {**fallback, 'error_code': error.code}
     else:
-        row = db.execute("""SELECT result_json FROM ai_requests WHERE owner_id=? AND operation='activity_reasons'
-            AND basis_hash=? AND status IN ('finished','failed') AND result_json IS NOT NULL
-            ORDER BY created_at DESC LIMIT 1""", (owner['owner_id'], key)).fetchone()
-        try:
-            saved = decode(row['result_json']) if row else fallback
-        except (ValueError, TypeError):
-            saved = {**fallback, 'error_code': 'gemini_invalid_response'}
+        saved = read_saved()
     reasons = {}
     if isinstance(saved, dict) and saved.get('source') == 'gemini':
-        if valid_cache(saved):
+        if valid_cache(saved, allow_partial=True):
             reasons = {r['activity_id']: r for r in saved['reasons']}
         else:
             saved = {**fallback, 'error_code': 'gemini_invalid_response'}

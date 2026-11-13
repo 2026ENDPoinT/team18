@@ -12,85 +12,66 @@ const requirementLabels = { required: '필수', preferred: '우대', mentioned: 
 const categoryLabels = { programming_language: '프로그래밍 언어', database_query_language: '쿼리 언어', framework: '프레임워크', database: '데이터베이스', cloud: '클라우드', devops: '개발·운영', development_tool: '개발 도구', data_ai: '데이터·AI', technical_competency: '기술 역량', other: '기타 기술' };
 const levelLabels = { entry: '초급', mid: '중급', senior: '고급', unknown: '경력 미확인' };
 
-export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange, savedComparison, savedRunId, savedRequestId }) {
+export default function JobSkillAnalysis({ active, comparison, requestId, onResult, plan, onPlanChange, reload }) {
  const loader = useRef(null);
  if (!loader.current) loader.current = createJobSkillLoader({ apiRequest, resolvePlanId });
- const sequence = useRef(0), previousAnalysis=useRef(null);
- const [careerChanged,setCareerChanged]=useState(false);
- const [state, setState] = useState({ phase: 'idle', data: null, message: '' });
- const [retry, setRetry] = useState(0);
- const [saving, setSaving] = useState(false);
- const nextAction = useRef({});
- const loadedSnapshot = useRef(null);
- const [analyzing, setAnalyzing] = useState(false);
- useEffect(() => {
-  if (!active) return;
-  let disposed = false;
-  let busy = false;
-  async function load() {
-   if (disposed || busy) return;
-   const action = nextAction.current;
-   const snapshotKey = `${plan?.request_id || savedRequestId}:${savedRunId}`;
-   if (savedComparison && !action.run && !action.answersChanged && loadedSnapshot.current === snapshotKey) return;
-   busy = true;
-   const attempt = ++sequence.current;
-   setState(previous => ({ ...previous, phase: 'loading', message: '' }));
-   nextAction.current = {};
-   setAnalyzing(Boolean(action.run));
-   try {
-    const data = savedComparison && !action.run && !action.answersChanged ? {
-     keyword_details: [], collection_summary: { selected_jobs: 0 }, analysis_summary: { analyzed_jobs: 0, failed_jobs: 0, skipped_jobs: 0 },
-     skills: [], errors: [], ...savedComparison.job_analysis, input_revision: savedComparison.input_revision,
-     comparison: savedComparison, request_id: plan?.request_id || savedRequestId,
-    } : await loader.current(action);
-    if (!disposed && sequence.current === attempt) {
-     loadedSnapshot.current = snapshotKey;
-     if(data.snapshot_id)previousAnalysis.current=data.request_id;
-     if(action.run&&data.snapshot_id)setCareerChanged(false);
-     setState({ phase: 'ready', data, message: '' });
-     onResult(data, { changed: Boolean(action.run || action.answersChanged) });
-    }
-   } catch (error) {
-    if (!disposed && sequence.current === attempt) {
-     const invalid = [401, 404, 409].includes(error.status);
-     setState(previous => ({ ...previous, data: invalid ? null : previous.data, phase: 'error', message: error.message }));
-     if (invalid) onResult(null);
-    }
-   } finally { busy = false; if (!disposed) setAnalyzing(false); }
-  }
-  load();
-  return () => { disposed = true; };
- }, [active, retry, onResult, savedComparison, savedRunId, savedRequestId, plan?.request_id]);
- const { phase, data:loadedData, message } = state;
- const outdated=!!(loadedData&&plan&&(loadedData.request_id!==plan.request_id||loadedData.comparison?.career_goal!==plan.input.career_goal||(loadedData.comparison?.target_role||'')!==(plan.input.target_role||'')));
- const data=outdated?null:loadedData;
- const hasPreviousAnalysis=!!data?.snapshot_id||previousAnalysis.current===plan?.request_id;
- function updateCareer(saved, changed){
-  sequence.current++;nextAction.current={};loadedSnapshot.current=null;
-  onPlanChange(saved);onResult(null);
-  setState({phase:'loading',data:null,message:''});
-  if(changed)setCareerChanged(true);
-  setRetry(v=>v+1);
- }
-
+ const sequence = useRef(0), busy = useRef(false);
+ const [careerChanged, setCareerChanged] = useState(false);
+ const [phase, setPhase] = useState('idle'), [message, setMessage] = useState('');
+ const [lastAttempt, setLastAttempt] = useState(null);
+ useEffect(() => () => { sequence.current++; }, []);
+ const current = comparison?.data;
+ const outdated = !!(current && plan && (current.career_goal !== plan.input.career_goal ||
+  (current.target_role || '') !== (plan.input.target_role || '')));
+ const attempt = lastAttempt && lastAttempt.request_id === requestId &&
+  lastAttempt.input_revision === current?.input_revision &&
+  lastAttempt.comparison.job_analysis.snapshot_id === current?.job_analysis?.snapshot_id ? lastAttempt : null;
+ const data = current && !outdated ? {
+  keyword_details: [], collection_summary: { selected_jobs: 0 }, analysis_summary: { analyzed_jobs: 0, failed_jobs: 0, skipped_jobs: 0 },
+  skills: [], errors: [], ...current.job_analysis, ...attempt, comparison: current, request_id: requestId, input_revision: current.input_revision,
+ } : null;
  const summary = data?.analysis_summary;
- async function answerSkill(skill, status) {
-  setSaving(true);
-  try {
-   if (await resolvePlanId() !== data.request_id) throw new Error('계획이 변경되었습니다. 최신 내용을 불러와 주세요.');
-   await apiRequest(`/roadmap-inputs/${encodeURIComponent(data.request_id)}/skill-comparison/answers`, { method: 'POST', body: JSON.stringify({ expected_input_revision: data.input_revision, snapshot_id: data.comparison.job_analysis.snapshot_id, skill_name: skill.name, status }) });
-   nextAction.current = { answersChanged: true }; setRetry(v => v + 1);
-  } catch (error) { setState(previous => ({ ...previous, phase: 'error', message: error.message })); onResult(null); }
-  finally { setSaving(false); }
+ const loading = phase !== 'idle' || comparison?.phase === 'loading';
+ const hasPreviousAnalysis = Boolean(data?.snapshot_id);
+ function updateCareer(saved, changed) {
+  setLastAttempt(null); setMessage(''); setCareerChanged(changed);
+  onPlanChange(saved);
  }
- return <div hidden={!active} className="job-skills" aria-busy={phase === 'loading'}>
-  <CareerInfoEditor plan={plan} disabled={phase==='loading'||saving} onPlanChange={updateCareer}/>
+ async function performAction(nextPhase, operation) {
+  if (busy.current) return;
+  busy.current = true;
+  const ticket = ++sequence.current;
+  setMessage(''); setPhase(nextPhase); setLastAttempt(null);
+  try {
+   const result = await operation();
+   if (ticket !== sequence.current) return;
+   if (result.refresh_error || !result.snapshot_id) setLastAttempt(result);
+   if (result.snapshot_id) setCareerChanged(false);
+   onResult(result);
+  } catch (error) {
+   if (ticket !== sequence.current) return;
+   setMessage(error.message);
+   if ([401, 403, 404, 409].includes(error.status)) reload();
+  } finally {
+   busy.current = false;
+   if (ticket === sequence.current) setPhase('idle');
+  }
+ }
+ function answerSkill(skill, status) {
+  return performAction('saving', async () => {
+   if (await resolvePlanId() !== requestId) throw new Error('계획이 변경되었습니다. 최신 내용을 불러와 주세요.');
+   await apiRequest(`/roadmap-inputs/${encodeURIComponent(requestId)}/skill-comparison/answers`, { method: 'POST', body: JSON.stringify({ expected_input_revision: data.input_revision, snapshot_id: data.snapshot_id, skill_name: skill.name, status }) });
+   return loader.current();
+  });
+ }
+ return <div hidden={!active} className="job-skills" aria-busy={loading}>
+  <CareerInfoEditor plan={plan} disabled={loading} onPlanChange={updateCareer}/>
   <div className="job-analysis-heading"><h3>채용공고 기술 스택 분석</h3>
-  <button className="primary" disabled={phase === 'loading' || saving} onClick={() => { nextAction.current = { run: true, force: Boolean(data?.snapshot_id) }; setRetry(v => v + 1); }}>{hasPreviousAnalysis ? '직무 분석 다시 실행' : '직무 분석 실행'}</button></div>
+  <button className="primary" disabled={loading} onClick={() => performAction('analyzing', () => loader.current({ run: true, force: hasPreviousAnalysis }))}>{hasPreviousAnalysis ? '직무 분석 다시 실행' : '직무 분석 실행'}</button></div>
   {(careerChanged||outdated)&&<p className="notice" role="status">진로 정보가 변경되었습니다. 현재 진로 정보로 분석하려면 ‘{hasPreviousAnalysis?'직무 분석 다시 실행':'직무 분석 실행'}’을 눌러 주세요.</p>}
-  {phase === 'loading' && <p role="status">{analyzing ? '분석 중입니다' : '저장된 직무 분석을 불러오고 있습니다…'}</p>}
+  {(phase === 'analyzing' || comparison?.phase === 'loading') && <p role="status">{phase === 'analyzing' ? '분석 중입니다' : '저장된 직무 분석을 불러오고 있습니다…'}</p>}
   {data?.status === 'not_started' && <p className="notice">저장된 직무 분석이 없어 미분석 상태입니다. 직무 분석 실행 버튼으로 분석할 수 있으며, 다른 결과는 바로 확인할 수 있습니다.</p>}
-  {phase === 'error' && <p role="alert">{message}</p>}
+  {(message || comparison?.phase === 'error') && <p role="alert">{message || comparison.message}</p>}
   {data && <>
    <dl className="skill-summary">
     <div><dt>분석 대상 직무</dt><dd>{data.canonical_role || data.target_role || '직무 확인 필요'}</dd></div>
@@ -105,7 +86,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange,
    {data.status === 'no_jobs' && <p role="status">현재 검색어로 분석할 수 있는 관련 공고가 없습니다.</p>}
    {data.status === 'needs_clarification' && <p role="status">{data.clarification_message} 기존 입력 수정 화면에서 목표나 희망 직무를 구체화해 주세요.</p>}
    {['success', 'partial'].includes(data.status) && !data.skills.length && <p role="status">분석한 공고에서 원문으로 확인할 수 있는 기술을 찾지 못했습니다.</p>}
-   <PaginatedResultList key={`${data.request_id}:${data.snapshot_id || savedRunId || ''}`} items={orderedSkills(data)} label="직무 역량">{skill => <li key={skill.name} className="skill-card">
+   <PaginatedResultList key={`${data.request_id}:${data.snapshot_id || ''}`} items={orderedSkills(data)} label="직무 역량">{skill => <li key={skill.name} className="skill-card">
     <div className="skill-title"><h3>{skill.name}</h3><span className="badge">{categoryLabels[skill.category] || skill.category}</span></div>
     <p><b>{skill.mentioned_job_count} / {summary.analyzed_jobs}개 공고</b>에서 언급 · {(skill.mention_frequency * 100).toFixed(0)}%</p>
     <p className="skill-counts">필수 {skill.required_job_count} · 우대 {skill.preferred_job_count} · 단순 언급 {skill.mentioned_only_job_count} · 판단 불가 {skill.unknown_job_count}</p>
@@ -116,7 +97,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange,
      <p><span className="badge">{statusLabels[c.student_status]}</span></p><p>{c.reason}</p>
      <p className="field-help">{c.preparation_candidate === 'consider_learning' ? '추가 학습을 검토할 후보입니다. 공고 빈도는 개인의 학습 우선순위를 의미하지 않습니다.' : c.preparation_candidate === 'experience_confirmed' ? '사용자가 확인한 프로젝트 경험을 근거와 함께 표시합니다.' : '추가 준비를 결정하기 전에 경험 여부를 먼저 확인해 주세요.'}</p>
      {c.project_evidence.map(item => <ProjectEvidence key={item.experience_id} item={item} requestId={data.request_id}/>)}
-     {c.student_status !== 'confirmed_experience' && <div className="doc-actions experience-actions"><button disabled={saving} onClick={() => answerSkill(skill, 'no_experience')}>이 기술 경험 없어요</button><button disabled={saving} onClick={() => answerSkill(skill, 'unknown')}>잘 모르겠어요</button><Link href="/input/review" className="button">본인 경험 확인·수정</Link></div>}
+     {c.student_status !== 'confirmed_experience' && <div className="doc-actions experience-actions"><button disabled={loading || !requestId} onClick={() => answerSkill(skill, 'no_experience')}>이 기술 경험 없어요</button><button disabled={loading || !requestId} onClick={() => answerSkill(skill, 'unknown')}>잘 모르겠어요</button><Link href="/input/review" className="button">본인 경험 확인·수정</Link></div>}
     </div>)}
     <details><summary>{skill.name} 원문 근거 {skill.evidence.length}건</summary>
      <ul className="skill-evidence">{skill.evidence.map((e, i) => <li key={`${e.job_id}-${i}`}>
@@ -130,6 +111,6 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange,
    <p className="field-help">조회한 해외 원격근무 공고의 요구 기술이며 전체 채용시장을 대표하지 않습니다. 필수·우대 조건은 공고 원문을 함께 확인해 주세요.</p>
   </>}
   <p className="field-help">공고 출처: <a href="https://himalayas.app" target="_blank" rel="noopener noreferrer">Himalayas</a></p>
-  {phase === 'error' && <button onClick={() => setRetry(v => v + 1)}>저장 결과 다시 조회</button>}
+  {(message || comparison?.phase === 'error') && <button onClick={reload}>저장 결과 다시 조회</button>}
  </div>;
 }

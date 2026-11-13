@@ -22,6 +22,7 @@ def local_connect(sock, address):
 
 socket.socket.connect = local_connect
 from roadmap_scenario import RoadmapAPI, DB_COURSE, C, fake_roadmap
+from project_experience_scenario import job_result
 from app.main import app
 from api import dependencies
 from api.routes import activities, job_skill_analysis
@@ -52,6 +53,8 @@ for module, function in ((gemini_roadmap, 'generate_roadmap'),
     spy = Mock(side_effect=AssertionError('Unexpected Gemini call: ' + function))
     setattr(module, function, spy)
     spies[function] = spy
+# The explicit job endpoint still performs its normal revision checks and writes a real snapshot.
+job_skill_analysis.analyze_job_skills = Mock(return_value={**job_result(), 'status': 'partial'})
 state = {'activity_failure': False}
 
 def catalog(db, **kwargs):
