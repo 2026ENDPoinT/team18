@@ -15,7 +15,7 @@ try {
  page.on('pageerror', e => errors.push(e.message));
  await page.goto(origin);
  await page.getByRole('button', { name: '로그인 없이 시작하기', exact: true }).click();
- await page.getByRole('button', { name: '작성하기', exact: true }).click();
+ await page.waitForURL('**/input/basic');
  await page.getByRole('button', { name: '저장', exact: true }).click();
  assert.equal(await page.locator('[name=career_goal]').getAttribute('aria-invalid'), 'true');
  await page.locator('[name=career_goal]').fill('스텝업 대시보드 서버 복원 검증');

@@ -40,11 +40,11 @@ try {
   for (let i = 0; i < 160; i++) { if (await run(expression)) return; await delay(100); }
   throw new Error(`Timed out: ${expression}\n${await run('document.body.innerText')}`);
  };
- const tab = async number => { await run(`document.getElementById('tab-${number}').click()`); };
+ const tab = async number => { await run(`document.getElementById('tab-${number}').click()`); await wait(`document.getElementById('tab-${number}').getAttribute('aria-selected')==='true'`); };
  await send('Page.enable');
 
  await send('Page.addScriptToEvaluateOnNewDocument', { source: '(' + installRoadmapMock.toString() + ')()' });
- const click = text => run(`[...document.querySelectorAll('button')].find(e=>e.textContent===${JSON.stringify(text)}).click()`);
+ const click = async text => { await wait(`[...document.querySelectorAll('button')].some(e=>e.textContent===${JSON.stringify(text)}&&!e.disabled)`); await run(`[...document.querySelectorAll('button')].find(e=>e.textContent===${JSON.stringify(text)}).click()`); };
  await send('Page.navigate', { url: `${origin}/result` });
  await wait("document.body.innerText.includes('검증된 직무 분석이 없어 진로 목표·교육과정 기준의 수강 후보와 제한 안내')");
  assert.equal(await run('mockRoadmap.posts'), 0);
@@ -61,10 +61,12 @@ try {
  await run("document.querySelector('input[type=checkbox]').click()");
  await wait("document.body.innerText.includes('작업 완료 1 / 3개')");
  assert.equal(await run('mockRoadmap.revision'), 1);
+ await run('window.beforeReloadMarker=true');
  await send('Page.reload');
- await wait("document.body.innerText.includes('추가 학습을 검토할 기술')");
- assert.ok(await run("[...document.querySelectorAll('.skill-card')].find(e=>e.querySelector('h3')?.textContent.startsWith('CAD'))?.innerText.includes('생성 입력에 미포함 · 실제 제안 활동 0단계')"));
- assert.ok(await run("[...document.querySelectorAll('.skill-card')].find(e=>e.querySelector('h3')?.textContent.startsWith('SQL'))?.innerText.includes('로드맵 생성 입력에 포함 · 실제 제안 활동 3단계')"));
+ await wait("!window.beforeReloadMarker && !!document.querySelector('.next-task')");
+ await tab(0); await wait("document.body.innerText.includes('추가 학습을 검토할 기술')");
+ assert.ok(await run("document.querySelector('.confirmation-questions').innerText.includes('CAD을 직접 수행한 경험이 있나요?')"));
+ assert.ok(await run("[...document.querySelectorAll('.skill-card')].find(e=>e.querySelector('h3')?.textContent.startsWith('SQL'))?.innerText.includes('사용자 응답을 반영했습니다.') && !document.body.innerText.includes('생성 입력')"));
  await tab(2);
  await wait("document.body.innerText.includes('작업 완료 1 / 3개')");
  assert.equal(await run("document.querySelector('input[type=checkbox]').checked"), true);
@@ -77,7 +79,7 @@ try {
  assert.ok(await run("document.body.innerText.includes('수강 전 확인: Python') && document.body.innerText.includes('잠정 후보')"));
  assert.ok(await run("!document.body.innerText.includes('관련 학습 키워드:')"));
  await run("[...document.querySelectorAll('summary')].find(e=>e.textContent.includes('공식 근거와 출처 쪽수')).click()");
- assert.ok(await run("document.body.innerText.includes('과목명 기반 추론') && document.body.innerText.includes('52쪽')"));
+ assert.ok(await run("document.body.innerText.includes('공식 학습 내용이 제공되지 않았습니다.') && document.body.innerText.includes('52쪽')"));
  await run("mockRoadmap.sql='not_verified';mockRoadmap.completed=true;mockRoadmap.revision++");
  await click('저장 결과 새로고침');
  await wait("document.body.innerText.includes('이전 입력·분석 기준')");
