@@ -9,6 +9,7 @@ from services.course_recommendations import available_courses, selected_courses,
 from services.project_experience import current_comparison, digest, model_basis, skill_key
 from services.roadmap_validation import invalid, parse_result
 from services.job_skill_analysis import ALIASES, skill_priority
+from services.course_reasons import experience_input
 
 RULES_VERSION = 'personalized-roadmap-v11-reviewed-compounds'
 TASK_TYPES = {
@@ -91,6 +92,7 @@ def capture_basis(db, row):
              'job_analyzed_at': jobs.get('saved_at'), 'job_summary': jobs.get('analysis_summary', {}),
              'document_basis': project['document_basis'], 'project_version': project['analysis_version'],
              'project_status': project['status'],
+             'project_experiences': experience_input(project['experiences']),
              'project_documents': [{k: d[k] for k in ('document_id', 'extraction_revision', 'analysis_id', 'status', 'limitations')}
                                    for d in project['documents']],
              'excluded_documents': [{k: d[k] for k in ('document_id', 'extraction_revision', 'reason')}

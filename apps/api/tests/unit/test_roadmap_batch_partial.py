@@ -80,7 +80,7 @@ def test_course_fallback_uses_only_existing_verified_reason():
 
 def test_missing_reason_reports_insufficient_evidence():
     result = _fallback_course_reasons([{'course_id': 'c', 'course_name': 'SQL'}], None)
-    assert '근거가 부족' in result['reasons'][0]['personalization_reason']
+    assert result['reasons'][0]['personalization_reason'] == '추천 근거 확인 필요'
     assert result['reasons'][0]['evidence_ids'] == []
 
 

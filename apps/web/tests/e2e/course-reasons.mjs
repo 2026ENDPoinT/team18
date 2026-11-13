@@ -1,49 +1,76 @@
-// Real Next UI, synthetic Gemini/API replies. Provider validation is tested in Python.
+// Real Next UI with persisted API snapshots. Gemini transport/cache is tested in Python.
 import assert from 'node:assert/strict';
-import { installRoadmapMock } from './roadmap.mock.mjs';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const origin = process.env.RESULT_WEB_ORIGIN || 'http://localhost:15110';
 const browser = await chromium.launch({ executablePath: process.env.P5_BROWSER || '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser', headless: true });
 const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-await context.addInitScript(installRoadmapMock);
+await context.addInitScript(() => {
+ localStorage.setItem('sb-job-skills-test-auth-token', JSON.stringify({ access_token: 'test.token.value', refresh_token: 'test-refresh', expires_at: Math.floor(Date.now()/1000)+3600, expires_in: 3600, token_type: 'bearer', user: { id: 'test-user' } }));
+ sessionStorage.setItem('roadmap_request_id', 'test-plan'); sessionStorage.setItem('roadmap_request_owner', 'test-user');
+ const state = window.reasonState = JSON.parse(sessionStorage.getItem('reason-state') || 'null') || { reads: [], fallback: false, completed: false, legacy: false };
+ window.saveReasons = () => sessionStorage.setItem('reason-state', JSON.stringify(state));
+ const course = { course_id: 'db', course_name: '데이터베이스', credits: 3, recommended_year: 2, recommended_term: '2학기',
+  personalization_reason: '목표와 일치하는 학습 내용: SQL 조회와 집계를 학습합니다.',
+  keyword_evidence: [{ keyword: 'SQL', keyword_role: 'learning', evidence_text: 'SQL 조회와 집계를 학습합니다.' }] };
+ const comparison = { comparisons: [], project_analysis: { status: 'no_documents' }, job_analysis: { status: 'not_started', skills: [] } };
+ const activities = { status: 'success', activities: [], sources: [{ status: 'success' }] };
+ const result = () => ({ run_id: 'saved-run', request_id: 'test-plan', status: 'partial', input_revision: 1,
+  generation_complete: true, generation_tasks: { comparison: 'unavailable', courses: 'success', activities: 'success', roadmap: 'success' },
+  recommended_courses: [course], roadmap: [], career_goal: '데이터 분석', target_role: '데이터 분석가',
+  skill_comparison: comparison, activity_recommendations: activities, course_status: 'available',
+  ...(!state.legacy ? { course_reasons: [{ course_id: 'db', personalization_reason: state.fallback ? course.personalization_reason : '데이터 분석 목표에 필요한 SQL 조회·집계를 학습하는 과목입니다. 확인된 Python 전처리 경험을 데이터 저장·조회와 연결하는 방향으로 확장할 수 있습니다.' }], course_reasons_source: state.fallback ? 'catalog_evidence_fallback' : 'gemini' } : {}),
+  basis: { review_status: 'confirmed', outside_completed_courses: [], catalog: {} },
+ });
+ const nativeFetch = window.fetch;
+ window.fetch = async (input, options = {}) => {
+  const url = String(input);
+  if (!url.includes('/api/')) return nativeFetch(input, options);
+  state.reads.push(`${options.method || 'GET'} ${url}`); window.saveReasons();
+  const json = data => new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } });
+  if (options.method && options.method !== 'GET') throw new Error('Unexpected mutation/provider trigger: ' + url);
+  if (url.endsWith('/roadmap') || url.includes('/roadmaps/')) return json(result());
+  if (url.endsWith('/activities')) return json(activities);
+  if (url.includes('/skill-comparison')) return json(comparison);
+  if (url.includes('/courses?')) return json({ selected_courses: state.completed ? [{ ...course, is_completed: true }] : [] });
+  if (url.endsWith('/roadmap-inputs/test-plan')) return json({ request_id: 'test-plan', input_revision: 1, input: { career_goal: '데이터 분석', target_role: '데이터 분석가', catalog_id: 'catalog' } });
+  return json({});
+ };
+});
 const page = await context.newPage(), errors = [];
 page.on('pageerror', error => errors.push(error.message));
 const reason = () => page.locator('.course-candidates-list .recommendation-reason');
-const generated = () => reason().filter({ hasText: '데이터 분석 목표를 위해 데이터베이스에서 다루는 조회 개념' }).waitFor();
+const generated = () => reason().filter({ hasText: '확인된 Python 전처리 경험' }).waitFor();
 try {
- await page.goto(origin + '/result');
- await page.locator('.result-course-summary').getByText('아직 수강 추천이 없어요.', { exact: true }).waitFor();
- assert.equal(await page.evaluate(() => mockRoadmap.reasonRequests || 0), 0);
- await page.evaluate(() => { mockRoadmap.jobAvailable = true; mockRoadmap.holdReasons = true; });
- await page.getByRole('tab', { name: '수강 후보', exact: true }).click();
- await page.getByRole('button', { name: '로드맵 생성', exact: true }).click();
- await reason().filter({ hasText: '추천 이유를 작성하고 있어요' }).waitFor();
- await page.waitForFunction(() => typeof releaseReasons === 'function');
- assert.equal(await page.evaluate(() => mockRoadmap.reasonRequests), 1);
- await page.locator('.course-learning summary').click();
- await page.evaluate(() => { window.dispatchEvent(new Event('focus')); document.dispatchEvent(new Event('visibilitychange')); });
- assert.equal(await page.evaluate(() => mockRoadmap.reasonRequests), 1);
- await page.evaluate(() => releaseReasons()); await generated();
- assert.equal(await page.locator('.course-learning').getAttribute('open'), '');
- assert.ok(!(await reason().innerText()).includes('no_experience 응답 반영'));
- await page.getByRole('tab', { name: '실행 로드맵', exact: true }).click();
- await page.getByRole('tab', { name: '수강 후보', exact: true }).click(); await generated();
- assert.equal(await page.evaluate(() => mockRoadmap.reasonRequests), 1, 'tab visits reuse the client result');
- await page.reload(); await generated();
- assert.equal(await page.evaluate(() => mockRoadmap.reasonRequests), 2);
- assert.equal(await page.evaluate(() => mockRoadmap.reasonProviderCalls), 1, 'reload uses server cache');
- await page.evaluate(() => { mockRoadmap.reasonFailure = true; mockRoadmap.reasonCache = {}; sessionStorage.setItem('roadmap-test-state', JSON.stringify(mockRoadmap)); });
- await page.reload();
- await page.getByRole('alert').filter({ hasText: '추천 이유를 불러오지 못했어요' }).waitFor();
- assert.ok(!(await reason().innerText()).includes('no_experience 응답 반영'));
+ await page.goto(origin + '/result?tab=courses'); await generated();
  assert.equal(await page.locator('.course-candidates-list h3').innerText(), '데이터베이스');
- await page.evaluate(() => { mockRoadmap.reasonFailure = false; });
- await page.getByRole('button', { name: '추천 이유 다시 불러오기', exact: true }).click(); await generated();
+ assert.match(await page.locator('.course-candidate-meta').innerText(), /3학점.*2학년.*2학기/);
+ assert.ok((await reason().innerText()).startsWith('목표와의 연결'));
+ assert.ok(!(await reason().innerText()).includes('목표와 일치하는 학습 내용:'));
+ assert.equal(await page.locator('.recommendation-reason[aria-busy="true"]').count(), 0);
+ await page.locator('.course-learning summary').click();
+ await page.locator('.course-learning p').getByText('SQL 조회와 집계를 학습합니다.', { exact: true }).waitFor();
+ await page.evaluate(() => { window.dispatchEvent(new Event('focus')); document.dispatchEvent(new Event('visibilitychange')); });
+ for (let i = 0; i < 2; i++) {
+  await page.getByRole('tab', { name: '결과 요약', exact: true }).click();
+  await page.getByRole('tab', { name: '수강 후보', exact: true }).click(); await generated();
+  await page.reload(); await generated();
+ }
  for (const width of [1440, 390]) {
   await page.setViewportSize({ width, height: 900 });
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await page.screenshot({ path: `/tmp/team18-personalized-reasons-${width}.png`, fullPage: true });
  }
- assert.equal(await page.evaluate(() => mockRoadmap.posts), 1, 'reasons do not regenerate the roadmap');
+ for (const legacy of [false, true]) {
+  await page.evaluate(legacy => { reasonState.fallback = true; reasonState.legacy = legacy; saveReasons(); }, legacy);
+  await page.reload(); await reason().filter({ hasText: '목표와 일치하는 학습 내용:' }).waitFor();
+  assert.equal(await page.locator('.result-page [role="alert"]').count(), 0);
+  assert.equal(await page.locator('.course-candidates-list h3').count(), 1);
+ }
+ await page.evaluate(() => { reasonState.completed = true; saveReasons(); });
+ await page.reload(); await page.getByText('현재 근거와 미선택 과목에서 추천할 후보를 찾지 못했습니다.', { exact: true }).waitFor();
+ assert.equal(await page.locator('.course-candidates-list h3').count(), 0);
+ const calls = await page.evaluate(() => reasonState.reads);
+ assert.ok(calls.every(call => call.startsWith('GET ') && !call.includes('/course-reasons')));
  assert.deepEqual(errors, []);
- console.log('PASS: generated goal connection, loading/error/retry, cards preserved, no focus/tab duplicates, server cache on reload, no roadmap regeneration, desktop/mobile');
+ console.log('PASS: saved Gemini text, unchanged card/details, no calls on tabs/reload/focus/expand, immediate cache, fallback/legacy without error banner, completed filter, desktop/mobile');
 } finally { await context.close(); await browser.close(); }

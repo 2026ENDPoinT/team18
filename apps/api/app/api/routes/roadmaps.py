@@ -161,8 +161,9 @@ def course_reasons(rid: str, run_id: str, ctx=Depends(owned_context), body=Depen
               if 'course_reasons' in saved else
               _fallback_course_reasons(saved['recommended_courses'], run['catalog_id']))
     ctx[0].commit()
-    return respond(200, {**result, 'run_id': run_id, 'provider': 'server',
-                         'reason_version': 'catalog-evidence-v1'})
+    return respond(200, {**result, 'run_id': run_id,
+                         'provider': 'gemini' if result['source'] == 'gemini' else 'server',
+                         'reason_version': saved.get('course_reasons_version', 'catalog-evidence-v1')})
 
 
 @router.get('/roadmaps/{run_id:roadmap_id}')

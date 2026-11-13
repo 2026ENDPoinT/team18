@@ -1,9 +1,10 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { courseReason, resultTabs, resultHref } from './resultPresentation.mjs';
+import { resultTabs, resultHref } from './resultPresentation.mjs';
 import { loadResultResources } from './resultData.mjs';
 import { pollGeneration } from './generationFlow.mjs';
+import useCourseReasons from './useCourseReasons';
 import GenerationLoading from './GenerationLoading';
 import JobSkillAnalysis from './JobSkillAnalysis';
 import ActivityRecommendations from './ActivityRecommendations';
@@ -178,6 +179,7 @@ export default function Result() {
   e.preventDefault(); changeTab(next);
   document.getElementById(`tab-${next}`)?.focus({ preventScroll: true });
  }
+ const courseReasons = useCourseReasons(result);
  if (!['idle', 'complete'].includes(tracking.phase)) return <GenerationLoading state={tracking} onRetry={retry}/>;
  const hasResult = ['success', 'partial'].includes(result?.status) && Array.isArray(result?.recommended_courses) && !result.details_restricted;
  const activities = result?.activity_recommendations
@@ -185,8 +187,6 @@ export default function Result() {
   : resources.activities || { phase: 'loading', data: null };
  const displayedResources = result?.skill_comparison
   ? { ...resources, comparison: { phase: 'ready', data: result.skill_comparison } } : resources;
- const reasons = Object.fromEntries(result?.course_reasons?.map(reason => [reason.course_id, reason.personalization_reason]) ||
-  (result?.recommended_courses || []).map(course => [course.course_id, courseReason(course)]));
  return <div className="result-page">
   <div className="result-generation-heading"><PageTitle title="로드맵 결과" helpId={`result-${selectedTab}`}/>
    <button className="primary" disabled={!plan || resources.roadmap?.phase === 'loading'} onClick={() => startGeneration(plan, hasResult)}>{hasResult ? '재분석' : '로드맵 만들기'}</button></div>
@@ -201,13 +201,12 @@ export default function Result() {
    {overview && <ResultOverview resources={displayedResources} reload={load} activities={activities}/>}
    {overview && result?.is_stale && <p className="notice">이전 입력 기준으로 저장된 결과입니다. 재분석으로 최신 결과를 만들 수 있어요.</p>}
    {selectedTab === 'courses' && <>
-    {result?.course_reasons_source === 'catalog_evidence_fallback' && <p className="notice" role="status">AI 수강 추천 이유를 생성하지 못해, 확인된 교육과정 내용을 바탕으로 작성한 기본 추천 근거를 표시합니다. 실제 개설과 수강 가능 여부는 별도로 확인해 주세요.</p>}
     {resources.roadmap?.phase === 'loading' && <p role="status">저장된 결과를 불러오고 있습니다…</p>}
     {resources.roadmap?.phase === 'error' && <p role="alert">{resources.roadmap.message}</p>}
     {result?.is_stale && <p className="notice" role="status">이 수강 후보는 이전 입력·분석 기준으로 저장된 결과입니다.</p>}
     {result?.details_restricted && <p className="notice">문서 삭제·재추출 등으로 근거가 변경되어 저장된 수강 후보의 상세 내용을 확인할 수 없습니다.</p>}
     {resources.courses?.phase === 'error' && <p className="notice" role="status">현재 이수 선택을 조회하지 못해 저장 당시의 수강 후보를 표시합니다.</p>}
-    {hasResult ? <CourseCandidates result={result} selectedCourses={resources.courses.data?.selected_courses} courseReasons={{ phase: 'ready', reasons }}/> : !result?.details_restricted && <p>아직 표시할 수강 후보가 없습니다. 로드맵을 만들어 주세요.</p>}
+    {hasResult ? <CourseCandidates result={result} selectedCourses={resources.courses.data?.selected_courses} courseReasons={courseReasons}/> : !result?.details_restricted && <p>아직 표시할 수강 후보가 없습니다. 로드맵을 만들어 주세요.</p>}
    </>}
   </section>
   {!overview && <nav className="result-pagination" aria-label="로드맵 결과 순서 이동"><span className="field-help">{selected + 1} / {resultTabs.length} · {resultTabs[selected].label}</span>

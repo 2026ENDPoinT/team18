@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from services.course_reasons import CourseReasons, generate_course_reasons, reason_input, validate_course_reasons
+from services.course_reasons import CourseReasons, experience_input, generate_course_reasons, reason_input, validate_course_reasons
 from services.gemini import GeminiError
 
 
@@ -26,7 +26,7 @@ def fixture():
 def output():
     return {'reasons': [
         {'course_id': 'db', 'personalization_reason': '행사 신청 데이터를 분석하려는 목표에 SQL 조회·집계를 연결할 수 있어요. 신청 흐름을 정리하는 데 활용할 학습 후보입니다.', 'evidence_ids': ['e0']},
-        {'course_id': 'unknown', 'personalization_reason': '과목명만으로 살펴보는 후보여서 실제 학습 내용과 분석 목표의 연결을 확인해야 해요.', 'evidence_ids': []},
+        {'course_id': 'unknown', 'personalization_reason': '추천 근거 확인 필요', 'evidence_ids': []},
     ]}
 
 
@@ -38,7 +38,9 @@ def test_minimized_input_preserves_only_own_learning_evidence():
     assert data['courses'][0]['evidence'] == [{'id': 'e0', 'kind': 'learning_evidence', 'keyword': 'SQL', 'text': 'SQL 조회와 집계를 학습한다.'}]
     assert data['courses'][1]['evidence'] == []
     text = json.dumps(data)
-    assert all(value not in text for value in ('PRIVATE PROJECT', 'never-send', 'gpa', 'NOT SENT', 'Python', 'Fake'))
+    assert all(value not in text for value in ('PRIVATE PROJECT', 'never-send', 'gpa', 'NOT SENT', 'Fake'))
+    assert data['courses'][0]['descriptions'][0]['text'] == basis['courses'][0]['description_text']
+    assert data['courses'][0]['learning_keywords'] == ['SQL']  # prerequisite is context, not learning evidence
 
 
 def test_bilingual_sources_are_validated_against_their_own_description():
@@ -97,3 +99,44 @@ def test_cached_reasons_are_validated_against_the_same_evidence():
     assert validate_course_reasons(data, saved) == saved
     saved['reasons'][0]['evidence_ids'] = ['foreign']
     with pytest.raises(GeminiError): validate_course_reasons(data, saved)
+
+
+def test_effective_experiences_and_completed_courses_without_private_fields():
+    basis, courses = fixture()
+    original = {'evidence_verified': True, 'skill_name': 'Python', 'activity': '전처리',
+                'contribution_scope': 'personal', 'evidence_text': 'PRIVATE QUOTE', 'document_id': 'PRIVATE ID'}
+    corrected = {**original, 'user_answer': {'status': 'corrected', 'correction': {
+        'skill_name': 'Excel', 'activity': '집계표 작성', 'contribution_scope': 'personal'}}}
+    denied = {**original, 'user_answer': {'status': 'no_experience'}}
+    basis['project_experiences'] = experience_input([original, corrected, denied, {**original, 'evidence_verified': False}])
+    basis['courses'].append({'course_id': 'python', 'course_name': '파이썬 기초', 'is_completed': True})
+    basis['outside_completed_courses'] = [{'course_id': 'old', 'course_name': '통계', 'credits': 3}]
+    basis['skills'] = [{'skill_name': 'SQL', 'student_status': 'no_experience', 'reason': '사용자 답변', 'private': 'PRIVATE'}]
+    data = reason_input(basis, courses)
+    assert data['project_experiences'][1]['skill_name'] == 'Excel'
+    assert data['project_experiences'][1]['activity'] == '집계표 작성'
+    assert data['project_experiences'][2] == {'skill_name': 'Python', 'user_status': 'no_experience'}
+    assert len(data['project_experiences']) == 3
+    assert [c['course_id'] for c in data['completed_courses']] == ['python', 'old']
+    assert data['skill_comparison'][0]['student_status'] == 'no_experience'
+    assert 'PRIVATE' not in json.dumps(data)
+
+
+@pytest.mark.parametrize('text', [
+    'AWS 배포 실습을 배우는 과목입니다. 클라우드 프로젝트를 확장할 수 있습니다.',
+    'Python을 학습하는 과목입니다. 분석 경험을 확장할 수 있습니다.',
+    '이미 숙련된 SQL을 활용하는 과목입니다. 경험을 확장할 수 있습니다.',
+])
+def test_valid_evidence_id_does_not_license_unrelated_technology_or_mastery(text):
+    raw = output()
+    raw['reasons'][0]['personalization_reason'] = text
+    with pytest.raises(GeminiError):
+        validate_course_reasons(reason_input(*fixture()), raw)
+
+
+def test_no_evidence_needs_no_provider_request():
+    basis, courses = fixture()
+    with patch('services.course_reasons._generate') as model:
+        result = generate_course_reasons(reason_input(basis, courses[1:]))
+    model.assert_not_called()
+    assert result['reasons'][0]['personalization_reason'] == '추천 근거 확인 필요'
