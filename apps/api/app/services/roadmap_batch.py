@@ -18,6 +18,7 @@ from services.roadmap_generation import capture_basis, model_input, validate_res
 from services.ai_guard import guarded_call
 from services.gemini import GeminiError
 from services.limited_roadmap import limited_roadmap
+from services.verified_roadmap_fallback import verified_roadmap_fallback
 from course_groups import grouped_courses
 
 logger = logging.getLogger(__name__)
@@ -218,8 +219,25 @@ def _execute(task, rid, owner, basis):
             from api.routes.roadmaps import generate_roadmap
             if basis['generation_mode'] == 'limited_guidance':
                 return limited_roadmap(basis)
-            return guarded_call((db, repo, owner), 'roadmap', digest(basis),
-                                lambda: validate_result(generate_roadmap(model_input(basis)), basis))
+            try:
+                return guarded_call((db, repo, owner), 'roadmap', digest(basis),
+                                    lambda: validate_result(generate_roadmap(model_input(basis)), basis))
+            except (GeminiError, Problem) as error:
+                # An invalid model response cannot be displayed or repaired by
+                # trusting unverified text. The fallback is constructed solely
+                # from the already captured, source-verified server basis and
+                # passes validate_result() again before it can be persisted.
+                # A cooldown can happen on an immediate UI retry after an
+                # unsuccessful model attempt; do not spend another AI call.
+                if error.code not in ('gemini_invalid_response', 'ai_cooldown'):
+                    raise
+                logger.warning('roadmap_verified_fallback %s', json.dumps({
+                    'path': f'/api/roadmap-inputs/{rid}/roadmap',
+                    'cause': error.code,
+                    'detail_code': getattr(error, 'detail_code', None),
+                    'field_path': getattr(error, 'field_path', None),
+                }))
+                return verified_roadmap_fallback(basis)
         raise ValueError('unknown task')
 
 
