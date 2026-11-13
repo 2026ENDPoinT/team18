@@ -302,6 +302,30 @@ class ActivityReasonAPI(RoadmapAPI):
                     other.doCleanups()
         self.assertEqual(len(set(outputs)), 5)
 
+    def test_activity_one_nonmodal_reason_keeps_other_verified_reasons(self):
+        def mixed(**kwargs):
+            response = json.loads(self.reply(**kwargs).text)
+            first = response['reasons'][0]
+            first['sentences'][0]['text'] = first['sentences'][0]['text'].replace('연습해 볼 수 있습니다.', '연습합니다.')
+            return Mock(text=json.dumps(response, ensure_ascii=False))
+
+        self.sdk.models.generate_content.side_effect = mixed
+        saved = self.saved()['activity_recommendations']
+        self.assertEqual(saved['activity_reasons_error'], 'gemini_invalid_response')
+        self.assertCountEqual([item['reason_status'] for item in saved['activities']], ['generated', 'generation_failed'])
+        for item in saved['activities']:
+            self.assertEqual(bool(item['reason_evidence']), item['reason_status'] == 'generated')
+        self.assertEqual(self.client.get(self.base + '/activities').json()['activities'], saved['activities'])
+        with patch.dict(os.environ, {'ROADMAP_AI_COOLDOWN_SECONDS': '60'}):
+            during_cooldown = self.saved(refresh=True)['activity_recommendations']
+            self.assertEqual(during_cooldown['activities'], saved['activities'])
+        self.assertEqual(self.sdk.models.generate_content.call_count, 1)
+        self.sdk.models.generate_content.side_effect = self.reply
+        repaired = self.saved(refresh=True)['activity_recommendations']
+        self.assertIsNone(repaired['activity_reasons_error'])
+        self.assertTrue(all(item['reason_status'] == 'generated' for item in repaired['activities']))
+        self.assertEqual(self.sdk.models.generate_content.call_count, 2)
+
     def test_activity_empty_response_is_failed_and_retryable(self):
         self.items = [deepcopy(ITEM)]
         abstention = {'reasons': [{'activity_id': 'contestkorea:climate', 'sentences': []}]}

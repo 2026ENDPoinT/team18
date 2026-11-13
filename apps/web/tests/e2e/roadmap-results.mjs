@@ -65,6 +65,23 @@ try {
  await page.screenshot({path:artifacts+'/partial-mobile.png',fullPage:true});
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  const writesAfter=countWrites(); await page.reload(); await ready(); assert.equal(countWrites(),writesAfter);
+ // Analyze after the partial roadmap is saved. Only this click may start a job analysis.
+ await page.getByRole('tab',{name:'직무 역량 비교',exact:true}).click();
+ await page.getByRole('button',{name:'직무 분석 실행',exact:true}).click();
+ await page.locator('.job-skills .skill-title').getByRole('heading',{name:'SQL',exact:true}).waitFor();
+ const analysis = (await get('/skill-comparison')).job_analysis;
+ assert.equal(analysis.status,'partial');
+ assert.ok(analysis.skills.length > 0);
+ const writesAfterAnalysis = countWrites();
+ assert.equal(writesAfterAnalysis, writesAfter + 1);
+ const showCurrentSkills = () => page.getByRole('link',{name:`전체 ${analysis.skills.length}개 기술·분석 근거 보기 →`}).waitFor();
+ await summary().click(); await showCurrentSkills();
+ await page.reload(); await showCurrentSkills();
+ await page.getByRole('tab',{name:'직무 역량 비교',exact:true}).click();
+ await page.locator('.job-skills .skill-title').getByRole('heading',{name:'SQL',exact:true}).waitFor();
+ assert.equal(countWrites(),writesAfterAnalysis);
+ assert.equal((await get('/roadmap')).skill_comparison.job_analysis.status,'not_started');
+ await summary().click(); await showCurrentSkills();
  // A failed course-selection lookup does not hide saved course candidates.
  await page.route('**/courses?*',r=>r.fulfill({status:503,json:{message:'Synthetic selection failure'}}));
  await page.reload(); await ready(); await page.getByRole('tab',{name:'수강 후보',exact:true}).click();

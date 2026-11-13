@@ -124,7 +124,7 @@ export default function Result() {
     previousRunId.current = runId;
     remember(planId, null);
     setResources(previous => ({ ...previous, roadmap: { phase: 'ready', data: outcome.data },
-     comparison: { phase: 'ready', data: outcome.data.skill_comparison } }));
+     comparison: { phase: 'ready', data: outcome.data.skill_comparison, requestId: planId } }));
     setTracking({ phase: 'complete', planId, runId, tasks: outcome.data.generation_tasks });
    } else setTracking(previous => ({ ...previous, phase: outcome.kind,
     tasks: outcome.data?.generation_tasks || previous.tasks, detail: failureDetail(outcome.data) }));
@@ -154,9 +154,9 @@ export default function Result() {
   setResources(previous => ({ ...previous, plan: { phase: 'ready', data: input } }));
   load();
  }, [load]);
- const onSkillResult = useCallback((data, { changed = false } = {}) => {
-  if (data?.comparison) setResources(previous => ({ ...previous, comparison: { phase: 'ready', data: data.comparison } }));
-  if (changed) load();
+ const onSkillResult = useCallback(data => {
+  setResources(previous => ({ ...previous, comparison: { phase: 'ready', data: data.comparison, requestId: data.request_id } }));
+  load();
  }, [load]);
  function changeTab(index, fromFooter = false) {
   tabNavigation.current = fromFooter;
@@ -185,8 +185,10 @@ export default function Result() {
  const activities = result?.activity_recommendations
   ? { phase: 'ready', data: result.activity_recommendations, message: '' }
   : resources.activities || { phase: 'loading', data: null };
- const displayedResources = result?.skill_comparison
-  ? { ...resources, comparison: { phase: 'ready', data: result.skill_comparison } } : resources;
+ const live = resources.comparison;
+ const useSaved = live?.phase === 'error' && live.transient && result?.skill_comparison && !result.is_stale && !result.details_restricted;
+ const comparison = useSaved ? { phase: 'ready', data: result.skill_comparison, requestId: result.request_id } : live;
+ const requestId = comparison?.requestId || plan?.request_id || result?.request_id;
  return <div className="result-page">
   <div className="result-generation-heading"><PageTitle title="로드맵 결과" helpId={`result-${selectedTab}`}/>
    <button className="primary" disabled={!plan || resources.roadmap?.phase === 'loading'} onClick={() => startGeneration(plan, hasResult)}>{hasResult ? '재분석' : '로드맵 만들기'}</button></div>
@@ -196,9 +198,9 @@ export default function Result() {
   {hasResult && !result.generation_complete && <p className="notice">이전에 저장한 결과입니다. 모든 추천을 함께 저장하려면 재분석을 실행해 주세요.</p>}
   <div className="result-tabs" role="tablist" aria-label="결과 구성" onKeyDown={onKeyDown}>{resultTabs.map((tab, i) => <button key={tab.key} type="button" role="tab" id={`tab-${i}`} data-index={i} aria-controls="result-panel" aria-selected={selected === i} tabIndex={selected === i ? 0 : -1} onClick={() => changeTab(i)}>{tab.label}</button>)}</div>
   <section id="result-panel" role="tabpanel" tabIndex={0} aria-labelledby={`tab-${selected}`} className={overview ? 'result-overview-panel' : 'result-panel skill-panel'}>
-   <JobSkillAnalysis active={selectedTab === 'skills'} savedComparison={result?.skill_comparison} savedRunId={result?.run_id} savedRequestId={result?.request_id} onResult={onSkillResult} plan={plan} onPlanChange={onPlanChange}/>
+   <JobSkillAnalysis key={requestId} active={selectedTab === 'skills'} comparison={comparison} requestId={requestId} onResult={onSkillResult} plan={plan} onPlanChange={onPlanChange} reload={load}/>
    {selectedTab === 'activities' && <ActivityRecommendations active resource={activities}/>}
-   {overview && <ResultOverview resources={displayedResources} reload={load} activities={activities}/>}
+   {overview && <ResultOverview resources={{ ...resources, comparison }} reload={load} activities={activities}/>}
    {overview && result?.is_stale && <p className="notice">이전 입력 기준으로 저장된 결과입니다. 재분석으로 최신 결과를 만들 수 있어요.</p>}
    {selectedTab === 'courses' && <>
     {resources.roadmap?.phase === 'loading' && <p role="status">저장된 결과를 불러오고 있습니다…</p>}
@@ -206,7 +208,7 @@ export default function Result() {
     {result?.is_stale && <p className="notice" role="status">이 수강 후보는 이전 입력·분석 기준으로 저장된 결과입니다.</p>}
     {result?.details_restricted && <p className="notice">문서 삭제·재추출 등으로 근거가 변경되어 저장된 수강 후보의 상세 내용을 확인할 수 없습니다.</p>}
     {resources.courses?.phase === 'error' && <p className="notice" role="status">현재 이수 선택을 조회하지 못해 저장 당시의 수강 후보를 표시합니다.</p>}
-    {hasResult ? <CourseCandidates result={result} selectedCourses={resources.courses.data?.selected_courses} courseReasons={courseReasons}/> : !result?.details_restricted && <p>아직 표시할 수강 후보가 없습니다. 로드맵을 만들어 주세요.</p>}
+    {hasResult ? <CourseCandidates result={result} selectedCourses={resources.courses?.data?.selected_courses} courseReasons={courseReasons}/> : !result?.details_restricted && <p>아직 표시할 수강 후보가 없습니다. 로드맵을 만들어 주세요.</p>}
    </>}
   </section>
   {!overview && <nav className="result-pagination" aria-label="로드맵 결과 순서 이동"><span className="field-help">{selected + 1} / {resultTabs.length} · {resultTabs[selected].label}</span>
