@@ -5,32 +5,59 @@ import { apiRequest } from '../../lib/api/client';
 import { resolvePlanId } from '../../lib/api/session';
 import { answerLabels, scopeLabels } from './ProjectEvidence';
 import { experiencePresentation } from './experiencePresentation.mjs';
+import styles from './ProjectExperienceReview.module.css';
 
 const exclusionLabels = { pending: '본문 추출 중', failed: '본문 추출 실패', needs_ocr: 'OCR 필요', partial_unconfirmed: '부분 추출 확인 필요', invalid_extraction: '읽힌 내용 확인 필요', empty_text: '본문이 비어 있음' };
+const answers = [['confirmed', '맞아요'], ['corrected', '수정할게요'], ['unknown', '잘 모르겠어요'], ['no_experience', '이 기술 경험 없어요']];
 
 function ExperienceCard({ item, busy, save }) {
  const effective = experiencePresentation(item);
+ const savedAnswer = item.user_answer?.status ?? item.user_confirmation;
  const [editing, setEditing] = useState(false);
  const [correction, setCorrection] = useState({});
- function edit() { setCorrection({ skill_name: effective.skill_name, activity: effective.activity, contribution_scope: effective.contribution_scope, role: effective.role, output: effective.output }); setEditing(true); }
+ const editButton = useRef(null), restoreFocus = useRef(false);
+ const selectedAnswer = editing ? 'corrected' : savedAnswer;
+ const correctionId = `experience-correction-${item.experience_id}`;
+ // Confirmed/negative answers resolve ownership; retain source scope only while relevant.
+ const showScope = !['confirmed', 'no_experience'].includes(savedAnswer);
+ useEffect(() => {
+  if (!editing && restoreFocus.current) { editButton.current?.focus(); restoreFocus.current = false; }
+ }, [editing]);
+ function edit() {
+  if (editing) return;
+  setCorrection({ skill_name: effective.skill_name, activity: effective.activity, contribution_scope: effective.contribution_scope, role: effective.role, output: effective.output }); setEditing(true);
+ }
+ function closeEditor(returnFocus = false) { restoreFocus.current = returnFocus; setEditing(false); setCorrection({}); }
+ function answer(status) {
+  // Switching answers discards the draft, even on failure; only server data selects a saved answer.
+  closeEditor();
+  return save(item, status);
+ }
  const change = (field, value) => setCorrection(old => ({ ...old, [field]: value }));
  return <li className="skill-card">
-  <div className="skill-title"><h3>{effective.activity}</h3><span className="badge">{scopeLabels[effective.contribution_scope]}</span><span className="badge">{answerLabels[item.user_confirmation] || '미확인'}</span></div>
+  <div className="skill-title"><h3>{effective.activity}</h3></div>
+  <div className={styles.badges} role="group" aria-label="경험 상태" aria-live="polite">
+   {showScope && <span className="badge">{savedAnswer === 'corrected' ? '수정한 수행 범위' : '문서 분석'}: {scopeLabels[effective.contribution_scope]}</span>}
+   <span className="badge">{editing && savedAnswer ? '저장된 답변: ' : ''}{answerLabels[savedAnswer] || '미확인'}</span>
+   {editing && <span className="badge">수정 중 · 미저장</span>}
+  </div>
   <p>기술 스택: {effective.skill_name}</p>
   <div className="doc-actions experience-actions">
-   <button disabled={busy} onClick={() => save(item, 'confirmed')}>맞아요</button>
-   <button disabled={busy} onClick={edit}>수정할게요</button>
-   <button disabled={busy} onClick={() => save(item, 'unknown')}>잘 모르겠어요</button>
-   <button disabled={busy} onClick={() => save(item, 'no_experience')}>이 기술 경험 없어요</button>
+   {answers.map(([status, label]) => <button key={status} type="button" disabled={busy}
+    ref={status === 'corrected' ? editButton : undefined}
+    className={selectedAnswer === status ? 'primary' : undefined} aria-pressed={selectedAnswer === status}
+    aria-expanded={status === 'corrected' ? editing : undefined} aria-controls={status === 'corrected' && editing ? correctionId : undefined}
+    onClick={() => status === 'corrected' ? edit() : answer(status)}>{label}</button>)}
   </div>
-  {editing && <form className="experience-correction" onSubmit={async e => { e.preventDefault(); if (await save(item, 'corrected', correction)) setEditing(false); }}>
+  {editing && <form id={correctionId} className="experience-correction" onSubmit={async e => { e.preventDefault(); if (await save(item, 'corrected', correction)) closeEditor(true); }}>
    <p className="field-help">수정한 내용은 사용자 답변으로 별도 저장됩니다. 직접 수행한 경험이면 수행 범위를 개인으로 선택해 주세요.</p>
-   <label className="field">기술명<input required maxLength={150} value={correction.skill_name} onChange={e => change('skill_name', e.target.value)}/></label>
-   <label className="field">수행 내용<textarea required maxLength={1000} value={correction.activity} onChange={e => change('activity', e.target.value)}/></label>
-   <label className="field">수행 범위<select value={correction.contribution_scope} onChange={e => change('contribution_scope', e.target.value)}><option value="personal">본인 직접 수행</option><option value="team">팀 수행</option><option value="unknown">수행 주체 미확인</option></select></label>
-   <label className="field">본인 역할 (선택)<input maxLength={500} value={correction.role || ''} onChange={e => change('role', e.target.value || null)}/></label>
-   <label className="field">결과물 (선택)<input maxLength={1000} value={correction.output || ''} onChange={e => change('output', e.target.value || null)}/></label>
-   <div className="doc-actions"><button className="primary" disabled={busy}>수정 내용 저장</button><button type="button" disabled={busy} onClick={()=>setEditing(false)}>수정 취소</button></div>
+   <p className="field-help">다른 답변을 선택하거나 수정을 취소하면 저장하지 않은 내용은 사라집니다.</p>
+   <label className="field">기술명<input required disabled={busy} maxLength={150} value={correction.skill_name} onChange={e => change('skill_name', e.target.value)}/></label>
+   <label className="field">수행 내용<textarea required disabled={busy} maxLength={1000} value={correction.activity} onChange={e => change('activity', e.target.value)}/></label>
+   <label className="field">수행 범위<select disabled={busy} value={correction.contribution_scope} onChange={e => change('contribution_scope', e.target.value)}><option value="personal">본인 직접 수행</option><option value="team">팀 수행</option><option value="unknown">수행 주체 미확인</option></select></label>
+   <label className="field">본인 역할 (선택)<input disabled={busy} maxLength={500} value={correction.role || ''} onChange={e => change('role', e.target.value || null)}/></label>
+   <label className="field">결과물 (선택)<input disabled={busy} maxLength={1000} value={correction.output || ''} onChange={e => change('output', e.target.value || null)}/></label>
+   <div className="doc-actions"><button className="primary" disabled={busy}>수정 내용 저장</button><button type="button" disabled={busy} onClick={() => closeEditor(true)}>수정 취소</button></div>
   </form>}
  </li>;
 }
