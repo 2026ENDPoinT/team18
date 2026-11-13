@@ -1,9 +1,19 @@
 export const resultTabs = [
- { key: 'overview', label: '준비 상태' }, { key: 'roadmap', label: '실행 로드맵' },
+ { key: 'roadmap', label: '실행 로드맵' },
  { key: 'skills', label: '직무 역량 비교' }, { key: 'courses', label: '수강 후보' },
  { key: 'activities', label: '공모전·대외활동' },
 ];
 export const resultHref = key => `/result?tab=${key}`;
+export const roadmapDetailHref = `${resultHref('roadmap')}&view=steps`;
+
+// Only the analyzed role field is a job name. Search keywords and skill names
+// cannot be substituted, including before an analysis has been saved.
+export function relatedRoles(comparison) {
+ const job = comparison?.job_analysis;
+ if (!job?.snapshot_id) return [];
+ const role = (job.canonical_role || job.target_role || '').trim();
+ return role ? [role] : [];
+}
 
 // Both the dashboard and the result use persisted task progress, never inferred skill levels.
 export function roadmapProgress(result) {

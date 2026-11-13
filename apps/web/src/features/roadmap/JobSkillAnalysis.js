@@ -39,7 +39,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange 
      if(data.snapshot_id)previousAnalysis.current=data.request_id;
      if(action.run&&data.snapshot_id)setCareerChanged(false);
      setState({ phase: 'ready', data, message: '' });
-     onResult(data);
+     onResult(data, { changed: Boolean(action.run || action.answersChanged) });
     }
    } catch (error) {
     if (!disposed && sequence.current === attempt) {
@@ -76,7 +76,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange 
   try {
    if (await resolvePlanId() !== data.request_id) throw new Error('계획이 변경되었습니다. 최신 내용을 불러와 주세요.');
    await apiRequest(`/roadmap-inputs/${encodeURIComponent(data.request_id)}/skill-comparison/answers`, { method: 'POST', body: JSON.stringify({ expected_input_revision: data.input_revision, snapshot_id: data.comparison.job_analysis.snapshot_id, skill_name: skill.name, status }) });
-   setRetry(v => v + 1);
+   nextAction.current = { answersChanged: true }; setRetry(v => v + 1);
   } catch (error) { setState(previous => ({ ...previous, phase: 'error', message: error.message })); onResult(null); }
   finally { setSaving(false); }
  }

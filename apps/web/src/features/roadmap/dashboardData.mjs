@@ -1,7 +1,7 @@
 import { experiencePresentation } from './experiencePresentation.mjs';
 import { coursePresentation } from './coursePresentation.mjs';
 import { orderedSkills } from './jobSkillAnalysis.mjs';
-import { roadmapProgress, courseReason, experienceAnswer, resultHref } from './resultPresentation.mjs';
+import { roadmapProgress, courseReason, experienceAnswer, resultHref, roadmapDetailHref } from './resultPresentation.mjs';
 
 // GET only. A rejected resource stays an error and cannot become a zero count.
 export async function loadDashboardResources(apiRequest, plan) {
@@ -61,7 +61,7 @@ export function dashboardCards(plan, resources) {
  ] : [jobs?.status === 'error' ? '직무 분석을 완료하지 못했습니다. 다시 실행해 주세요.' : '현재 진로 정보로 저장된 분석이 없습니다. 직무 분석을 실행해 주세요.'], '직무 분석 확인·실행');
  const run = data('roadmap'), usable = run?.roadmap && !run.details_restricted;
  const progress = roadmapProgress(usable ? run : null);
- const roadmap = make('roadmap', '실행 로드맵', resultHref('roadmap'), usable ? [
+ const roadmap = make('roadmap', '실행 로드맵', roadmapDetailHref, usable ? [
   progress.next ? `다음 할 일: ${progress.next.task.title}` : progress.total ? '모든 작업을 완료했어요.' : '저장된 실행 작업이 없습니다.',
   `작업 완료 ${progress.completed} / ${progress.total}개`,
  ] : [run?.details_restricted ? '근거가 변경되어 상세 접근이 제한된 결과입니다.' : '저장된 로드맵이 없습니다. 결과 화면에서 생성해 주세요.'], '지금 할 일 확인');
