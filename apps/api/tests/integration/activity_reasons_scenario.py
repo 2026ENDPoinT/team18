@@ -47,17 +47,19 @@ class ActivityReasonAPI(RoadmapAPI):
         assert 'activities' in data  # No per-course or execution-roadmap call.
         reasons = []
         for activity in data['activities']:
-            detail = next(e for e in activity['evidence'] if e['kind'] == 'detail')
-            refs = [{'evidence_id': detail['id'], 'quote': detail['text']}]
-            sentences = [{'perspective': 'career', 'text': f"{data['career_goal']} 목표의 분야 자체와는 다를 수 있지만, 기후 공공데이터 분석으로 분석 방법을 연습할 수 있습니다.",
+            detail = next((e for e in activity['evidence'] if e['kind'] == 'detail'), None)
+            subject = next(e['text'] for e in activity['evidence'] if e['id'] == 'title')
+            anchor = detail or next(e for e in activity['evidence'] if e['id'] == 'title')
+            refs = [{'evidence_id': anchor['id'], 'quote': anchor['text']}]
+            sentences = [{'perspective': 'career', 'basis': 'inference', 'text': f"{subject}의 주제로 {data['career_goal']} 목표에 필요한 분석 방법을 연습해 볼 수 있습니다.",
                           'evidence': refs, 'experience_ids': []}]
             personal = [e for e in data['project_experiences'] if e.get('user_status') in ('confirmed', 'corrected') and e.get('contribution_scope') == 'personal']
             if personal:
                 e = personal[0]
                 activity_text = e['activity'].rstrip('.!?')
-                sentences.append({'perspective': 'experience', 'text': f"확인한 {activity_text} 경험을 분석 과정에 활용해 볼 수 있습니다.",
+                sentences.append({'perspective': 'experience', 'basis': 'inference', 'text': f"확인한 {activity_text} 경험을 분석 과정에 활용해 볼 수 있습니다.",
                                   'evidence': refs, 'experience_ids': [e['id']]})
-            sentences.append({'perspective': 'expected', 'text': '공고에서 안내한 시각화 결과를 정리해 제출하는 경험을 쌓을 수 있습니다.',
+            sentences.append({'perspective': 'expected', 'basis': 'verified_fact' if detail else 'inference', 'text': ('공고에서 안내한 시각화 결과를 정리해 제출하는 경험을 쌓을 수 있습니다.' if detail else '공공데이터를 살펴보는 아이디어를 구상하고 분석한 내용을 설명하는 경험으로 확장할 수 있습니다.'),
                               'evidence': refs, 'experience_ids': []})
             reasons.append({'activity_id': activity['activity_id'], 'sentences': sentences})
         return Mock(text=json.dumps({'reasons': reasons}, ensure_ascii=False))
@@ -151,7 +153,7 @@ class ActivityReasonAPI(RoadmapAPI):
         self.assertEqual(self.payloads()[-1]['project_experiences'][0]['skill_name'], 'Excel')
         self.assertNotEqual(first['activity_recommendations']['activities'][0]['personalization_reason'], second['activity_recommendations']['activities'][0]['personalization_reason'])
 
-    def test_activity_failures_preserve_cards_courses_and_cache_fallback(self):
+    def test_activity_failures_are_not_success_cache_and_explicit_retry_recovers(self):
         from google.genai.errors import ServerError, ClientError
         failures = [ServerError(503, {'error': {'message': 'synthetic'}}),
                     ClientError(429, {'error': {'message': 'synthetic'}}), TimeoutError(),
@@ -167,9 +169,21 @@ class ActivityReasonAPI(RoadmapAPI):
                 items = result['activity_recommendations']['activities']
                 self.assertEqual(len(items), 2)
                 self.assertTrue(all(i['reason_source'] == 'fallback' for i in items))
-                self.saved(refresh=True)
+                for _ in range(3):
+                    self.assertEqual(self.client.get(self.base + '/activities').json()['activities'], items)
+                    self.assertEqual(self.client.get(self.base + '/roadmap').json()['activity_recommendations']['activities'], items)
                 self.assertEqual(self.sdk.models.generate_content.call_count, calls + 1)
-                self.assertEqual(self.client.get(self.base + '/activities').json()['activities'], items)
+                with closing(connect()) as db:
+                    ledger = db.execute("SELECT status,result_json FROM ai_requests WHERE operation='activity_reasons' ORDER BY created_at DESC LIMIT 1").fetchone()
+                    self.assertEqual(ledger['status'], 'failed')
+                    from repositories.experience_analysis import decode
+                    self.assertEqual(decode(ledger['result_json'])['source'], 'fallback')
+                self.sdk.models.generate_content.side_effect = self.reply
+                recovered = self.saved(refresh=True)['activity_recommendations']['activities']
+                self.assertTrue(all(i['reason_source'] == 'gemini' for i in recovered))
+                self.assertEqual(self.sdk.models.generate_content.call_count, calls + 2)
+                self.saved(refresh=True)
+                self.assertEqual(self.sdk.models.generate_content.call_count, calls + 2)
 
     def test_activity_concurrent_generations_share_one_batch(self):
         entered, release = threading.Event(), threading.Event()
@@ -194,28 +208,38 @@ class ActivityReasonAPI(RoadmapAPI):
         self.assertEqual(self.sdk.models.generate_content.call_count, 1)
         self.assertTrue(all(i['reason_source'] == 'gemini' for i in result['activity_recommendations']['activities']))
 
-    def test_activity_missing_body_never_calls_ai(self):
+    def test_activity_metadata_only_calls_gemini_and_survives_reads(self):
         for item in self.items: item.pop('description_text')
         result = self.saved()
         self.assertEqual(len(result['activity_recommendations']['activities']), 2)
-        self.sdk.models.generate_content.assert_not_called()
+        self.assertEqual(self.sdk.models.generate_content.call_count, 1)
+        items = result['activity_recommendations']['activities']
+        self.assertTrue(all(i['reason_source'] == 'gemini' and i['reason_evidence_level'] == 'metadata_inference' for i in items))
+        self.assertEqual(len({i['personalization_reason'] for i in items}), 2)
+        self.assertEqual(self.client.get(self.base + '/activities').json()['activities'], items)
+        self.saved(refresh=True)
+        self.assertEqual(self.sdk.models.generate_content.call_count, 1)
 
     def test_activity_partial_evidence_and_invalid_cached_response(self):
         self.items[1].pop('description_text')
         first = self.saved()
         items = {i['id']: i for i in first['activity_recommendations']['activities']}
         self.assertEqual(items['climate']['reason_source'], 'gemini')
-        self.assertEqual(items['next']['reason_source'], 'fallback')
-        self.assertEqual(len(self.payloads()[0]['activities']), 1)
+        self.assertEqual(items['next']['reason_source'], 'gemini')
+        self.assertEqual(items['next']['reason_evidence_level'], 'metadata_inference')
+        self.assertEqual(len(self.payloads()[0]['activities']), 2)
         with closing(connect()) as db:
             owner = db.execute('SELECT owner_id FROM roadmap_inputs WHERE request_id=?', (self.rid,)).fetchone()['owner_id']
             db.execute("UPDATE ai_requests SET result_json=? WHERE owner_id=? AND operation='activity_reasons'",
                        (json.dumps({'source': 'gemini', 'reasons': [{'activity_id': 'foreign', 'host': 'invented'}]}), owner))
             db.commit()
-        result = self.saved(refresh=True)
-        self.assertTrue(all(i['reason_source'] == 'fallback' for i in result['activity_recommendations']['activities']))
-        self.assertTrue(all(i['host'] == ITEM['host'] for i in result['activity_recommendations']['activities']))
+        read = self.client.get(self.base + '/activities').json()
+        self.assertTrue(all(i['reason_source'] == 'fallback' for i in read['activities']))
         self.assertEqual(self.sdk.models.generate_content.call_count, 1)
+        result = self.saved(refresh=True)
+        self.assertTrue(all(i['reason_source'] == 'gemini' for i in result['activity_recommendations']['activities']))
+        self.assertTrue(all(i['host'] == ITEM['host'] for i in result['activity_recommendations']['activities']))
+        self.assertEqual(self.sdk.models.generate_content.call_count, 2)
 
     def test_activity_requested_cases_persist_paragraph_and_evidence(self):
         from repositories.experience_analysis import decode
@@ -254,7 +278,7 @@ class ActivityReasonAPI(RoadmapAPI):
                     activity = saved['activity_recommendations']['activities'][0]
                     self.assertEqual(activity['score'], before[0]['score'])
                     self.assertEqual(activity['id'], before[0]['id'])
-                    expected_calls = int(case['case'] != 'E')
+                    expected_calls = 1
                     self.assertEqual(other.sdk.models.generate_content.call_count, expected_calls)
                     self.assertEqual(activity['reason_source'], 'gemini' if expected_calls else 'fallback')
                     self.assertEqual(activity['reason_status'], 'generated' if expected_calls else 'needs_verification')
@@ -276,19 +300,20 @@ class ActivityReasonAPI(RoadmapAPI):
                     self.assertEqual(other.sdk.models.generate_content.call_count, expected_calls)
                 finally:
                     other.doCleanups()
-        self.assertEqual(len(set(outputs)), 4)
+        self.assertEqual(len(set(outputs)), 5)
 
-    def test_activity_abstention_is_saved_but_never_labelled_generated(self):
+    def test_activity_empty_response_is_failed_and_retryable(self):
         self.items = [deepcopy(ITEM)]
         abstention = {'reasons': [{'activity_id': 'contestkorea:climate', 'sentences': []}]}
         self.sdk.models.generate_content.side_effect = lambda **kw: Mock(text=json.dumps(abstention))
         result = self.saved()['activity_recommendations']['activities'][0]
         self.assertEqual(result['reason_source'], 'fallback')
-        self.assertEqual(result['reason_status'], 'needs_verification')
+        self.assertEqual(result['reason_status'], 'generation_failed')
         self.assertEqual(result['reason_evidence'], [])
         self.assertEqual(self.client.get(self.base + '/activities').json()['activities'][0], result)
-        self.saved(refresh=True)
-        self.assertEqual(self.sdk.models.generate_content.call_count, 1)
+        self.sdk.models.generate_content.side_effect = self.reply
+        self.assertEqual(self.saved(refresh=True)['activity_recommendations']['activities'][0]['reason_source'], 'gemini')
+        self.assertEqual(self.sdk.models.generate_content.call_count, 2)
 
     def test_activity_budget_limit_preserves_candidates_without_provider_call(self):
         with patch.dict(os.environ, {'ROADMAP_AI_GLOBAL_DAILY_UNITS': '0'}):
@@ -296,6 +321,8 @@ class ActivityReasonAPI(RoadmapAPI):
         self.assertEqual(len(result['activities']), 2)
         self.assertEqual(result['activity_reasons_error'], 'ai_budget_exceeded')
         self.assertTrue(all(a['reason_status'] == 'generation_failed' for a in result['activities']))
+        self.assertEqual(self.client.get(self.base + '/activities').json()['activities'], result['activities'])
+        self.assertEqual(self.client.get(self.base + '/roadmap').json()['activity_recommendations']['activities'], result['activities'])
         self.sdk.models.generate_content.assert_not_called()
 
 

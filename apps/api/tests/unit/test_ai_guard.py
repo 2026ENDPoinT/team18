@@ -81,3 +81,37 @@ def test_expired_lease_recovers_but_still_counts_budget(ledger, monkeypatch):
     db.execute("UPDATE ai_requests SET status='running',lease_until='2000-01-01T00:00:00+00:00'")
     guarded_call(ctx, 'jobs', 'new', lambda: [])
     assert db.execute('SELECT SUM(units) AS n FROM ai_requests').fetchone()['n'] == 2
+
+
+def test_invalid_cache_is_revalidated_and_failure_does_not_bypass_cooldown(ledger, monkeypatch):
+    from services.gemini import GeminiError
+    from repositories.experience_analysis import decode
+    db, _ = ledger
+    ctx = db, None, {'owner_id': 'a'}
+    # Seed a successful but unusable legacy payload. It is kept as history.
+    guarded_call(ctx, 'reasons', 'same', lambda: {'source': 'fallback'}, cache=True)
+    validate = lambda value: isinstance(value, dict) and value.get('source') == 'gemini'
+    provider = Mock(side_effect=GeminiError('gemini_timeout', 'sensitive provider message'))
+    with pytest.raises(Problem) as error:
+        guarded_call(ctx, 'reasons', 'same', provider, cache=True, cache_validator=validate)
+    assert error.value.code == 'ai_cooldown'
+    provider.assert_not_called()
+    monkeypatch.setenv('ROADMAP_AI_COOLDOWN_SECONDS', '0')
+    with pytest.raises(GeminiError):
+        guarded_call(ctx, 'reasons', 'same', provider, cache=True, cache_validator=validate)
+    row = db.execute("SELECT status,result_json FROM ai_requests ORDER BY created_at DESC LIMIT 1").fetchone()
+    assert row['status'] == 'failed'
+    assert decode(row['result_json']) == {'source': 'fallback', 'error_code': 'gemini_timeout'}
+    monkeypatch.setenv('ROADMAP_AI_COOLDOWN_SECONDS', '60')
+    with pytest.raises(Problem) as error:
+        guarded_call(ctx, 'reasons', 'same', provider, cache=True, cache_validator=validate)
+    assert error.value.code == 'ai_cooldown'
+    assert provider.call_count == 1
+    monkeypatch.setenv('ROADMAP_AI_COOLDOWN_SECONDS', '0')
+    provider.side_effect = None
+    provider.return_value = {'source': 'gemini'}
+    assert guarded_call(ctx, 'reasons', 'same', provider, cache=True, cache_validator=validate) == {'source': 'gemini'}
+    # Cache remains readable even once the three-unit budget is exhausted.
+    assert guarded_call(ctx, 'reasons', 'same', provider, cache=True, cache_validator=validate) == {'source': 'gemini'}
+    assert provider.call_count == 2
+    assert db.execute('SELECT SUM(units) AS used FROM ai_requests').fetchone()['used'] == 3

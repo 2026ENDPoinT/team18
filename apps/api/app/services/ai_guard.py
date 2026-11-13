@@ -16,7 +16,7 @@ def setting(name, default):
     return max(0, int(os.environ.get('ROADMAP_AI_' + name, default)))
 
 
-def guarded_call(ctx, operation, basis_hash, call, *, units=1, cache=False):
+def guarded_call(ctx, operation, basis_hash, call, *, units=1, cache=False, cache_validator=None):
     db, _, owner = ctx
     owner_id = owner['owner_id']
     postgres = getattr(db, 'backend', 'sqlite') == 'postgres'
@@ -31,8 +31,13 @@ def guarded_call(ctx, operation, basis_hash, call, *, units=1, cache=False):
                 AND basis_hash=? AND status='finished' AND result_json IS NOT NULL
                 ORDER BY created_at DESC LIMIT 1""", (owner_id, operation, basis_hash)).fetchone()
             if saved:
-                db.commit()
-                return decode(saved['result_json'])
+                try:
+                    cached = decode(saved['result_json'])
+                except (ValueError, TypeError):
+                    cached = None
+                if cache_validator is None or cache_validator(cached):
+                    db.commit()
+                    return cached
         if db.execute("SELECT 1 FROM ai_requests WHERE owner_id=? AND status='running' AND lease_until>?",
                       (owner_id, at.isoformat())).fetchone():
             raise Problem(409, 'ai_request_in_progress', '다른 분석 요청을 처리 중입니다. 완료 후 저장 결과를 확인해 주세요.')
@@ -62,8 +67,13 @@ def guarded_call(ctx, operation, basis_hash, call, *, units=1, cache=False):
         raise
     try:
         result = call()
-    except Exception:
-        db.execute("UPDATE ai_requests SET status='failed' WHERE request_id=?", (request_id,))
+    except Exception as error:
+        # Keep only a machine error code for read-only failure status. A failed
+        # attempt is charged, but is never a successful generation cache entry.
+        code = getattr(error, 'code', None)
+        failure = {'source': 'fallback', 'error_code': code} if isinstance(code, str) else None
+        db.execute("UPDATE ai_requests SET status='failed',result_json=? WHERE request_id=?",
+                   (json.dumps(failure) if cache and failure else None, request_id))
         db.commit()
         raise
     db.execute("UPDATE ai_requests SET status='finished',result_json=? WHERE request_id=?",

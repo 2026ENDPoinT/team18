@@ -38,7 +38,8 @@
                   "quote": "기후·환경 공공데이터를 분석하고, 분석 결과를 설명하는 제출물을 작성해 제출합니다."
                 }
               ],
-              "experience_ids": []
+              "experience_ids": [],
+              "basis": "verified_fact"
             },
             {
               "perspective": "experience",
@@ -51,7 +52,8 @@
               ],
               "experience_ids": [
                 "p0"
-              ]
+              ],
+              "basis": "inference"
             },
             {
               "perspective": "expected",
@@ -62,7 +64,8 @@
                   "quote": "기후·환경 공공데이터를 분석하고, 분석 결과를 설명하는 제출물을 작성해 제출합니다."
                 }
               ],
-              "experience_ids": []
+              "experience_ids": [],
+              "basis": "verified_fact"
             }
           ]
         }
@@ -87,12 +90,11 @@
       "id": "B",
       "source": "contestkorea",
       "kind": "competition",
-      "title": "백엔드 개발 검증용 공모전",
-      "category": "백엔드 개발",
+      "title": "대학생 소프트웨어 개발 해커톤",
+      "category": "소프트웨어",
       "target": "대학생",
       "period": "상시 접수",
-      "url": "https://example.org/B",
-      "description_text": "REST API를 설계하고 구현하는 소프트웨어 개발 해커톤입니다. 구현한 서비스와 API 설명서를 제출합니다."
+      "url": "https://example.org/B"
     },
     "response": {
       "reasons": [
@@ -101,38 +103,29 @@
           "sentences": [
             {
               "perspective": "career",
-              "text": "REST API를 설계하고 구현하는 과제를 통해 백엔드 개발자로 준비하는 방향에 맞는 실습을 할 수 있습니다.",
+              "basis": "verified_fact",
+              "text": "소프트웨어 개발을 주제로 하는 해커톤으로, 백엔드 개발 분야를 준비하는 사용자에게 관련성이 있습니다.",
               "evidence": [
                 {
-                  "evidence_id": "description_text",
-                  "quote": "REST API를 설계하고 구현하는 소프트웨어 개발 해커톤입니다. 구현한 서비스와 API 설명서를 제출합니다."
+                  "evidence_id": "title",
+                  "quote": "대학생 소프트웨어 개발 해커톤"
                 }
               ],
               "experience_ids": []
             },
             {
               "perspective": "experience",
-              "text": "기존 REST API 개발 경험을 이번 서비스 구현에 활용해 볼 수 있습니다.",
+              "basis": "inference",
+              "text": "기존 REST API 구현 경험을 활용해 서비스 아이디어를 구체화하고, 다른 기능과 연결되는 백엔드 구조를 설계하는 연습으로 확장할 수 있습니다.",
               "evidence": [
                 {
-                  "evidence_id": "description_text",
-                  "quote": "REST API를 설계하고 구현하는 소프트웨어 개발 해커톤입니다. 구현한 서비스와 API 설명서를 제출합니다."
+                  "evidence_id": "category",
+                  "quote": "소프트웨어"
                 }
               ],
               "experience_ids": [
                 "p0"
               ]
-            },
-            {
-              "perspective": "expected",
-              "text": "구현한 서비스와 API 설명서를 제출하며 개발한 내용을 설명하는 경험도 쌓을 수 있습니다.",
-              "evidence": [
-                {
-                  "evidence_id": "description_text",
-                  "quote": "REST API를 설계하고 구현하는 소프트웨어 개발 해커톤입니다. 구현한 서비스와 API 설명서를 제출합니다."
-                }
-              ],
-              "experience_ids": []
             }
           ]
         }
@@ -178,7 +171,8 @@
                   "quote": "머신러닝으로 AI 모델을 개발하고 평가합니다. 학습한 모델과 평가 결과를 제출합니다."
                 }
               ],
-              "experience_ids": []
+              "experience_ids": [],
+              "basis": "verified_fact"
             },
             {
               "perspective": "experience",
@@ -191,7 +185,8 @@
               ],
               "experience_ids": [
                 "p0"
-              ]
+              ],
+              "basis": "inference"
             },
             {
               "perspective": "expected",
@@ -202,7 +197,8 @@
                   "quote": "머신러닝으로 AI 모델을 개발하고 평가합니다. 학습한 모델과 평가 결과를 제출합니다."
                 }
               ],
-              "experience_ids": []
+              "experience_ids": [],
+              "basis": "verified_fact"
             }
           ]
         }
@@ -212,20 +208,19 @@
   {
     "case": "D",
     "profile": {
-      "career_goal": "데이터 분석",
-      "target_role": "데이터 분석가",
+      "career_goal": "인공지능 활용",
+      "target_role": "인공지능 엔지니어",
       "project_experiences": []
     },
     "item": {
       "id": "D",
       "source": "contestkorea",
       "kind": "competition",
-      "title": "데이터 분석 검증용 공모전",
-      "category": "데이터 분석",
+      "title": "AI 활용 아이디어 공모전",
+      "category": "AI",
       "target": "대학생",
       "period": "상시 접수",
-      "url": "https://example.org/D",
-      "description_text": "기후 공공데이터를 분석하고, 분석 결과를 설명하는 제출물을 작성해 제출합니다."
+      "url": "https://example.org/D"
     },
     "response": {
       "reasons": [
@@ -234,22 +229,24 @@
           "sentences": [
             {
               "perspective": "career",
-              "text": "기후 공공데이터를 분석하는 과제로, 데이터 분석가를 목표로 하는 사용자가 실제 데이터를 다루는 과정을 연습할 수 있습니다.",
+              "basis": "verified_fact",
+              "text": "인공지능 활용 아이디어를 제안하는 공모전으로, AI 분야에 관심이 있는 사용자에게 관련성이 있습니다.",
               "evidence": [
                 {
-                  "evidence_id": "description_text",
-                  "quote": "기후 공공데이터를 분석하고, 분석 결과를 설명하는 제출물을 작성해 제출합니다."
+                  "evidence_id": "title",
+                  "quote": "AI 활용 아이디어 공모전"
                 }
               ],
               "experience_ids": []
             },
             {
               "perspective": "expected",
-              "text": "분석 결과를 설명하는 제출물을 작성하면서 분석 과정과 결과를 다른 사람에게 전달하는 경험을 쌓을 수 있습니다.",
+              "basis": "inference",
+              "text": "인공지능 기술을 실제 문제 해결에 적용하는 방법을 고민하고, 아이디어를 구체적인 기획으로 발전시키는 경험을 시도해 볼 수 있습니다.",
               "evidence": [
                 {
-                  "evidence_id": "description_text",
-                  "quote": "기후 공공데이터를 분석하고, 분석 결과를 설명하는 제출물을 작성해 제출합니다."
+                  "evidence_id": "category",
+                  "quote": "AI"
                 }
               ],
               "experience_ids": []
@@ -262,7 +259,7 @@
   {
     "case": "E",
     "profile": {
-      "career_goal": "데이터 분석",
+      "career_goal": "스포츠 데이터 분석",
       "target_role": "데이터 분석가",
       "project_experiences": []
     },
@@ -270,7 +267,7 @@
       "id": "E",
       "source": "contestkorea",
       "kind": "competition",
-      "title": "데이터 분석 검증용 공모전",
+      "title": "기후·환경·탄소중립 공공데이터 AI 활용대회",
       "category": "데이터 분석",
       "target": "대학생",
       "period": "상시 접수",
@@ -278,7 +275,37 @@
       "description_text": ""
     },
     "response": {
-      "reasons": []
+      "reasons": [
+        {
+          "activity_id": "contestkorea:E",
+          "sentences": [
+            {
+              "perspective": "career",
+              "basis": "inference",
+              "text": "스포츠 분야와 주제는 다르지만, 기후·환경 공공데이터를 다루는 대회에서 데이터 분석 방법을 응용해 볼 수 있습니다.",
+              "evidence": [
+                {
+                  "evidence_id": "title",
+                  "quote": "기후·환경·탄소중립 공공데이터 AI 활용대회"
+                }
+              ],
+              "experience_ids": []
+            },
+            {
+              "perspective": "expected",
+              "basis": "inference",
+              "text": "환경 데이터를 살펴보는 아이디어를 구상하고 분석 결과를 다른 사람에게 설명하는 연습으로 확장할 수 있습니다.",
+              "evidence": [
+                {
+                  "evidence_id": "category",
+                  "quote": "데이터 분석"
+                }
+              ],
+              "experience_ids": []
+            }
+          ]
+        }
+      ]
     }
   }
 ]

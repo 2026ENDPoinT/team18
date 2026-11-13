@@ -17,9 +17,9 @@ await context.addInitScript(() => {
    title, status: 'open', category: '데이터 분석', host: '검증용 기관', target: '대학생',
    period: '상시 접수', deadline_label: '상시 접수', url: 'https://example.org/climate',
    evidence: [evidence, evidence], reasons: ['콘테스트코리아: 기존 중복 문장', '콘테스트코리아: 기존 중복 문장'],
-   ...(!state.legacy ? { reason_source: state.fallback ? 'fallback' : 'gemini', reason_status: state.fallback ? 'generation_failed' : 'generated', personalization_reason: state.fallback
-    ? '공고 제목에서 “기후 공공데이터 AI 활용대회”를 확인했습니다. 진로·경험과의 연결은 원문에서 확인해 주세요.'
-    : '스포츠 분야와는 다르지만, 기후 공공데이터 분석으로 분석 방법을 연습할 수 있습니다. 확인한 Python 전처리 경험을 활용하고 시각화 결과를 정리해 제출하는 경험을 쌓을 수 있습니다.' } : {}),
+   ...(!state.legacy ? { reason_evidence_level: 'metadata_inference', reason_source: state.fallback ? 'fallback' : 'gemini', reason_status: state.fallback ? 'generation_failed' : 'generated', personalization_reason: state.fallback
+    ? '기후 공공데이터 관련 활동으로, 데이터 분석 준비와 연결할 아이디어를 탐색해 볼 수 있습니다. 관심 주제를 구체화하는 연습으로 활용해 볼 수 있습니다.'
+    : '스포츠 분야와는 다르지만, 기후 공공데이터 분석으로 분석 방법을 연습할 수 있습니다. 확인한 Python 전처리 경험으로 환경 데이터를 살펴보고 분석 아이디어를 구체화하는 경험을 시도해 볼 수 있습니다.' } : {}),
   }] });
  const result = () => ({ run_id: 'saved-run', request_id: 'test-plan', status: 'partial', input_revision: 1,
   generation_complete: true, generation_tasks: { comparison: 'unavailable', courses: 'success', activities: 'success', roadmap: 'success' },
@@ -50,6 +50,7 @@ try {
  await page.goto(origin + '/result?tab=activities'); await generated();
  assert.equal(await reason().locator('h4').innerText(), '내 진로에 도움이 되는 이유');
  assert.equal(await reason().locator('p').count(), 1);
+ assert.match(await reason().locator('small').innerText(), /제목·분야/);
  const card = page.locator('.activity-recommendations .skill-card');
  const metadata = await card.locator('dl').innerText();
  assert.match(metadata, /콘테스트코리아.*데이터 분석.*검증용 기관.*대학생.*상시 접수/s);
@@ -64,14 +65,14 @@ try {
  for (const width of [1440, 390]) {
   await page.setViewportSize({ width, height: 900 });
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  await card.screenshot({ path: `/tmp/team18-activity-reasons-${width}.png` });
+  await card.screenshot({ path: `/tmp/team18-activity-v3-${width}.png` });
  }
  for (const legacy of [false, true]) {
   await page.evaluate(legacy => { activityState.fallback = true; activityState.legacy = legacy; saveActivityState(); }, legacy);
-  await page.reload(); await reason().filter({ hasText: '추천 근거 확인 필요' }).waitFor();
+  await page.reload(); await reason().filter({ hasText: '활동 참여 안내' }).waitFor();
   assert.ok(!(await reason().innerText()).includes('공고 제목'));
   assert.ok(!(await reason().innerText()).includes('원문에서 확인'));
-  if (!legacy) assert.match(await reason().innerText(), /AI 개인화 추천 이유를 생성하지 못했습니다/);
+  if (!legacy) assert.match(await reason().innerText(), /AI 설명을 생성하지 못해 기본 안내/);
   assert.equal(await reason().locator('p').count(), 1);
   assert.equal(await card.locator('dl').innerText(), metadata);
   assert.equal(await page.locator('.result-page [role="alert"]').count(), 0);

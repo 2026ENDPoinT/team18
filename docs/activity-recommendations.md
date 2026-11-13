@@ -1,6 +1,75 @@
 # 공모전·대외활동 추천 검증
 
-## 개인화 추천 이유 개선 2026년 11월 14일
+## 제목·분야 추론을 허용하는 v3 개선 — 2026년 11월 14일
+
+`activity-personal-reasons-v3`에서는 상세 과제와 제출물이 모두 있어야 했던 생성 조건을 제거했다. 제목·분야만 있는 공고도 로드맵 생성 시 Gemini의 동일 배치 요청에 포함한다. 실제 공고·사용자 경험 대신 테스트용 자료를 사용해 아래 동작을 검증했다. 실제 Gemini 품질은 키가 없어 검증하지 못했다.
+
+### 변경한 경로
+
+- `apps/api/app/services/activity_reasons.py`: 진로 상담 프롬프트, 3단계 근거 수준, 제목·분야 생성 대상 포함, 문장별 사실·추론 구분과 검증, 제한적 fallback 안내, v3 캐시 기준을 적용했다.
+- `apps/api/app/services/ai_guard.py`: 활동 캐시를 재검증하고, 공급자·응답 검증 실패를 `failed`로 기록한다. 실패 원문 대신 오류 코드만 저장한다. 실패한 요청도 사용량에 포함하고, 정상 캐시 적중은 호출하지 않는다.
+- `apps/api/app/api/routes/activities.py`: 조회는 계속 DB만 읽는다. 예산·동시 실행 제한은 AI 요청 행이 생기지 않으므로 동일 입력의 저장된 로드맵에서 실패 상태를 복원해 새로고침 후에도 구분한다.
+- `apps/web/src/features/roadmap/activityReason.mjs`, `ActivityRecommendations.js`: 카드 디자인을 유지하면서 일반 카드에 반복되던 ‘추천 근거 확인 필요’를 제거했다. 생성 결과는 기존 이유 영역에 표시하고, 제목·분야 추론에는 짧은 안내를 붙인다. fallback 제목은 ‘활동 참여 안내’이며 AI 생성 전·생성 실패·정보 부족을 별도로 알린다.
+- 회귀 검사: `apps/api/tests/unit/test_activity_reasons.py`, `test_ai_guard.py`, `tests/fixtures/activity_reason_cases.json`, `tests/integration/activity_reasons_scenario.py`, `test_activity_reasons_live.py`, `apps/web/tests/unit/activity-reason.test.mjs`, `tests/e2e/activity-reasons.mjs`를 수정했다.
+
+`activity_recommendations.py`의 후보 선정·점수·정렬과 `roadmap_batch.py`의 기존 연결을 확인했다. `roadmap_batch.run → _execute_activity_reasons → attach_reasons(generate=True)`에서 선정된 활동만 설명하며, GET·탭 전환·새로고침은 Gemini를 호출하지 않는다. 기존 연결이 이미 있으므로 이 두 파일은 수정하지 않았다. 운영 DB, 사용자 자료, 과거 결과는 변경하거나 삭제하지 않았다.
+
+### 근거와 검증
+
+| 근거 수준 | 동작 |
+| --- | --- |
+| `verified_detail` | 확인 가능한 상세 활동 내용 우선 사용. 결과물 정보가 없어도 생성 가능 |
+| `metadata_inference` | 제목·분야를 근거로 진로 연결과 경험의 응용 방향을 추론하여 생성 |
+| `insufficient_information` | 분야·활동 성격을 식별하기 어려우면 Gemini 대상에서 제외하고 제한적 안내 |
+
+카드 JSON에는 `reason_evidence_level`을 추가했다. 기존 `reason_evidence`의 각 문장에는 `basis`(`verified_fact` 또는 `inference`), 실제 공고 인용과 `experience_ids`를 보존한다. 추론은 가능성 표현을 사용하고, 사실로 서술한 기술·활동은 인용 근거와 대조한다. 검증된 개인 경험만 과거 경험으로 사용할 수 있으며, 확장 방향에는 공고에 없는 기술도 제안할 수 있다. 참가 자격·상금·마감일은 추천 문장에 넣지 않고 기존 공고 메타데이터로 제공한다. 필수 기술·제출 요구를 임의로 만들거나 부정된 원문을 잘라 긍정으로 바꾸는 응답은 거부한다.
+
+권장 문단은 100~200자, 허용 범위는 80~260자이고 2~3문장이다. 기존 경험이 있어도 2문장으로 설명할 수 있다. 공고와 사용자 사이에 동일 기술이나 수행 방법이 있어야 한다는 과거 제한은 제거했다. 검증은 형식·인용·확인된 경험·주요 조건과 용어에 대한 검사이며 자유 문장의 모든 의미를 증명하는 장치는 아니다.
+
+### 캐시·저장·실패
+
+검증된 응답은 `ai_requests.result_json`에 `status=finished`, `source=gemini`로 저장되고, 문단·근거 수준·출처는 `roadmap_runs.result_json.activity_recommendations`에 함께 저장된다. 기존 JSON 컬럼을 사용하므로 DB 마이그레이션은 없다.
+
+동일 사용자·계획·목표·확인 경험·공고 내용·모델·이유 버전은 검증된 캐시를 재사용한다. v2와 v3는 다른 키를 사용한다. 과거 결과는 그대로 읽을 수 있으며 사용자가 새 로드맵 생성을 요청하면 v3로 생성한다. 정상 캐시는 명시적 재생성에서도 재사용한다.
+
+공급자 실패·형식 오류·빈 응답은 정상 Gemini 캐시로 저장하지 않는다. `failed` 상태와 오류 코드를 저장하고, 명시적 재생성은 기존 쿨다운·동시 실행·사용량 제한 안에서 다시 시도한다. 조회는 실패 상태만 읽는다. 손상된 캐시는 조회 시 fallback으로 처리하고 명시적 생성에서 재검증 후 교체한다. 모든 생성은 배치 1회, SDK 재시도 0회이며 기존 비용 보호를 유지한다.
+
+### 전후 비교와 검증 결과
+
+기존: **추천 근거 확인 필요 — 상세 과제와 결과물 근거가 부족해 개인화 추천 이유를 제공하지 않습니다.**
+
+변경 후 모의 Gemini 사례 B(상세 설명 없음, 백엔드 목표·확인된 REST API 경험):
+
+> 소프트웨어 개발을 주제로 하는 해커톤으로, 백엔드 개발 분야를 준비하는 사용자에게 관련성이 있습니다. 기존 REST API 구현 경험을 활용해 서비스 아이디어를 구체화하고, 다른 기능과 연결되는 백엔드 구조를 설계하는 연습으로 확장할 수 있습니다.
+
+사례 D(제목·분야만 있음, AI 목표·확인된 프로젝트 없음):
+
+> 인공지능 활용 아이디어를 제안하는 공모전으로, AI 분야에 관심이 있는 사용자에게 관련성이 있습니다. 인공지능 기술을 실제 문제 해결에 적용하는 방법을 고민하고, 아이디어를 구체적인 기획으로 발전시키는 경험을 시도해 볼 수 있습니다.
+
+위 문장은 **모의 응답**이다. 실제 Gemini가 생성했다고 해석하면 안 된다.
+
+| 확인 항목 | 결과 |
+| --- | --- |
+| A 상세 설명, B 제목·분야, C 충분한 경험, D 미확인 경험, E 부분 관련성 | 모의 SDK 요청·검증·저장·재조회 통과. B/D/E도 생성 요청에 포함 |
+| F 잘못된 형식, G 사용량 제한 | fallback 분리, 실패 후 명시적 복구, 카드·후보 유지, 호출 예산 보호 통과 |
+| 캐시·개인화 | 동일 입력 추가 호출 없음, 사용자/목표/경험별 문장 차이, 공고별 문장 차이, 손상 캐시 복구 통과 |
+| PostgreSQL | 새로 만든 TLS PostgreSQL 17 일회용 DB에서 로드맵·활동 27개 시나리오 통과. `ai_requests`와 `roadmap_runs` 저장·재조회, 과거 이력 보존 확인 |
+| 프론트 | 단위 54개 통과, Next.js 프로덕션 빌드 성공. Playwright로 데스크톱 1440px·모바일 390px의 문장·추론 안내·fallback·링크·메타데이터 유지와 가로 넘침 없음 확인 |
+| 화면의 추가 생성 | 탭 전환·새로고침·포커스 후에도 GET만 요청함을 확인. 화면 테스트의 API 응답은 fixture이며 운영 E2E가 아님 |
+| 실제 Gemini | `GEMINI_API_KEY`가 없어 실행하지 않음. 모의 테스트와 구분 |
+
+변경부 최종 Python 검사는 133개 통과, 실제 Gemini 검사 1개 건너뜀이다. 전체 검사에서는 669개와 subtest 30개가 통과하고 63개가 건너뛰어졌다. localhost 바인딩 제한으로 시작하지 못한 별도 11개는 실행 권한을 조정해 전부 통과했다. 이 전체 검사 이후 추가한 4개 회귀 검사도 변경부 검사에서 통과했다. 남은 기존 실패 1개는 `test_manual_workflow_uses_shared_docker_entrypoint`로, HEAD에도 없는 `.github/workflows/collect-activities.yml`을 읽는 검사다. 이번 작업 범위 밖의 워크플로를 생성하지 않았다.
+
+실제 Gemini 검증은 키를 환경변수로 설정한 환경에서 아래처럼 실행한다. 가상 A~E 프로필로 최대 5회 호출하고, 동일 입력의 두 번째 생성과 조회에서는 추가 호출이 없어야 한다. 인메모리 SQLite만 사용하며 운영 DB에 접근하지 않는다.
+
+```sh
+GEMINI_LIVE_TEST=1 PYTHONPATH=apps/api:apps/api/app python -m pytest \
+  apps/api/tests/integration/test_activity_reasons_live.py -q -s
+```
+
+## 이전 v2 검증 기록 — 2026년 11월 14일
+
+아래는 수정 전 동작과 당시 검증 기록이다. 현재 추천 이유 생성·표시는 위 v3 설명을 따른다.
 
 선정된 활동에 대해 진로 관련성, 확인된 개인 수행 경험의 활용, 활동에서 얻을 경험을 2~3문장으로 설명하도록 `activity-personal-reasons-v2`를 적용했다. 권장 길이는 100~200자이며 검증 허용 범위는 80~260자다. 추천 점수·순서·후보 선정, 카드 배치와 CSS는 변경하지 않았다. 운영 DB와 기존 사용자·로드맵 이력은 수정하지 않았다.
 
