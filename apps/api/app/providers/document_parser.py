@@ -12,7 +12,11 @@ from pypdf import PdfReader
 MAX_UNCOMPRESSED=30*1024*1024
 MAX_TEXT=1000000
 MAX_PAGES=100
-MIMES={'pdf':'application/pdf','docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document','txt':'text/plain; charset=utf-8'}
+# Markdown keeps its original markup and uses the same UTF-8 storage/extraction
+# path as TXT, including existing private-storage MIME restrictions.
+TEXT_EXTENSIONS=('txt','md','markdown')
+MIMES={'pdf':'application/pdf','docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+       **{extension:'text/plain; charset=utf-8' for extension in TEXT_EXTENSIONS}}
 
 class InvalidDocument(ValueError): pass
 
@@ -31,10 +35,10 @@ def _docx_zip(data):
 def validate_file(name,data):
     if not isinstance(name,str) or not name or len(name)>255 or '/' in name or '\\' in name or any(ord(c)<32 for c in name): raise InvalidDocument('파일 이름을 확인해 주세요.')
     extension=PurePath(name).suffix.lower().lstrip('.')
-    if extension not in MIMES: raise InvalidDocument('PDF, DOCX, UTF-8 TXT 파일만 지원합니다.')
+    if extension not in MIMES: raise InvalidDocument('PDF, DOCX, UTF-8 TXT·마크다운(.md, .markdown) 파일만 지원합니다.')
     if not data: raise InvalidDocument('빈 파일은 등록할 수 없습니다.')
     try:
-        if extension=='txt':
+        if extension in TEXT_EXTENSIONS:
             if data.startswith((b'%PDF-', b'PK\x03\x04')): raise InvalidDocument('파일 내용이 일반 텍스트 형식이 아닙니다.')
             if b'\x00' in data: raise InvalidDocument('텍스트 파일에 지원하지 않는 바이너리 내용이 있습니다.')
             text=data.decode('utf-8-sig')
@@ -105,7 +109,7 @@ def extract(extension, data, ocr=None, check=lambda: None):
         except OCRError as error:
             ocr_needed=True; errors.append(error.code)
             limits.append(f'{label}: {MESSAGES.get(error.code, MESSAGES["ocr_api_error"])}')
-    if extension=='txt':
+    if extension in TEXT_EXTENSIONS:
         append(data.decode('utf-8-sig'), paragraph=1)
     elif extension=='pdf':
         pdf=PdfReader(BytesIO(data),strict=True)

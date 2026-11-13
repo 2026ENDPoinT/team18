@@ -70,9 +70,9 @@ export default function Documents(){
     <h3>프로젝트 문서 등록</h3>
     <div className="upload-box">
      <strong>프로젝트 문서</strong><p>프로젝트 목적·본인 역할·수행 내용이 담긴 문서를 등록해 주세요.</p>
-     <label className="upload-file-picker"><input ref={fileRef} type="file" accept=".pdf,.docx,.txt" multiple onChange={upload} disabled={phase!=='ready'} aria-label="프로젝트 문서 선택"/><span className="upload-file-button" aria-hidden="true">파일 선택</span><span aria-hidden="true">여러 파일 선택 가능</span></label>
+     <label className="upload-file-picker"><input ref={fileRef} type="file" accept={data.upload_policy.extensions.map(extension=>`.${extension}`).join(',')} multiple onChange={upload} disabled={phase!=='ready'} aria-label="프로젝트 문서 선택"/><span className="upload-file-button" aria-hidden="true">파일 선택</span><span aria-hidden="true">여러 파일 선택 가능</span></label>
      <p className="field-help">파일을 이 영역으로 끌어다 놓거나 파일 선택 버튼을 눌러 주세요.</p>
-     <p className="field-help">PDF, DOCX, UTF-8 TXT · 파일당 최대 {Math.floor(data.upload_policy.max_file_bytes/1024/1024)}MB · 최대 {data.upload_policy.max_files}개</p>
+     <p className="field-help">PDF, DOCX, UTF-8 TXT·마크다운(.md, .markdown) · 파일당 최대 {Math.floor(data.upload_policy.max_file_bytes/1024/1024)}MB · 최대 {data.upload_policy.max_files}개</p>
      {!data.documents.length&&!uploads.uploading&&!(data.uploads||[]).some(upload=>upload.status==='uploading')&&<button type="button" disabled={busy} onClick={()=>next(true)}>문서 없이 계속</button>}
     </div>
    </section>

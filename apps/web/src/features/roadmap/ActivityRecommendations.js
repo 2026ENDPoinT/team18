@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { resultHref } from './resultPresentation.mjs';
 import ActivitySummaryList from './ActivitySummaryList';
 import { activityReason, activityReasonLabel, activityReasonNote } from './activityReason.mjs';
+import PaginatedResultList from './PaginatedResultList';
 
 export default function ActivityRecommendations({ active, resource, compact = false }) {
  const { phase, data, message, refresh } = resource;
@@ -29,7 +30,7 @@ export default function ActivityRecommendations({ active, resource, compact = fa
   </p>)}
   {data && data.status !== 'error' && data.activities.length === 0 && <p role="status">{data.status === 'partial' ? '정상 조회된 공고 중 ' : ''}현재 추천 조건에 맞는 공고가 없습니다. 목표 관련성, 접수 기간과 참가 대상을 확인한 공고만 표시합니다.</p>}
   {data && <>
-   <ul className="skill-list">{data.activities.map(item => <li key={`${item.source}:${item.original_id || item.id}`} className="skill-card">
+   <PaginatedResultList key={`${data.request_id || ''}:${data.evaluated_at || ''}`} items={data.activities} label="공모전·대외활동">{item => <li key={`${item.source}:${item.original_id || item.id}`} className="skill-card">
     <div className="skill-title"><span className="badge">{activityKindLabel(item.kind)}</span><span className="badge">{item.status === 'upcoming' ? '접수 예정' : '접수 중'}</span><h3>{item.title}</h3></div>
     <div className="recommendation-reason"><h4>{activityReasonLabel(item)}</h4>
      <p>{activityReason(item)}</p>
@@ -49,7 +50,7 @@ export default function ActivityRecommendations({ active, resource, compact = fa
      <a className="button" href={link.url} target="_blank" rel="noopener noreferrer" aria-label={`${item.title} ${link.source_label} 원문 보기 (새 창)`}>{link.source_label} 원문 보기 <span aria-hidden="true">↗</span></a>
      {link.last_success_at && <p className="field-help">마지막 원문 확인: {new Date(link.last_success_at).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} (한국 시간){link.stale ? ' · 최근 재확인 지연 — 신청 전 원문을 확인해 주세요.' : ''}</p>}
     </div>)}
-   </li>)}</ul>
+   </li>}</PaginatedResultList>
   </>}
  </div>;
 }

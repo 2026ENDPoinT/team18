@@ -13,7 +13,7 @@ from api.domain import Problem
 from api.schemas import RevisionRequest, validate_body, openapi_body
 from config import DB_BACKEND, MAX_DOCUMENT_BYTES, MAX_DOCUMENTS
 from providers.document_storage import get_storage
-from providers.document_parser import validate_file, InvalidDocument
+from providers.document_parser import validate_file, InvalidDocument, MIMES
 from repositories.documents import DocumentRepository
 from repositories.plans import connect
 from services.document_ocr import policy as ocr_policy, retry_policy
@@ -132,7 +132,7 @@ def list_documents(rid: str, background: BackgroundTasks, upload_ids: str = '', 
     uploads = [upload_summary(r) for r in DocumentRepository(db).upload_states(rid, timestamp(), ids)]
     db.commit()
     if DB_BACKEND == 'postgres': background.add_task(request_work)
-    return respond(200, {'documents': docs, 'uploads': uploads, 'input_revision': row['input_revision'], 'analysis_eligible': any(d['analysis_eligible'] for d in docs), 'ocr': ocr | {'message': OCR_MESSAGES.get(ocr['reason'])}, 'upload_policy': {'max_files': MAX_DOCUMENTS, 'max_file_bytes': MAX_DOCUMENT_BYTES, 'extensions': ['pdf','docx','txt']}})
+    return respond(200, {'documents': docs, 'uploads': uploads, 'input_revision': row['input_revision'], 'analysis_eligible': any(d['analysis_eligible'] for d in docs), 'ocr': ocr | {'message': OCR_MESSAGES.get(ocr['reason'])}, 'upload_policy': {'max_files': MAX_DOCUMENTS, 'max_file_bytes': MAX_DOCUMENT_BYTES, 'extensions': list(MIMES)}})
 
 
 @router.post('', dependencies=[Depends(require_origin)], status_code=201, openapi_extra={'requestBody': {'required': True, 'content': {'multipart/form-data': {'schema': {'type': 'object', 'required': ['file', 'expected_input_revision'], 'properties': {'file': {'type': 'string', 'format': 'binary'}, 'expected_input_revision': {'type': 'integer', 'minimum': 0}}}}}}})

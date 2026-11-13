@@ -68,6 +68,32 @@ async function scenario(name, run) {
 }
 
 try {
+ await scenario('markdown: chooser and drop, UTF-8 source, extraction and reload', async page => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const picker = page.getByLabel('프로젝트 문서 선택');
+  const accepted = (await picker.getAttribute('accept')).split(',');
+  assert.ok(accepted.includes('.md') && accepted.includes('.markdown'));
+  const text = '# 프로젝트 회고\n\n## 본인 역할\n- Python으로 **데이터 정제**를 구현했습니다.\n\n```python\nprint("완료")\n```\n\n![설계도](https://example.com/diagram.png)\n<script>window.markdownExecuted = true</script>\n';
+  await choose(page, [{ name: 'README.md', mimeType: 'text/markdown', buffer: Buffer.from('\ufeff' + text) }]);
+  await waitCount(page, 1);
+  await drop(page, [
+   { name: 'retrospective.markdown', mimeType: 'application/octet-stream', buffer: Buffer.from(text) },
+   { name: 'PROJECT.MD', mimeType: 'text/plain', buffer: Buffer.from(text) },
+  ]);
+  await waitCount(page, 3); await numbered(page, ['README.md', 'retrospective.markdown', 'PROJECT.MD']);
+  await page.waitForFunction(() => [...document.querySelectorAll('tr[data-document-id]')].every(row => row.textContent.includes('읽기 완료')));
+  for (let i = 0; i < 3; i++) {
+   await savedRows(page).nth(i).getByRole('button', { name: '읽힌 내용', exact: true }).click();
+   const dialog = page.getByRole('dialog');
+   assert.equal(await dialog.locator('.source-text').textContent(), text);
+   assert.equal(await dialog.locator('.source-text script,.source-text img').count(), 0);
+   assert.equal(await page.evaluate(() => window.markdownExecuted), undefined);
+   await dialog.getByRole('button', { name: '닫기', exact: true }).click();
+  }
+  assert.equal(await page.getByRole('button', { name: '다음: 이수 과목', exact: true }).isEnabled(), true);
+  await page.reload(); await waitCount(page, 3);
+  await numbered(page, ['README.md', 'retrospective.markdown', 'PROJECT.MD']);
+ });
  await scenario('file chooser: 3 files, immediate rows, order, extraction, refresh and modal', async page => {
   const files = ['zeta.txt', 'alpha.txt', 'middle.txt'].map(name => textFile(name));
   await choose(page, files);

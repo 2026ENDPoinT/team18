@@ -112,7 +112,7 @@ def test_storage_failure_does_not_register_or_block_retry(service, monkeypatch):
 def test_existing_count_size_and_content_validation(service, monkeypatch):
     client, path, _ = service
     policy = listing(client, path)['upload_policy']
-    assert policy == {'max_files': 10, 'max_file_bytes': 10485760, 'extensions': ['pdf', 'docx', 'txt']}
+    assert policy == {'max_files': 10, 'max_file_bytes': 10485760, 'extensions': ['pdf', 'docx', 'txt', 'md', 'markdown']}
     for name, content in [('image.png', b'bad'), ('binary.txt', b'\xff'), ('empty.txt', b''), ('fake.pdf', b'not a pdf')]:
         assert upload(client, path, name, content).status_code == 422
     monkeypatch.setattr(routes, 'MAX_DOCUMENT_BYTES', 16)
@@ -122,6 +122,39 @@ def test_existing_count_size_and_content_validation(service, monkeypatch):
         assert upload(client, path, f'{n}.txt').status_code == 201
     assert upload(client, path, 'extra.txt').json()['error'] == 'file_limit'
     assert len(listing(client, path)['documents']) == 10
+
+
+@pytest.mark.parametrize('filename', ['README.md', 'PROJECT.MD', 'report.markdown'])
+def test_markdown_upload_extraction_and_retry(service, filename):
+    client, path, storage = service
+    text = '# 프로젝트 기록\n\n## 본인 역할\n- Python으로 **데이터 정제**를 구현했습니다.\n\n```python\nprint("완료")\n```\n\n[결과](https://example.com/report)\n'
+    response = upload(client, path, filename, text.encode('utf-8-sig'))
+    assert response.status_code == 201
+    doc = response.json()['document']
+    assert doc['original_filename'] == filename
+    assert doc['mime_type'] == 'text/plain; charset=utf-8'
+    for revision in (1, 2):
+        while worker.run_once(storage):
+            pass
+        current = listing(client, path)
+        assert current['analysis_eligible']
+        assert current['documents'][0]['extraction_status'] == 'ready'
+        extracted = client.get(f"{path}/{doc['document_id']}/extractions/{revision}").json()
+        assert extracted['extracted_text'] == text
+        assert extracted['segments'] == [{'start': 0, 'end': len(text), 'paragraph': 1}]
+        if revision == 1:
+            assert client.post(f"{path}/{doc['document_id']}/retry-extraction", json={
+                'expected_input_revision': current['input_revision']}).status_code == 202
+
+
+@pytest.mark.parametrize('extension', ['md', 'markdown'])
+@pytest.mark.parametrize('content', [b'', b'\xff', b'hello\x00world', b'hello\x01world', b'%PDF-1.4', b'PK\x03\x04'])
+def test_invalid_markdown_is_rejected_before_registration(service, extension, content):
+    client, path, _ = service
+    response = upload(client, path, f'invalid.{extension}', content)
+    assert response.status_code == 422
+    assert response.json()['error'] == 'invalid_file'
+    assert listing(client, path)['documents'] == []
 
 
 def test_existing_tied_timestamps_stable_and_new_registration_monotonic(service):

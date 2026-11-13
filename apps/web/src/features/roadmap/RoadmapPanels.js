@@ -20,7 +20,7 @@ export function CourseCandidates({ result, selectedCourses, courseReasons }) {
    {cards.length > 0 && cards.length < 5 && <p className="notice">이수 및 대체과목을 제외하면 추천 가능한 고유 과목이 {cards.length}개입니다.</p>}
   </>}
   <ul className="skill-list course-candidates-list">{cards.map(course => <li className="skill-card" key={course.course_id}>
-   <div className="course-candidate-heading"><CourseTitle name={course.course_name}/>{course.recommendation_label && <span className="badge">{course.recommendation_label}</span>}</div>
+   <div className="course-candidate-heading"><CourseTitle name={course.course_name}/></div>
    <div className="recommendation-reason"><p><b>목표와의 연결</b> {courseReasons?.reasons?.[course.course_id] || courseReason(course)}</p></div>
    <p className="course-candidate-meta">{course.credits == null ? '학점 미제공' : `${course.credits}학점`}{course.recommended_year ? ` · 교육과정 권장 ${course.recommended_year}학년` : ''}{course.recommended_term ? ` ${course.recommended_term}` : ''}</p>
    <details className="course-learning"><summary>과목에서 배우는 내용<span className="course-learning-arrow" aria-hidden="true">›</span></summary><p>{courseLearning(course)}</p></details>

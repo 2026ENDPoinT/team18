@@ -6,6 +6,7 @@ import { apiRequest } from '../../lib/api/client';
 import { resolvePlanId } from '../../lib/api/session';
 import { createJobSkillLoader, orderedSkills } from './jobSkillAnalysis.mjs';
 import ProjectEvidence, { statusLabels } from './ProjectEvidence';
+import PaginatedResultList from './PaginatedResultList';
 
 const requirementLabels = { required: '필수', preferred: '우대', mentioned: '단순 언급', unknown: '판단 불가' };
 const categoryLabels = { programming_language: '프로그래밍 언어', database_query_language: '쿼리 언어', framework: '프레임워크', database: '데이터베이스', cloud: '클라우드', devops: '개발·운영', development_tool: '개발 도구', data_ai: '데이터·AI', technical_competency: '기술 역량', other: '기타 기술' };
@@ -104,7 +105,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange,
    {data.status === 'no_jobs' && <p role="status">현재 검색어로 분석할 수 있는 관련 공고가 없습니다.</p>}
    {data.status === 'needs_clarification' && <p role="status">{data.clarification_message} 기존 입력 수정 화면에서 목표나 희망 직무를 구체화해 주세요.</p>}
    {['success', 'partial'].includes(data.status) && !data.skills.length && <p role="status">분석한 공고에서 원문으로 확인할 수 있는 기술을 찾지 못했습니다.</p>}
-   <ul className="skill-list">{orderedSkills(data).map(skill => <li key={skill.name} className="skill-card">
+   <PaginatedResultList key={`${data.request_id}:${data.snapshot_id || savedRunId || ''}`} items={orderedSkills(data)} label="직무 역량">{skill => <li key={skill.name} className="skill-card">
     <div className="skill-title"><h3>{skill.name}</h3><span className="badge">{categoryLabels[skill.category] || skill.category}</span></div>
     <p><b>{skill.mentioned_job_count} / {summary.analyzed_jobs}개 공고</b>에서 언급 · {(skill.mention_frequency * 100).toFixed(0)}%</p>
     <p className="skill-counts">필수 {skill.required_job_count} · 우대 {skill.preferred_job_count} · 단순 언급 {skill.mentioned_only_job_count} · 판단 불가 {skill.unknown_job_count}</p>
@@ -125,7 +126,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange,
       <blockquote>{e.evidence_text}</blockquote>
      </li>)}</ul>
     </details>
-   </li>)}</ul>
+   </li>}</PaginatedResultList>
    <p className="field-help">조회한 해외 원격근무 공고의 요구 기술이며 전체 채용시장을 대표하지 않습니다. 필수·우대 조건은 공고 원문을 함께 확인해 주세요.</p>
   </>}
   <p className="field-help">공고 출처: <a href="https://himalayas.app" target="_blank" rel="noopener noreferrer">Himalayas</a></p>

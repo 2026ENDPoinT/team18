@@ -80,7 +80,7 @@ export default function useDocumentUploads(id, data, load, onMessage) {
    const item = { key: crypto.randomUUID(), name: file.name, size: file.size, file, status: 'queued' };
    if (existing.has(nameKey(file.name))) return { ...item, status: 'duplicate', message: duplicateMessage(file.name) };
    const extension = file.name.includes('.') ? file.name.split('.').at(-1).toLowerCase() : '';
-   if (!policy.extensions.includes(extension)) return { ...item, status: 'failed', message: 'PDF, DOCX, UTF-8 TXT 파일만 지원합니다.' };
+   if (!policy.extensions.includes(extension)) return { ...item, status: 'failed', message: 'PDF, DOCX, UTF-8 TXT·마크다운(.md, .markdown) 파일만 지원합니다.' };
    if (!file.size) return { ...item, status: 'failed', message: '빈 파일은 등록할 수 없습니다.' };
    if (file.size > policy.max_file_bytes) return { ...item, status: 'failed', message: `파일당 최대 ${Math.floor(policy.max_file_bytes / 1024 / 1024)}MB까지 등록할 수 있습니다.` };
    if (count >= policy.max_files) return { ...item, status: 'failed', message: `기존 문서와 업로드 중인 파일을 포함해 최대 ${policy.max_files}개까지 등록할 수 있습니다.` };

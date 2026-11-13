@@ -11,7 +11,7 @@
 ## 구성과 주요 기능
 
 - Next.js / React 프런트엔드: `/`, `/input/basic`, `/input/documents`, `/input/courses`, `/input/review`, `/result`.
-- FastAPI / Uvicorn 백엔드: 계획 생성·이어쓰기·수정, 학교·학과·교육과정 조회, 이수 선택과 확인, 수강 후보 추천, PDF/DOCX/TXT 문서 관리.
+- FastAPI / Uvicorn 백엔드: 계획 생성·이어쓰기·수정, 학교·학과·교육과정 조회, 이수 선택과 확인, 수강 후보 추천, PDF/DOCX/TXT/마크다운(`.md`, `.markdown`) 문서 관리. TXT와 마크다운은 UTF-8로 읽으며 마크다운 원문을 분석에 사용합니다.
 - 운영 저장소: Supabase PostgreSQL(서버의 psycopg 3)과 비공개 Supabase Storage. Gemini는 백엔드에서만 호출합니다. 개발과 격리 테스트는 SQLite와 로컬 파일 저장소도 지원합니다.
 - 브라우저 → Vercel Next.js `/api/*` rewrite → Render FastAPI → PostgreSQL / Storage / Gemini. API는 쓰기 요청 Origin, 운영 Supabase Bearer 인증(로컬 SQLite는 HttpOnly 세션 쿠키), 계획 소유권을 검사합니다.
 
