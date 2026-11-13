@@ -1,0 +1,26 @@
+name: Roadmap regression tests
+on:
+  pull_request:
+    paths:
+      - 'apps/api/**'
+      - 'apps/web/src/features/roadmap/**'
+      - '.github/workflows/roadmap-regression.yml'
+  workflow_dispatch:
+
+jobs:
+  api-roadmap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: apps/api/requirements-dev.txt
+      - name: Install test dependencies
+        working-directory: apps/api
+        run: python -m pip install -r requirements-dev.txt
+      - name: Run roadmap regression tests (mocked AI, local SQLite)
+        working-directory: apps/api
+        run: python -m pytest -q tests/unit/test_roadmap_batch_partial.py tests/integration/test_roadmap_batch.py

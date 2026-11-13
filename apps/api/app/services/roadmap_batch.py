@@ -16,6 +16,7 @@ from services.course_reasons import VERSION as REASONS_VERSION, reason_input, ge
 from services.project_experience import current_comparison, digest, model_basis
 from services.roadmap_generation import capture_basis, model_input, validate_result
 from services.ai_guard import guarded_call
+from services.gemini import GeminiError
 from services.limited_roadmap import limited_roadmap
 from course_groups import grouped_courses
 
@@ -41,6 +42,50 @@ def _code(error):
     diagnostic = getattr(error, 'diagnostic', None)
     code = diagnostic if isinstance(diagnostic, str) else getattr(error, 'code', None) or type(error).__name__
     return code if isinstance(code, str) and re.fullmatch(r'[A-Za-z0-9_:-]{1,80}', code) else 'unknown_error'
+
+
+def _comparison_available(value):
+    """Reject missing job evidence, but retain individually verified project items."""
+    if not isinstance(value, dict) or not isinstance(value.get('comparisons'), list):
+        return False
+    jobs, project = value.get('job_analysis', {}), value.get('project_analysis', {})
+    if (not isinstance(jobs, dict) or not isinstance(project, dict)
+            or jobs.get('status') != 'success' or not jobs.get('snapshot_id')
+            or jobs.get('previous_analysis_version')):
+        return False
+    status = project.get('status')
+    return (status in ('success', 'no_documents')
+            or (status == 'partial' and project.get('verified_experiences', 0) > 0))
+
+
+def _activity_available(value):
+    """Partial collection is usable only with previously verified candidates."""
+    if not isinstance(value, dict) or not isinstance(value.get('activities'), list):
+        return False
+    sources = value.get('sources')
+    if not isinstance(sources, list) or not sources or any(
+            not isinstance(source, dict) or source.get('status') not in ('success', 'partial', 'error')
+            for source in sources):
+        return False
+    if value.get('status') == 'success':
+        return all(source['status'] == 'success' for source in sources)
+    if value.get('status') == 'partial':
+        return any(source['status'] in ('success', 'partial')
+                   and type(source.get('collected')) is int and source['collected'] > 0
+                   for source in sources)
+    return False
+
+
+def _fallback_course_reasons(courses, catalog_id):
+    """Use existing catalog-grounded ranking explanations, never invented AI text."""
+    reasons = []
+    for course in grouped_courses(courses, catalog_id):
+        reason = course.get('personalization_reason') or course.get('reason')
+        if not isinstance(reason, str) or not reason.strip():
+            raise Problem(502, 'course_reasons_unavailable', '검증된 수강 추천 근거를 찾을 수 없습니다.')
+        reasons.append({'course_id': course['course_id'], 'personalization_reason': reason,
+                        'evidence_ids': []})
+    return {'reasons': reasons, 'source': 'catalog_evidence_fallback'}
 
 
 def _log(rid, run_id, task, error):
@@ -99,11 +144,8 @@ def _fail(rid, owner, run_id, task, error):
 
 def _comparison(db, row):
     value = current_comparison(db, row)
-    jobs, project = value.get('job_analysis', {}), value.get('project_analysis', {})
-    if (jobs.get('status') != 'success' or not jobs.get('snapshot_id') or
-            jobs.get('previous_analysis_version') or not isinstance(value.get('comparisons'), list) or
-            project.get('status') in ('error', 'not_started') or project.get('errors')):
-        raise Problem(422, 'comparison_unavailable', '직무 또는 프로젝트 분석을 완료하지 못했습니다.')
+    if not _comparison_available(value):
+        raise Problem(422, 'comparison_unavailable', '직무 또는 프로젝트 분석의 검증된 근거를 확인하지 못했습니다.')
     # PostgreSQL returns timestamps/decimals as native Python values; the
     # durable JSON snapshot and later comparison must use the same encoding.
     return json.loads(json.dumps(value, ensure_ascii=False, default=json_value))
@@ -169,10 +211,8 @@ def _execute(task, rid, owner, basis):
         if task == 'activities':
             from api.routes.activities import activities
             response = json.loads(activities(rid, (db, repo, owner)).body)
-            if (response.get('status') != 'success' or not isinstance(response.get('activities'), list)
-                    or not isinstance(response.get('sources'), list) or not response['sources']
-                    or any(not isinstance(source, dict) or source.get('status') != 'success' for source in response['sources'])):
-                raise Problem(503, 'activity_source_unavailable', '활동 자료를 확인하지 못했습니다.')
+            if not _activity_available(response):
+                raise Problem(503, 'activity_source_unavailable', '검증 가능한 활동 자료를 확인하지 못했습니다.')
             return response
         if task == 'roadmap':
             from api.routes.roadmaps import generate_roadmap
@@ -190,8 +230,17 @@ def _execute_reasons(rid, owner, run_id, basis, courses):
         return {'reasons': []}
     cache_key = digest([REASONS_VERSION, rid, run_id, model_basis(), data])
     with closing(connect()) as db:
-        result = guarded_call((db, Repository(db), owner), 'course_reasons', cache_key,
-                              lambda: generate_course_reasons(data), cache=True)
+        try:
+            result = guarded_call((db, Repository(db), owner), 'course_reasons', cache_key,
+                                  lambda: generate_course_reasons(data), cache=True)
+        except GeminiError as error:
+            if error.code != 'gemini_call_failed':
+                raise
+            # Preserve the already verified course list and roadmap. Never claim
+            # that these deterministic explanations were generated by Gemini.
+            logger.warning('roadmap_course_reasons_fallback %s',
+                           json.dumps({'run_id': run_id, 'cause': error.code}))
+            return _fallback_course_reasons(courses, basis['profile']['catalog_id'])
         return validate_course_reasons(data, result)
 
 
@@ -218,11 +267,8 @@ def _valid_bundle(result):
                 and all(isinstance(task, dict) and task.get('task_id') for task in step['tasks']) for step in steps)
             and isinstance(courses, list) and all(isinstance(course, dict) and course.get('course_id') for course in courses)
             and _valid_reasons(courses, result.get('course_reasons'), result.get('catalog_id'))
-            and isinstance(comparison.get('comparisons'), list)
-            and comparison.get('job_analysis', {}).get('status') == 'success'
-            and bool(comparison['job_analysis'].get('snapshot_id'))
-            and activities.get('status') == 'success' and isinstance(activities.get('activities'), list)
-            and isinstance(sources, list) and bool(sources) and all(isinstance(s, dict) and s.get('status') == 'success' for s in sources))
+            and _comparison_available(comparison)
+            and _activity_available(activities))
 
 
 def _finish(rid, owner, run_id):
@@ -244,6 +290,14 @@ def _finish(rid, owner, run_id):
         result = {**results['roadmap'], 'skill_comparison': results['comparison'],
                   'activity_recommendations': results['activities'], 'course_reasons': results['course_reasons']['reasons'],
                   'catalog_id': basis['profile']['catalog_id']}
+        fallback = results['course_reasons'].get('source') == 'catalog_evidence_fallback'
+        if (fallback or results['activities']['status'] == 'partial'
+                or results['comparison']['status'] == 'partial'):
+            result['status'] = 'partial'
+        if fallback:
+            result['course_reasons_source'] = 'catalog_evidence_fallback'
+            result['limitations'] = [*result.get('limitations', []),
+                'Gemini 수강 이유 생성이 실패하여 교육과정의 확인된 근거를 바탕으로 작성한 기본 설명을 제공합니다.']
         if not _valid_bundle(result) or any(work['states'][key] != 'success' for key in TASKS[:-1]):
             raise Problem(500, 'invalid_result', '로드맵 결과를 확인하지 못했습니다.')
         store.finish(rid, run_id, result)
