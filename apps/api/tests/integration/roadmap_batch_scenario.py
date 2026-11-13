@@ -162,6 +162,29 @@ class BatchAPI(RoadmapAPI):
         self.assertTrue(result['roadmap'])
         self.assertEqual(self.model.call_count, 1)
 
+    def test_batch_provider_503_uses_fallback_and_preserves_other_results(self):
+        self.jobs()
+        self.model.side_effect = GeminiError('gemini_call_failed', 'synthetic HTTP 503')
+        result = self.terminal(self.start_batch()['run_id'])
+        self.assertTrue(result['generation_complete'], result)
+        self.assertEqual(result['status'], 'partial')
+        self.assertEqual(result['roadmap_source'], 'server_verified_evidence')
+        self.assertEqual(result['generation_tasks'], {key: 'success' for key in roadmap_batch.TASKS})
+        self.assertTrue(result['roadmap'])
+        self.assertEqual(len(result['recommended_courses']), len(result['course_reasons']))
+        self.assertEqual(result['activity_recommendations']['status'], 'success')
+        self.assertTrue(result['skill_comparison']['job_analysis']['snapshot_id'])
+        self.assertEqual(self.model.call_count, 1)
+
+    def test_batch_transient_gemini_timeouts_and_rate_limits_use_free_fallback(self):
+        self.jobs()
+        for code in ('gemini_timeout', 'gemini_rate_limited'):
+            with self.subTest(code=code):
+                self.model.side_effect = GeminiError(code, 'synthetic provider error')
+                result = self.terminal(self.start_batch(refresh=True)['run_id'])
+                self.assertTrue(result['generation_complete'], result)
+                self.assertEqual(result['roadmap_source'], 'server_verified_evidence')
+
     def test_batch_unrelated_roadmap_provider_error_still_fails(self):
         self.jobs()
         self.model.side_effect = GeminiError('gemini_auth_failed', 'synthetic authentication error')
