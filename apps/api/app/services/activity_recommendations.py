@@ -31,6 +31,7 @@ def contains(text, word):
 
 
 def capture_profile(db, row):
+    from services.course_reasons import experience_input
     comparison = current_comparison(db, row)  # Reads existing analyses only; never invokes Gemini.
     grouped = {}
     for item in comparison['project_analysis']['experiences']:
@@ -41,8 +42,13 @@ def capture_profile(db, row):
     gaps = [item['skill_name'] for item in comparison['comparisons']
             if item['student_status'] == 'no_experience' and item['job_requirement'].get('recommendation_eligible', True)]
     profile = {'career_goal': row['career_goal'], 'target_role': row['target_role'],
-               'confirmed_skills': sorted(confirmed), 'gap_skills': sorted(gaps)}
-    return profile, digest([profile, comparison['project_analysis']['document_basis']])
+               'confirmed_skills': sorted(confirmed), 'gap_skills': sorted(gaps),
+               'project_experiences': experience_input(comparison['project_analysis']['experiences']),
+               'skill_comparison': [{k: item.get(k) for k in ('skill_name', 'student_status', 'reason')}
+                                    for item in comparison['comparisons']
+                                    if item.get('job_requirement', {}).get('recommendation_eligible', True)]}
+    selection_profile = {k: profile[k] for k in ('career_goal', 'target_role', 'confirmed_skills', 'gap_skills')}
+    return profile, digest([selection_profile, comparison['project_analysis']['document_basis']])
 
 
 def match(profile, item):

@@ -262,6 +262,21 @@ def _valid_reasons(courses, reasons, catalog_id):
     return len(ids) == len(set(ids)) and set(ids) == expected
 
 
+def _execute_activity_reasons(rid, owner, run_id, basis, result):
+    from services.activity_reasons import attach_reasons
+    with closing(connect()) as db:
+        repo, row, _, run = _locked(db, rid, owner, run_id)
+        if run['status'] != 'generating' or _date(run['lease_until']) <= datetime.now(timezone.utc):
+            raise Problem(409, 'generation_expired', '생성 시간이 만료되었습니다.')
+        profile, activity_basis = capture_profile(db, row)
+        if (row['input_revision'] != basis['input_revision']
+                or digest(capture_basis(db, row)) != run['basis_hash']
+                or (result.get('activity_basis') and activity_basis != result['activity_basis'])):
+            raise Problem(409, 'revision_conflict', '활동 추천 이유 생성 중 입력이나 근거가 변경되었습니다.')
+        db.commit()
+        return attach_reasons((db, repo, owner), rid, profile, result, generate=True)
+
+
 def _valid_bundle(result):
     if not isinstance(result, dict):
         return False
@@ -389,6 +404,10 @@ def run(rid, owner, run_id, *, propagate=False):
                                      career_goal=basis['profile']['career_goal'],
                                      target_role=basis['profile']['target_role'])
                 reasons = _execute_reasons(rid, owner, run_id, basis, value) if task == 'courses' else None
+                # Serialize explanation batches through the existing owner AI guard.
+                # Candidate collection/ranking above stays parallel and entirely rule based.
+                if task == 'activities' and value.get('activities'):
+                    value = _execute_activity_reasons(rid, owner, run_id, basis, value)
                 def record(w, key=task, data=value, status=state, code=error_code, prose=reasons):
                     w['results'][key] = data
                     w['states'][key] = status

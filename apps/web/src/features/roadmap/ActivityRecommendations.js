@@ -3,6 +3,7 @@ import { activityKindLabel } from './activityLoader.mjs';
 import Link from 'next/link';
 import { resultHref } from './resultPresentation.mjs';
 import ActivitySummaryList from './ActivitySummaryList';
+import { activityReason } from './activityReason.mjs';
 
 export default function ActivityRecommendations({ active, resource, compact = false }) {
  const { phase, data, message, refresh } = resource;
@@ -31,7 +32,7 @@ export default function ActivityRecommendations({ active, resource, compact = fa
    <ul className="skill-list">{data.activities.map(item => <li key={`${item.source}:${item.original_id || item.id}`} className="skill-card">
     <div className="skill-title"><span className="badge">{activityKindLabel(item.kind)}</span><span className="badge">{item.status === 'upcoming' ? '접수 예정' : '접수 중'}</span><h3>{item.title}</h3></div>
     <div className="recommendation-reason"><h4>관심 분야와 연결되는 활동</h4>
-     {item.reasons.map((reason, i) => <p key={i}>{reason}</p>)}
+     <p>{activityReason(item)}</p>
     </div>
     <dl className="skill-summary">
      <div><dt>출처</dt><dd>{item.source_label || '콘테스트코리아'}</dd></div>

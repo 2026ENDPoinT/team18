@@ -92,6 +92,13 @@ def generate(rid: str, ctx=Depends(owned_context), body=Depends(parse_body)):
                 fresh = timestamp(activity['valid_until']) > datetime.now(timezone.utc)
             except (KeyError, TypeError, ValueError):
                 fresh = False
+            if fresh:
+                from api.routes.activities import current_recommendations
+                from services.activity_reasons import cache_key, reason_input
+                profile, _ = capture_profile(db, row)
+                current_activity = current_recommendations(db, profile)
+                fresh = (activity.get('activity_reason_basis') == cache_key(rid, reason_input(profile, current_activity['activities']))
+                         and bool(activity.get('activity_reason_basis')))
             if (_valid_bundle(result) and fresh and activity.get('activity_basis') == capture_profile(db, row)[1]
                     and digest(result['skill_comparison']) == digest(comparison)):
                 db.commit()

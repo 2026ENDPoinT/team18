@@ -1,0 +1,222 @@
+"""API/storage/real Gemini SDK adapter, with controlled transport and isolated DB."""
+from contextlib import closing
+from copy import deepcopy
+import json
+import os
+import threading
+import time
+import unittest
+from unittest.mock import Mock, patch
+
+from roadmap_scenario import RoadmapAPI, fake_extraction
+from repositories.plans import connect
+from repositories.roadmaps import RoadmapRepository
+
+BODY = '기후 공공데이터를 분석하고 시각화 결과를 제출합니다.'
+ITEM = {'id': 'climate', 'source': 'contestkorea', 'kind': 'competition',
+        'title': '기후 공공데이터 AI 활용대회', 'category': '데이터 분석', 'host': '검증용 기관',
+        'target': '대학생', 'period': '상시 접수', 'description_text': BODY,
+        'url': 'https://example.org/climate'}
+
+
+class ActivityReasonAPI(RoadmapAPI):
+    def setUp(self):
+        super().setUp()
+        env = patch.dict(os.environ, {'GEMINI_API_KEY': 'synthetic-key', 'GEMINI_MODEL': 'test-activity-model',
+            'ROADMAP_AI_COOLDOWN_SECONDS': '0', **{'ROADMAP_AI_' + key: '100000' for key in (
+                'GUEST_HOURLY_UNITS', 'GUEST_DAILY_UNITS', 'USER_HOURLY_UNITS', 'USER_DAILY_UNITS', 'GLOBAL_DAILY_UNITS')}})
+        env.start(); self.addCleanup(env.stop)
+        self.items = [deepcopy(ITEM), {**ITEM, 'id': 'next', 'title': '기후 데이터 분석 아이디어 대회',
+                                     'period': '2099.01.01 ~ 2099.02.01', 'url': 'https://example.org/next'},
+                      {**ITEM, 'id': 'closed', 'period': '2000.01.01 ~ 2000.02.01'}]
+        catalog = patch('api.routes.activities.load_contestkorea_catalog', side_effect=lambda *a, **kw:
+                        (deepcopy(self.items), {'source': 'contestkorea', 'kind': 'competition', 'status': 'success', 'collected': len(self.items)}))
+        catalog.start(); self.addCleanup(catalog.stop)
+        self.sdk = Mock()
+        self.sdk.models.generate_content.side_effect = self.reply
+        sdk = patch('google.genai.Client', return_value=self.sdk)
+        sdk.start(); self.addCleanup(sdk.stop)
+        for name in ('services.gemini_roadmap.generate_roadmap', 'services.gemini_roadmap._generate',
+                     'api.routes.job_skill_analysis.analyze_job_skills', 'services.project_experience.extract_project_experiences'):
+            blocker = patch(name, side_effect=AssertionError('Unexpected analysis or execution roadmap AI'))
+            spy = blocker.start(); self.addCleanup(blocker.stop); self.addCleanup(spy.assert_not_called)
+
+    def reply(self, **kwargs):
+        data = json.loads(kwargs['contents'])
+        assert 'activities' in data  # No per-course or execution-roadmap call.
+        reasons = []
+        for activity in data['activities']:
+            detail = next(e for e in activity['evidence'] if e['kind'] == 'detail')
+            refs = [{'evidence_id': detail['id'], 'quote': detail['text']}]
+            sentences = [{'perspective': 'career', 'text': f"{data['career_goal']} 목표의 분야 자체와는 다를 수 있지만, 기후 공공데이터 분석으로 분석 방법을 연습할 수 있습니다.",
+                          'evidence': refs, 'experience_ids': []}]
+            personal = [e for e in data['project_experiences'] if e.get('user_status') in ('confirmed', 'corrected') and e.get('contribution_scope') == 'personal']
+            if personal:
+                e = personal[0]
+                activity_text = e['activity'].rstrip('.!?')
+                sentences.append({'perspective': 'experience', 'text': f"확인한 {activity_text} 경험을 분석 과정에 활용해 볼 수 있습니다.",
+                                  'evidence': refs, 'experience_ids': [e['id']]})
+            sentences.append({'perspective': 'expected', 'text': '공고에서 안내한 시각화 결과를 정리해 제출하는 경험을 쌓을 수 있습니다.',
+                              'evidence': refs, 'experience_ids': []})
+            reasons.append({'activity_id': activity['activity_id'], 'sentences': sentences})
+        return Mock(text=json.dumps({'reasons': reasons}, ensure_ascii=False))
+
+    def saved(self, refresh=False):
+        response = self.make(refresh)
+        self.assertIn(response.status_code, (200, 201), response.text)
+        result = response.json()
+        self.assertEqual(result['roadmap'], [])
+        return result
+
+    def change_goal(self, goal):
+        response = self.client.patch(self.base, json={'expected_input_revision': self.revision(),
+            'changes': {'career_goal': goal, 'target_role': '데이터 분석가'}})
+        self.assertEqual(response.status_code, 200, response.text)
+
+    def payloads(self):
+        return [json.loads(c.kwargs['contents']) for c in self.sdk.models.generate_content.call_args_list]
+
+    def test_activity_batch_cache_reads_and_preserved_selection(self):
+        before = self.client.get(self.base + '/activities').json()['activities']
+        self.sdk.models.generate_content.assert_not_called()
+        first = self.saved()
+        self.assertTrue(all(i['reason_source'] == 'gemini' for i in first['activity_recommendations']['activities']))
+        items = first['activity_recommendations']['activities']
+        self.assertEqual(len(items), 2)
+        self.assertEqual({i['status'] for i in items}, {'open', 'upcoming'})
+        self.assertTrue(all(i['reason_source'] == 'gemini' for i in items), items)
+        for original, generated in zip(before, items):
+            for key, value in original.items():
+                if key not in ('personalization_reason', 'reason_source', 'reason_evidence'):
+                    self.assertEqual(value, generated[key], key)
+        self.assertEqual(len(self.payloads()[0]['activities']), 2)
+        self.assertEqual(self.sdk.models.generate_content.call_count, 1)
+        with closing(connect()) as db:
+            stored = RoadmapRepository(db).get(self.rid, first['run_id'])
+        for _ in range(3):
+            for path in ('/roadmap', f"/roadmaps/{first['run_id']}"):
+                self.assertEqual(self.client.get(self.base + path).json()['activity_recommendations']['activities'], items)
+            self.assertEqual(self.client.get(self.base + '/activities').json()['activities'], items)
+        self.saved(); self.saved(refresh=True)
+        self.assertEqual(self.sdk.models.generate_content.call_count, 1)
+        self.items[0]['description_text'] += ' 결과 요약을 함께 제출합니다.'
+        # A changed posting invalidates a still-fresh run and never returns stale cached prose on GET.
+        read = self.client.get(self.base + '/activities').json()
+        self.assertTrue(all(i['reason_source'] == 'rule_evidence' for i in read['activities']))
+        changed = self.saved()
+        self.assertNotEqual(changed['run_id'], first['run_id'])
+        self.assertEqual(self.sdk.models.generate_content.call_count, 2)
+        with closing(connect()) as db:
+            self.assertEqual(RoadmapRepository(db).get(self.rid, first['run_id']), stored)
+
+    def test_activity_distinct_users_goals_and_projects(self):
+        outputs = []
+        for goal, project in [('스포츠 데이터 분석', '제가 Python으로 전처리 코드를 작성했습니다.'),
+                              ('환경 데이터 분석', '제가 Python으로 전처리 코드를 작성했습니다.'),
+                              ('스포츠 데이터 분석', '제가 React로 화면을 개발했습니다.')]:
+            other = ActivityReasonAPI(); other.setUp()
+            try:
+                other.change_goal(goal); other.doc(project)
+                with patch('services.project_experience.extract_project_experiences', side_effect=fake_extraction):
+                    item = other.analyze()['experiences'][0]
+                other.answer(item, 'confirmed')
+                result = other.saved()['activity_recommendations']['activities'][0]
+                self.assertEqual(result['reason_source'], 'gemini', result)
+                outputs.append(result['personalization_reason'])
+                self.assertIn(goal, outputs[-1])
+                self.assertEqual(other.sdk.models.generate_content.call_count, 1)
+            finally:
+                other.doCleanups()
+        self.assertEqual(len(set(outputs)), 3)
+
+    def test_activity_corrections_comparison_and_existing_analysis_preserved(self):
+        self.doc()
+        with patch('services.project_experience.extract_project_experiences', side_effect=fake_extraction):
+            item = self.analyze()['experiences'][0]
+        self.answer(item, 'confirmed'); self.jobs(); self.sql_answer('no_experience')
+        def analyses():
+            with closing(connect()) as db:
+                return {table: [dict(row) for row in db.execute(f'SELECT * FROM {table} WHERE request_id=?', (self.rid,)).fetchall()]
+                        for table in ('project_experience_analyses', 'job_skill_snapshots')}
+        before = analyses()
+        first = self.saved()
+        self.assertEqual(analyses(), before)
+        data = self.payloads()[-1]
+        self.assertIn('SQL', data['gap_skills'])
+        self.assertTrue(any(c['student_status'] == 'no_experience' for c in data['skill_comparison']))
+        self.answer(item, 'corrected', {'skill_name': 'Excel', 'activity': 'Excel로 판매 집계표 작성', 'contribution_scope': 'personal'})
+        second = self.saved()
+        self.assertTrue(all(i['reason_source'] == 'gemini' for i in second['activity_recommendations']['activities']))
+        self.assertEqual(self.payloads()[-1]['project_experiences'][0]['skill_name'], 'Excel')
+        self.assertNotEqual(first['activity_recommendations']['activities'][0]['personalization_reason'], second['activity_recommendations']['activities'][0]['personalization_reason'])
+
+    def test_activity_failures_preserve_cards_courses_and_cache_fallback(self):
+        from google.genai.errors import ServerError, ClientError
+        failures = [ServerError(503, {'error': {'message': 'synthetic'}}),
+                    ClientError(429, {'error': {'message': 'synthetic'}}), TimeoutError(),
+                    Mock(text='not json'), Mock(text=json.dumps({'reasons': []}))]
+        for failure in failures:
+            with self.subTest(failure=type(failure).__name__):
+                self.items[0]['description_text'] += ' 결과를 제출합니다.'
+                self.sdk.models.generate_content.side_effect = failure if isinstance(failure, Exception) else lambda **kw: failure
+                calls = self.sdk.models.generate_content.call_count
+                result = self.saved(refresh=True)
+                self.assertTrue(result['recommended_courses'])
+                self.assertEqual(result['component_status']['activities'], 'success')
+                items = result['activity_recommendations']['activities']
+                self.assertEqual(len(items), 2)
+                self.assertTrue(all(i['reason_source'] == 'rule_evidence' for i in items))
+                self.saved(refresh=True)
+                self.assertEqual(self.sdk.models.generate_content.call_count, calls + 1)
+                self.assertEqual(self.client.get(self.base + '/activities').json()['activities'], items)
+
+    def test_activity_concurrent_generations_share_one_batch(self):
+        entered, release = threading.Event(), threading.Event()
+        def held(**kwargs):
+            entered.set()
+            if not release.wait(8): raise TimeoutError()
+            return self.reply(**kwargs)
+        self.sdk.models.generate_content.side_effect = held
+        body = {'expected_input_revision': self.revision(), 'refresh': True, 'background': True}
+        try:
+            started = self.client.post(self.base + '/roadmap', json=body).json()
+            self.assertTrue(entered.wait(5))
+            for _ in range(3):
+                self.assertEqual(self.client.post(self.base + '/roadmap', json=body).json()['run_id'], started['run_id'])
+        finally:
+            release.set()
+        for _ in range(100):
+            result = self.client.get(f"{self.base}/roadmaps/{started['run_id']}").json()
+            if result.get('generation_complete'): break
+            time.sleep(.02)
+        self.assertTrue(result.get('generation_complete'), result)
+        self.assertEqual(self.sdk.models.generate_content.call_count, 1)
+        self.assertTrue(all(i['reason_source'] == 'gemini' for i in result['activity_recommendations']['activities']))
+
+    def test_activity_missing_body_never_calls_ai(self):
+        for item in self.items: item.pop('description_text')
+        result = self.saved()
+        self.assertEqual(len(result['activity_recommendations']['activities']), 2)
+        self.sdk.models.generate_content.assert_not_called()
+
+    def test_activity_partial_evidence_and_invalid_cached_response(self):
+        self.items[1].pop('description_text')
+        first = self.saved()
+        items = {i['id']: i for i in first['activity_recommendations']['activities']}
+        self.assertEqual(items['climate']['reason_source'], 'gemini')
+        self.assertEqual(items['next']['reason_source'], 'rule_evidence')
+        self.assertEqual(len(self.payloads()[0]['activities']), 1)
+        with closing(connect()) as db:
+            owner = db.execute('SELECT owner_id FROM roadmap_inputs WHERE request_id=?', (self.rid,)).fetchone()['owner_id']
+            db.execute("UPDATE ai_requests SET result_json=? WHERE owner_id=? AND operation='activity_reasons'",
+                       (json.dumps({'source': 'gemini', 'reasons': [{'activity_id': 'foreign', 'host': 'invented'}]}), owner))
+            db.commit()
+        result = self.saved(refresh=True)
+        self.assertTrue(all(i['reason_source'] == 'rule_evidence' for i in result['activity_recommendations']['activities']))
+        self.assertTrue(all(i['host'] == ITEM['host'] for i in result['activity_recommendations']['activities']))
+        self.assertEqual(self.sdk.models.generate_content.call_count, 1)
+
+
+if __name__ == '__main__':
+    suite = unittest.TestSuite(ActivityReasonAPI(name) for name in unittest.defaultTestLoader.getTestCaseNames(ActivityReasonAPI) if name.startswith('test_activity_'))
+    raise SystemExit(not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful())
