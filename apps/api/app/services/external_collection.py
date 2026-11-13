@@ -1,16 +1,22 @@
-"""Offline external collection orchestration with durable leases and atomic publication."""
+"""Fixture orchestration and the separate DB-independent live catalog entry point."""
 from contextlib import closing
 from datetime import datetime,timedelta,timezone
 import json
 import uuid
 from providers.external import jobs_fixture,activities_fixture,pdf_fixture
 from providers.external.fixture_source import SOURCES
-from repositories.p1 import connect
+from repositories.plans import connect
 from repositories.external import ExternalRepository
 from services.external_evidence import validate
 
 ADAPTERS={'fixture-jobs':jobs_fixture,'fixture-activities':activities_fixture,'fixture-pdf':pdf_fixture}
 LEASE_SECONDS=120
+
+def collect_contestkorea():
+    # Do not register live data in the SQLite-only fixture publication tables.
+    from services.activity_catalog import catalog
+    items, sources = catalog.get()
+    return {'provider': 'contestkorea', 'source_environment': 'live', 'items': items, 'sources': sources}
 
 def now():return datetime.now(timezone.utc).isoformat(timespec='microseconds')
 def later(seconds):return (datetime.now(timezone.utc)+timedelta(seconds=seconds)).isoformat(timespec='microseconds')

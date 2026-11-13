@@ -12,15 +12,62 @@ from datetime import datetime, timezone
 APP = Path(__file__).resolve().parents[2] / 'app'
 sys.path.insert(0, str(APP))
 from repositories.postgres import PostgresConnection, StorageUnavailable, connect_postgres
-from repositories import p1
+from repositories import plans as p1
 
 
 class PostgresBoundaryTest(unittest.TestCase):
+    def test_stale_dsn_and_environment_ca_are_ignored(self):
+        with patch.dict(os.environ, {'PGSSLROOTCERT': '/render/invalid.crt'}), patch('psycopg.connect') as connect:
+            connect_postgres('postgresql://user:secret@example.test/db?sslrootcert=%2FUsers%2Fold%2Fca.crt&sslmode=disable')
+            self.assertEqual(connect.call_args.kwargs['sslrootcert'], '/dev/null/roadmap-no-ca')
+            self.assertEqual(connect.call_args.kwargs['sslmode'], 'require')
+            self.assertEqual(connect.call_args.kwargs['gssencmode'], 'disable')
+
+    def test_environment_absent_still_forces_tls_without_a_ca(self):
+        with patch.dict(os.environ, {}, clear=True), patch('psycopg.connect') as connect:
+            connect_postgres('postgresql://user:secret@example.test/db?sslrootcert=%2Fcert.crt&sslmode=prefer')
+            self.assertEqual(connect.call_args.kwargs['sslrootcert'], '/dev/null/roadmap-no-ca')
+            self.assertEqual(connect.call_args.kwargs['sslmode'], 'require')
+
+    def test_unencrypted_connection_is_closed_and_rejected(self):
+        with patch('psycopg.connect') as connect:
+            connect.return_value.pgconn.ssl_in_use = False
+            with self.assertRaises(StorageUnavailable) as caught:
+                connect_postgres('postgresql://user:secret@example.test/db')
+            self.assertIn('tls_required', str(caught.exception))
+            connect.return_value.close.assert_called_once()
+
+    def test_unix_socket_is_rejected_before_connecting(self):
+        with patch.dict(os.environ, {}, clear=True), patch('psycopg.connect') as connect:
+            with self.assertRaises(StorageUnavailable) as caught:
+                connect_postgres('host=/tmp dbname=roadmap')
+            self.assertIn('tls_required', str(caught.exception))
+            connect.assert_not_called()
+
+    def test_close_rolls_back_unfinished_transactions(self):
+        from psycopg.pq import TransactionStatus
+        for status in (TransactionStatus.INTRANS, TransactionStatus.INERROR):
+            connection = Mock()
+            connection.info.transaction_status = status
+            PostgresConnection(connection, RuntimeError).close()
+            connection.execute.assert_called_once_with('ROLLBACK')
+            connection.close.assert_called_once()
+
+    def test_close_even_when_rollback_fails(self):
+        from psycopg.pq import TransactionStatus
+        connection = Mock()
+        connection.info.transaction_status = TransactionStatus.INERROR
+        connection.execute.side_effect = RuntimeError('secret')
+        PostgresConnection(connection, RuntimeError).close()
+        connection.close.assert_called_once()
+
     def test_no_dsn_fails_without_secret(self):
         env = dict(os.environ, ROADMAP_DB_BACKEND='postgres', ROADMAP_DATABASE_URL='')
-        result = subprocess.run([sys.executable, str(APP / 'main.py')], env=env, text=True, capture_output=True)
+        script = "import asyncio; from main import app; from repositories.plans import StorageUnavailable\nasync def run():\n try:\n  async with app.router.lifespan_context(app): pass\n except StorageUnavailable as e:\n  print(str(e)); raise SystemExit(1)\nasyncio.run(run())"
+        env['PYTHONPATH'] = str(APP)
+        result = subprocess.run([sys.executable, '-c', script], env=env, text=True, capture_output=True)
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('ROADMAP_DATABASE_URL', result.stderr)
+        self.assertIn('ROADMAP_DATABASE_URL', result.stdout)
         self.assertNotIn('Traceback', result.stderr)
 
     def test_failed_connection_hides_driver_message(self):
@@ -50,7 +97,7 @@ class PostgresBoundaryTest(unittest.TestCase):
         self.assertEqual(params, ('request', 'owner'))
 
     def test_postgres_values_serialize_and_validate(self):
-        import main
+        from api import domain as main
         encoded = json.dumps({'n': Decimal('3.25'), 't': datetime(2026, 1, 1, tzinfo=timezone.utc)}, default=main.json_value)
         self.assertEqual(json.loads(encoded), {'n': 3.25, 't': '2026-01-01T00:00:00.000000+00:00'})
         values = dict.fromkeys(main.FIELDS)

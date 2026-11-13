@@ -21,7 +21,7 @@ from huggingface_hub import hf_hub_download
 parser=argparse.ArgumentParser()
 parser.add_argument('--candidate', help='실험 인식기 경로. 지정 시 해당 모델만 평가')
 parser.add_argument('--padding',type=int,default=0)
-parser.add_argument('--layout',choices=['rows','columns'],default='rows')
+parser.add_argument('--layout',choices=['rows','columns','auto'],default='rows')
 parser.add_argument('--orientation',choices=['none','auto'],default='none')
 parser.add_argument('--split',choices=['validation','holdout','final'],default='validation')
 parser.add_argument('--output',default='ai/local/ocr-real-evaluation.json')

@@ -1,4 +1,4 @@
-"""SQLite adapter for document metadata, extraction history, and worker jobs."""
+"""Document metadata, extraction history, and worker jobs."""
 import json
 
 class DocumentRepository:
@@ -7,7 +7,37 @@ class DocumentRepository:
     def get(self,rid,did): return self.db.execute('SELECT * FROM project_documents WHERE request_id=? AND document_id=?',(rid,did)).fetchone()
     def get_any(self,did): return self.db.execute('SELECT * FROM project_documents WHERE document_id=?',(did,)).fetchone()
     def extraction(self,did,revision): return self.db.execute('SELECT * FROM document_extractions WHERE document_id=? AND extraction_revision=?',(did,revision)).fetchone()
-    def count_active(self,rid): return self.db.execute('SELECT count(*) FROM project_documents WHERE request_id=? AND removed_at IS NULL',(rid,)).fetchone()[0]
+    def count_active(self,rid):
+        row = self.db.execute('SELECT count(*) AS n FROM project_documents WHERE request_id=? AND removed_at IS NULL',(rid,)).fetchone()
+        return row['n']
+    def count_uploading(self, rid, at):
+        return self.db.execute('SELECT count(*) AS n FROM document_upload_reservations WHERE request_id=? AND committed_at IS NULL AND expires_at>?', (rid, at)).fetchone()['n']
+    def reserve_upload(self, key, rid, at, expires):
+        cursor = self.db.execute('''INSERT INTO document_upload_reservations(storage_key,request_id,created_at,expires_at)
+          SELECT ?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM project_documents WHERE storage_key=?)''', (key, rid, at, expires, key))
+        if cursor.rowcount != 1:
+            raise ValueError('storage key already reserved')
+    def lock_reservation(self, key, rid):
+        return self.db.execute('SELECT * FROM document_upload_reservations WHERE storage_key=? AND request_id=? FOR UPDATE', (key, rid)).fetchone()
+    def finish_reservation(self, key, at):
+        self.db.execute('UPDATE document_upload_reservations SET committed_at=? WHERE storage_key=?', (at, key))
+    def next_reservation_cleanup(self, at):
+        return self.db.execute('''SELECT * FROM document_upload_reservations
+          WHERE committed_at IS NULL AND expires_at<? AND (cleanup_lease_until IS NULL OR cleanup_lease_until<?)
+          ORDER BY expires_at LIMIT 1 FOR UPDATE SKIP LOCKED''', (at, at)).fetchone()
+    def lease_reservation_cleanup(self, key, token, until):
+        self.db.execute('''UPDATE document_upload_reservations SET cleanup_lease_token=?,
+          cleanup_lease_until=?, cleanup_attempts=cleanup_attempts+1 WHERE storage_key=?''', (token, until, key))
+    def finish_reservation_cleanup(self, key, token, next_check):
+        # Keep a tombstone: an upload whose network response timed out could
+        # finish after the first delete. Periodic rechecks catch late objects.
+        self.db.execute('''UPDATE document_upload_reservations SET cleanup_lease_token=NULL,
+          cleanup_lease_until=?, cleanup_error_code=NULL WHERE storage_key=? AND cleanup_lease_token=?''',
+          (next_check, key, token))
+    def fail_reservation_cleanup(self, key, token, until):
+        self.db.execute('''UPDATE document_upload_reservations SET cleanup_lease_token=NULL,
+          cleanup_lease_until=?, cleanup_error_code='storage_cleanup_failed'
+          WHERE storage_key=? AND cleanup_lease_token=?''', (until, key, token))
     def create(self,key,rid,filename,mime,size,at):
         self.db.execute("INSERT INTO project_documents(document_id,request_id,original_filename,mime_type,file_size_bytes,storage_key,extraction_status,extraction_revision,created_at) VALUES(?,?,?,?,?,?,'pending',1,?)",(key,rid,filename,mime,size,key,at))
         self.create_extraction(key,1,at)
@@ -18,21 +48,41 @@ class DocumentRepository:
         self.db.execute("UPDATE project_documents SET extraction_status='pending',extraction_revision=?,partial_confirmed_at=NULL,extraction_error_code=NULL,extraction_lease_token=NULL,extraction_lease_until=NULL WHERE document_id=?",(revision,did)); self.create_extraction(did,revision,at)
     def confirm(self,did,at): self.db.execute('UPDATE project_documents SET partial_confirmed_at=? WHERE document_id=?',(at,did))
     def next_job(self,at):
-        return self.db.execute("""SELECT * FROM project_documents WHERE (removed_at IS NULL AND extraction_status='pending' AND (extraction_lease_until IS NULL OR extraction_lease_until<?)) OR (removed_at IS NOT NULL AND cleanup_status IN ('queued','failed','running') AND (cleanup_lease_until IS NULL OR cleanup_lease_until<?)) ORDER BY created_at LIMIT 1""",(at,at)).fetchone()
+        sql = """SELECT * FROM project_documents WHERE (removed_at IS NULL AND extraction_status='pending' AND (extraction_lease_until IS NULL OR extraction_lease_until<?)) OR (removed_at IS NOT NULL AND cleanup_status IN ('queued','failed','running') AND (cleanup_lease_until IS NULL OR cleanup_lease_until<?)) ORDER BY created_at LIMIT 1"""
+        if getattr(self.db, 'backend', 'sqlite') == 'postgres':
+            sql += ' FOR UPDATE SKIP LOCKED'
+        return self.db.execute(sql,(at,at)).fetchone()
     def lease(self,did,token,until,cleanup):
         if cleanup: self.db.execute("UPDATE project_documents SET cleanup_status='running',cleanup_lease_token=?,cleanup_lease_until=?,cleanup_attempts=cleanup_attempts+1 WHERE document_id=?",(token,until,did))
         else: self.db.execute('UPDATE project_documents SET extraction_lease_token=?,extraction_lease_until=?,extraction_attempts=extraction_attempts+1 WHERE document_id=?',(token,until,did))
+    def renew(self,row,token,at,until):
+        return self.db.execute("""UPDATE project_documents SET extraction_lease_until=?
+            WHERE document_id=? AND removed_at IS NULL AND extraction_status='pending'
+            AND extraction_revision=? AND extraction_lease_token=? AND extraction_lease_until>?""",
+            (until,row['document_id'],row['extraction_revision'],token,at)).rowcount == 1
     def finish_cleanup(self,did,token):
+        if getattr(self.db, 'backend', 'sqlite') == 'postgres':
+            self.db.execute('SELECT document_id FROM project_documents WHERE document_id=? FOR UPDATE',(did,)).fetchone()
         row=self.get_any(did)
         if row and row['cleanup_lease_token']==token:
+            self.db.execute('UPDATE document_ocr_units SET result_json=NULL WHERE document_id=?',(did,))
             self.db.execute('DELETE FROM document_extractions WHERE document_id=?',(did,))
             self.db.execute("UPDATE project_documents SET cleanup_status='succeeded',cleanup_lease_token=NULL,cleanup_lease_until=NULL,cleanup_error_code=NULL WHERE document_id=?",(did,))
     def fail_cleanup(self,did,token,retry_at):
         self.db.execute("UPDATE project_documents SET cleanup_status='failed',cleanup_error_code='storage_cleanup_failed',cleanup_lease_token=NULL,cleanup_lease_until=? WHERE document_id=? AND cleanup_lease_token=?",(retry_at,did,token))
     def finish_extraction(self,row,token,result,at):
+        if getattr(self.db, 'backend', 'sqlite') == 'postgres':
+            # Match the API's lock order: plan first, document second.
+            self.db.execute('SELECT request_id FROM roadmap_inputs WHERE request_id=? FOR UPDATE',(row['request_id'],)).fetchone()
+            self.db.execute('SELECT document_id FROM project_documents WHERE document_id=? FOR UPDATE',(row['document_id'],)).fetchone()
         did=row['document_id']; current=self.get_any(did)
         if current and current['removed_at'] is None and current['extraction_status']=='pending' and current['extraction_revision']==row['extraction_revision'] and current['extraction_lease_token']==token:
-            self.db.execute('''UPDATE document_extractions SET extracted_text=?,segments=?,limitations=?,extraction_status=?,error_code=?,finished_at=? WHERE document_id=? AND extraction_revision=? AND extraction_status='pending' ''',(result['text'],json.dumps(result['segments'],ensure_ascii=False),json.dumps(result['limitations'],ensure_ascii=False),result['status'],result['error_code'],at,did,row['extraction_revision']))
+            if getattr(self.db, 'backend', 'sqlite') == 'postgres':
+                from psycopg.types.json import Jsonb
+                segments, limitations = Jsonb(result['segments']), Jsonb(result['limitations'])
+            else:
+                segments, limitations = json.dumps(result['segments'],ensure_ascii=False), json.dumps(result['limitations'],ensure_ascii=False)
+            self.db.execute('''UPDATE document_extractions SET extracted_text=?,segments=?,limitations=?,extraction_status=?,error_code=?,finished_at=? WHERE document_id=? AND extraction_revision=? AND extraction_status='pending' ''',(result['text'],segments,limitations,result['status'],result['error_code'],at,did,row['extraction_revision']))
             self.db.execute('UPDATE project_documents SET extraction_status=?,extraction_error_code=?,extraction_lease_until=NULL,extraction_lease_token=NULL WHERE document_id=?',(result['status'],result['error_code'],did))
             self.bump_input(row['request_id'],at)
     def has_storage_key(self,key): return bool(self.db.execute('SELECT 1 FROM project_documents WHERE storage_key=?',(key,)).fetchone())
