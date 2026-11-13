@@ -1,0 +1,284 @@
+[
+  {
+    "case": "A",
+    "profile": {
+      "career_goal": "데이터 분석",
+      "target_role": "데이터 분석가",
+      "project_experiences": [
+        {
+          "skill_name": "Python",
+          "activity": "Python으로 데이터를 처리하고 시각화했습니다.",
+          "contribution_scope": "personal",
+          "user_status": "confirmed"
+        }
+      ]
+    },
+    "item": {
+      "id": "A",
+      "source": "contestkorea",
+      "kind": "competition",
+      "title": "데이터 분석 검증용 공모전",
+      "category": "데이터 분석",
+      "target": "대학생",
+      "period": "상시 접수",
+      "url": "https://example.org/A",
+      "description_text": "기후·환경 공공데이터를 분석하고, 분석 결과를 설명하는 제출물을 작성해 제출합니다."
+    },
+    "response": {
+      "reasons": [
+        {
+          "activity_id": "contestkorea:A",
+          "sentences": [
+            {
+              "perspective": "career",
+              "text": "기후·환경 공공데이터를 분석하는 과제로, 데이터 분석가에게 필요한 분석 과정을 연습할 수 있습니다.",
+              "evidence": [
+                {
+                  "evidence_id": "description_text",
+                  "quote": "기후·환경 공공데이터를 분석하고, 분석 결과를 설명하는 제출물을 작성해 제출합니다."
+                }
+              ],
+              "experience_ids": []
+            },
+            {
+              "perspective": "experience",
+              "text": "기존 Python 데이터 처리 경험을 환경 데이터 분석에 적용해 볼 수 있습니다.",
+              "evidence": [
+                {
+                  "evidence_id": "description_text",
+                  "quote": "기후·환경 공공데이터를 분석하고, 분석 결과를 설명하는 제출물을 작성해 제출합니다."
+                }
+              ],
+              "experience_ids": [
+                "p0"
+              ]
+            },
+            {
+              "perspective": "expected",
+              "text": "분석 결과를 설명하는 제출물을 작성하며 결과를 전달하는 프로젝트 경험으로 넓힐 수 있습니다.",
+              "evidence": [
+                {
+                  "evidence_id": "description_text",
+                  "quote": "기후·환경 공공데이터를 분석하고, 분석 결과를 설명하는 제출물을 작성해 제출합니다."
+                }
+              ],
+              "experience_ids": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "case": "B",
+    "profile": {
+      "career_goal": "백엔드 개발",
+      "target_role": "백엔드 개발자",
+      "project_experiences": [
+        {
+          "skill_name": "REST API",
+          "activity": "REST API를 설계하고 서버에 구현했습니다.",
+          "contribution_scope": "personal",
+          "user_status": "confirmed"
+        }
+      ]
+    },
+    "item": {
+      "id": "B",
+      "source": "contestkorea",
+      "kind": "competition",
+      "title": "백엔드 개발 검증용 공모전",
+      "category": "백엔드 개발",
+      "target": "대학생",
+      "period": "상시 접수",
+      "url": "https://example.org/B",
+      "description_text": "REST API를 설계하고 구현하는 소프트웨어 개발 해커톤입니다. 구현한 서비스와 API 설명서를 제출합니다."
+    },
+    "response": {
+      "reasons": [
+        {
+          "activity_id": "contestkorea:B",
+          "sentences": [
+            {
+              "perspective": "career",
+              "text": "REST API를 설계하고 구현하는 과제를 통해 백엔드 개발자로 준비하는 방향에 맞는 실습을 할 수 있습니다.",
+              "evidence": [
+                {
+                  "evidence_id": "description_text",
+                  "quote": "REST API를 설계하고 구현하는 소프트웨어 개발 해커톤입니다. 구현한 서비스와 API 설명서를 제출합니다."
+                }
+              ],
+              "experience_ids": []
+            },
+            {
+              "perspective": "experience",
+              "text": "기존 REST API 개발 경험을 이번 서비스 구현에 활용해 볼 수 있습니다.",
+              "evidence": [
+                {
+                  "evidence_id": "description_text",
+                  "quote": "REST API를 설계하고 구현하는 소프트웨어 개발 해커톤입니다. 구현한 서비스와 API 설명서를 제출합니다."
+                }
+              ],
+              "experience_ids": [
+                "p0"
+              ]
+            },
+            {
+              "perspective": "expected",
+              "text": "구현한 서비스와 API 설명서를 제출하며 개발한 내용을 설명하는 경험도 쌓을 수 있습니다.",
+              "evidence": [
+                {
+                  "evidence_id": "description_text",
+                  "quote": "REST API를 설계하고 구현하는 소프트웨어 개발 해커톤입니다. 구현한 서비스와 API 설명서를 제출합니다."
+                }
+              ],
+              "experience_ids": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "case": "C",
+    "profile": {
+      "career_goal": "인공지능 연구",
+      "target_role": "인공지능 연구원",
+      "project_experiences": [
+        {
+          "skill_name": "머신러닝",
+          "activity": "머신러닝 모델 학습 및 평가 코드를 작성했습니다.",
+          "contribution_scope": "personal",
+          "user_status": "confirmed"
+        }
+      ]
+    },
+    "item": {
+      "id": "C",
+      "source": "contestkorea",
+      "kind": "competition",
+      "title": "인공지능 연구 검증용 공모전",
+      "category": "인공지능 연구",
+      "target": "대학생",
+      "period": "상시 접수",
+      "url": "https://example.org/C",
+      "description_text": "머신러닝으로 AI 모델을 개발하고 평가합니다. 학습한 모델과 평가 결과를 제출합니다."
+    },
+    "response": {
+      "reasons": [
+        {
+          "activity_id": "contestkorea:C",
+          "sentences": [
+            {
+              "perspective": "career",
+              "text": "AI 모델을 개발하고 평가하는 과제는 인공지능 연구를 준비하며 모델의 성능을 살펴보는 연습으로 이어집니다.",
+              "evidence": [
+                {
+                  "evidence_id": "description_text",
+                  "quote": "머신러닝으로 AI 모델을 개발하고 평가합니다. 학습한 모델과 평가 결과를 제출합니다."
+                }
+              ],
+              "experience_ids": []
+            },
+            {
+              "perspective": "experience",
+              "text": "기존 머신러닝 모델 학습 경험을 이번 모델 개발과 평가에 활용할 수 있습니다.",
+              "evidence": [
+                {
+                  "evidence_id": "description_text",
+                  "quote": "머신러닝으로 AI 모델을 개발하고 평가합니다. 학습한 모델과 평가 결과를 제출합니다."
+                }
+              ],
+              "experience_ids": [
+                "p0"
+              ]
+            },
+            {
+              "perspective": "expected",
+              "text": "학습한 모델과 평가 결과를 제출하면서 모델 평가 결과를 정리하는 경험을 쌓을 수 있습니다.",
+              "evidence": [
+                {
+                  "evidence_id": "description_text",
+                  "quote": "머신러닝으로 AI 모델을 개발하고 평가합니다. 학습한 모델과 평가 결과를 제출합니다."
+                }
+              ],
+              "experience_ids": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "case": "D",
+    "profile": {
+      "career_goal": "데이터 분석",
+      "target_role": "데이터 분석가",
+      "project_experiences": []
+    },
+    "item": {
+      "id": "D",
+      "source": "contestkorea",
+      "kind": "competition",
+      "title": "데이터 분석 검증용 공모전",
+      "category": "데이터 분석",
+      "target": "대학생",
+      "period": "상시 접수",
+      "url": "https://example.org/D",
+      "description_text": "기후 공공데이터를 분석하고, 분석 결과를 설명하는 제출물을 작성해 제출합니다."
+    },
+    "response": {
+      "reasons": [
+        {
+          "activity_id": "contestkorea:D",
+          "sentences": [
+            {
+              "perspective": "career",
+              "text": "기후 공공데이터를 분석하는 과제로, 데이터 분석가를 목표로 하는 사용자가 실제 데이터를 다루는 과정을 연습할 수 있습니다.",
+              "evidence": [
+                {
+                  "evidence_id": "description_text",
+                  "quote": "기후 공공데이터를 분석하고, 분석 결과를 설명하는 제출물을 작성해 제출합니다."
+                }
+              ],
+              "experience_ids": []
+            },
+            {
+              "perspective": "expected",
+              "text": "분석 결과를 설명하는 제출물을 작성하면서 분석 과정과 결과를 다른 사람에게 전달하는 경험을 쌓을 수 있습니다.",
+              "evidence": [
+                {
+                  "evidence_id": "description_text",
+                  "quote": "기후 공공데이터를 분석하고, 분석 결과를 설명하는 제출물을 작성해 제출합니다."
+                }
+              ],
+              "experience_ids": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "case": "E",
+    "profile": {
+      "career_goal": "데이터 분석",
+      "target_role": "데이터 분석가",
+      "project_experiences": []
+    },
+    "item": {
+      "id": "E",
+      "source": "contestkorea",
+      "kind": "competition",
+      "title": "데이터 분석 검증용 공모전",
+      "category": "데이터 분석",
+      "target": "대학생",
+      "period": "상시 접수",
+      "url": "https://example.org/E",
+      "description_text": ""
+    },
+    "response": {
+      "reasons": []
+    }
+  }
+]

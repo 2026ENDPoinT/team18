@@ -3,6 +3,7 @@ from contextlib import closing
 from copy import deepcopy
 import json
 import os
+from pathlib import Path
 import threading
 import time
 import unittest
@@ -87,7 +88,7 @@ class ActivityReasonAPI(RoadmapAPI):
         self.assertTrue(all(i['reason_source'] == 'gemini' for i in items), items)
         for original, generated in zip(before, items):
             for key, value in original.items():
-                if key not in ('personalization_reason', 'reason_source', 'reason_evidence'):
+                if key not in ('personalization_reason', 'reason_source', 'reason_status', 'reason_evidence'):
                     self.assertEqual(value, generated[key], key)
         self.assertEqual(len(self.payloads()[0]['activities']), 2)
         self.assertEqual(self.sdk.models.generate_content.call_count, 1)
@@ -102,7 +103,7 @@ class ActivityReasonAPI(RoadmapAPI):
         self.items[0]['description_text'] += ' 결과 요약을 함께 제출합니다.'
         # A changed posting invalidates a still-fresh run and never returns stale cached prose on GET.
         read = self.client.get(self.base + '/activities').json()
-        self.assertTrue(all(i['reason_source'] == 'rule_evidence' for i in read['activities']))
+        self.assertTrue(all(i['reason_source'] == 'fallback' for i in read['activities']))
         changed = self.saved()
         self.assertNotEqual(changed['run_id'], first['run_id'])
         self.assertEqual(self.sdk.models.generate_content.call_count, 2)
@@ -113,7 +114,7 @@ class ActivityReasonAPI(RoadmapAPI):
         outputs = []
         for goal, project in [('스포츠 데이터 분석', '제가 Python으로 전처리 코드를 작성했습니다.'),
                               ('환경 데이터 분석', '제가 Python으로 전처리 코드를 작성했습니다.'),
-                              ('스포츠 데이터 분석', '제가 React로 화면을 개발했습니다.')]:
+                              ('스포츠 데이터 분석', '제가 Python으로 시각화 코드를 작성했습니다.')]:
             other = ActivityReasonAPI(); other.setUp()
             try:
                 other.change_goal(goal); other.doc(project)
@@ -142,9 +143,9 @@ class ActivityReasonAPI(RoadmapAPI):
         first = self.saved()
         self.assertEqual(analyses(), before)
         data = self.payloads()[-1]
-        self.assertIn('SQL', data['gap_skills'])
+        self.assertNotIn('gap_skills', data)
         self.assertTrue(any(c['student_status'] == 'no_experience' for c in data['skill_comparison']))
-        self.answer(item, 'corrected', {'skill_name': 'Excel', 'activity': 'Excel로 판매 집계표 작성', 'contribution_scope': 'personal'})
+        self.answer(item, 'corrected', {'skill_name': 'Excel', 'activity': 'Excel로 판매 데이터 분석', 'contribution_scope': 'personal'})
         second = self.saved()
         self.assertTrue(all(i['reason_source'] == 'gemini' for i in second['activity_recommendations']['activities']))
         self.assertEqual(self.payloads()[-1]['project_experiences'][0]['skill_name'], 'Excel')
@@ -165,7 +166,7 @@ class ActivityReasonAPI(RoadmapAPI):
                 self.assertEqual(result['component_status']['activities'], 'success')
                 items = result['activity_recommendations']['activities']
                 self.assertEqual(len(items), 2)
-                self.assertTrue(all(i['reason_source'] == 'rule_evidence' for i in items))
+                self.assertTrue(all(i['reason_source'] == 'fallback' for i in items))
                 self.saved(refresh=True)
                 self.assertEqual(self.sdk.models.generate_content.call_count, calls + 1)
                 self.assertEqual(self.client.get(self.base + '/activities').json()['activities'], items)
@@ -204,7 +205,7 @@ class ActivityReasonAPI(RoadmapAPI):
         first = self.saved()
         items = {i['id']: i for i in first['activity_recommendations']['activities']}
         self.assertEqual(items['climate']['reason_source'], 'gemini')
-        self.assertEqual(items['next']['reason_source'], 'rule_evidence')
+        self.assertEqual(items['next']['reason_source'], 'fallback')
         self.assertEqual(len(self.payloads()[0]['activities']), 1)
         with closing(connect()) as db:
             owner = db.execute('SELECT owner_id FROM roadmap_inputs WHERE request_id=?', (self.rid,)).fetchone()['owner_id']
@@ -212,9 +213,90 @@ class ActivityReasonAPI(RoadmapAPI):
                        (json.dumps({'source': 'gemini', 'reasons': [{'activity_id': 'foreign', 'host': 'invented'}]}), owner))
             db.commit()
         result = self.saved(refresh=True)
-        self.assertTrue(all(i['reason_source'] == 'rule_evidence' for i in result['activity_recommendations']['activities']))
+        self.assertTrue(all(i['reason_source'] == 'fallback' for i in result['activity_recommendations']['activities']))
         self.assertTrue(all(i['host'] == ITEM['host'] for i in result['activity_recommendations']['activities']))
         self.assertEqual(self.sdk.models.generate_content.call_count, 1)
+
+    def test_activity_requested_cases_persist_paragraph_and_evidence(self):
+        from repositories.experience_analysis import decode
+        from services.project_experience_schemas import DocumentExperience
+        cases = json.loads((Path(__file__).parents[1] / 'fixtures/activity_reason_cases.json').read_text())
+        outputs = []
+        for case in cases:
+            with self.subTest(case=case['case']):
+                other = ActivityReasonAPI(); other.setUp()
+                try:
+                    profile = case['profile']
+                    other.client.patch(other.base, json={'expected_input_revision': other.revision(),
+                        'changes': {k: profile[k] for k in ('career_goal', 'target_role')}}).raise_for_status()
+                    other.items = [case['item']]
+                    if profile['project_experiences']:
+                        exp = profile['project_experiences'][0]
+                        other.doc('제가 ' + exp['activity'])
+                        def extraction(document):
+                            return DocumentExperience(document_id=document['document_id'],
+                                extraction_revision=document['extraction_revision'], experiences=[{
+                                    'skill_name': exp['skill_name'], 'category': 'other', 'activity': exp['activity'],
+                                    'contribution_scope': 'personal', 'evidence_text': document['extracted_text']}])
+                        with patch('services.project_experience.extract_project_experiences', side_effect=extraction):
+                            experiences = other.analyze()['experiences']
+                        self.assertEqual(len(experiences), 1)
+                        if experiences[0]['contribution_scope'] == 'personal':
+                            other.answer(experiences[0], 'confirmed')
+                        else:
+                            # A user correction explicitly establishes personal scope;
+                            # a generic confirmed answer never upgrades unknown scope.
+                            other.answer(experiences[0], 'corrected', {k: exp[k] for k in
+                                ('skill_name', 'activity', 'contribution_scope')})
+                    other.sdk.models.generate_content.side_effect = lambda **kw: Mock(text=json.dumps(case['response'], ensure_ascii=False))
+                    before = other.client.get(other.base + '/activities').json()['activities']
+                    saved = other.saved()
+                    activity = saved['activity_recommendations']['activities'][0]
+                    self.assertEqual(activity['score'], before[0]['score'])
+                    self.assertEqual(activity['id'], before[0]['id'])
+                    expected_calls = int(case['case'] != 'E')
+                    self.assertEqual(other.sdk.models.generate_content.call_count, expected_calls)
+                    self.assertEqual(activity['reason_source'], 'gemini' if expected_calls else 'fallback')
+                    self.assertEqual(activity['reason_status'], 'generated' if expected_calls else 'needs_verification')
+                    if expected_calls:
+                        self.assertEqual(activity['reason_evidence'], case['response']['reasons'][0]['sentences'])
+                        outputs.append(activity['personalization_reason'])
+                    with closing(connect()) as db:
+                        row = RoadmapRepository(db).get(other.rid, saved['run_id'])
+                        self.assertEqual(decode(row['result_json'])['activity_recommendations']['activities'][0], activity)
+                        owner = db.execute('SELECT owner_id FROM roadmap_inputs WHERE request_id=?', (other.rid,)).fetchone()['owner_id']
+                        cache = db.execute("SELECT result_json, units FROM ai_requests WHERE owner_id=? AND operation='activity_reasons'", (owner,)).fetchall()
+                        self.assertEqual(len(cache), expected_calls)
+                        if cache:
+                            self.assertEqual(cache[0]['units'], 1)
+                            self.assertEqual(decode(cache[0]['result_json'])['reasons'], case['response']['reasons'])
+                    for _ in range(2):
+                        self.assertEqual(other.client.get(other.base + '/activities').json()['activities'][0], activity)
+                        self.assertEqual(other.client.get(other.base + '/roadmap').json()['activity_recommendations']['activities'][0], activity)
+                    self.assertEqual(other.sdk.models.generate_content.call_count, expected_calls)
+                finally:
+                    other.doCleanups()
+        self.assertEqual(len(set(outputs)), 4)
+
+    def test_activity_abstention_is_saved_but_never_labelled_generated(self):
+        self.items = [deepcopy(ITEM)]
+        abstention = {'reasons': [{'activity_id': 'contestkorea:climate', 'sentences': []}]}
+        self.sdk.models.generate_content.side_effect = lambda **kw: Mock(text=json.dumps(abstention))
+        result = self.saved()['activity_recommendations']['activities'][0]
+        self.assertEqual(result['reason_source'], 'fallback')
+        self.assertEqual(result['reason_status'], 'needs_verification')
+        self.assertEqual(result['reason_evidence'], [])
+        self.assertEqual(self.client.get(self.base + '/activities').json()['activities'][0], result)
+        self.saved(refresh=True)
+        self.assertEqual(self.sdk.models.generate_content.call_count, 1)
+
+    def test_activity_budget_limit_preserves_candidates_without_provider_call(self):
+        with patch.dict(os.environ, {'ROADMAP_AI_GLOBAL_DAILY_UNITS': '0'}):
+            result = self.saved()['activity_recommendations']
+        self.assertEqual(len(result['activities']), 2)
+        self.assertEqual(result['activity_reasons_error'], 'ai_budget_exceeded')
+        self.assertTrue(all(a['reason_status'] == 'generation_failed' for a in result['activities']))
+        self.sdk.models.generate_content.assert_not_called()
 
 
 if __name__ == '__main__':
