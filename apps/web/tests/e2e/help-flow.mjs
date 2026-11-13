@@ -68,7 +68,7 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
   await poll(()=>button('다음: 이수 과목').isEnabled(),'document ready');await help('documents','close');await image('documents');await clean();
   await button('읽힌 내용').click();await page.getByRole('dialog',{name:'읽힌 내용',exact:true}).waitFor();await clean();await page.keyboard.press('Escape');assert.equal(await button('읽힌 내용').evaluate(el=>el===document.activeElement),true);
   await button('다음: 이수 과목').click();await page.waitForURL('**/input/courses');await poll(()=>page.getByRole('switch').first().isEnabled(),'courses loaded');
-  for(const name of ['프로그래밍 기초','자료구조']){await page.getByRole('switch',{name:new RegExp('^'+name+' ')}).click();await poll(()=>page.getByRole('switch').first().isEnabled(),'course saved');}
+  for(const name of ['프로그래밍 기초','자료구조']){await page.getByRole('switch',{name:new RegExp('^'+name+' ')}).click();await page.locator('.course-save-status').filter({hasText:'이수 선택이 저장되었습니다.'}).waitFor();}
   const beforeCourses=await get('/courses?catalog_id='+(await get()).input.catalog_id+'&page_size=1');await help('courses');assert.equal((await get('/courses?catalog_id='+(await get()).input.catalog_id+'&page_size=1')).selection_summary.count,2);assert.equal(beforeCourses.selection_summary.known_credits,6);await image('courses');
   await page.route('**/course-selection-review',route=>route.fulfill({status:503,json:{message:'이수 선택을 저장하지 못했습니다. 다시 시도해 주세요.'}}),{times:1});
   await button('이수 선택 확인').click();await page.getByRole('alert').filter({hasText:'이수 선택을 저장하지 못했습니다.'}).waitFor();assert.ok(page.url().endsWith('/input/courses'));await help('courses');await clean();

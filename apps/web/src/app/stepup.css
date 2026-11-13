@@ -56,10 +56,6 @@ input[type=checkbox],input[type=radio]{accent-color:#536de7}
 .inline-fields .field{margin-top:0}
 .field textarea[aria-invalid=true]{border:2px solid #e35664;box-shadow:0 0 0 4px #e356641f}
 
-.course-confirm-bar{position:sticky;bottom:16px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border:1px solid #dce5f5;border-radius:12px;background:#fff;box-shadow:0 4px 24px #263b5820;margin-top:20px}
-.course-confirm-bar>div{min-width:0;display:grid;gap:4px}
-.course-confirm-bar>button{flex-shrink:0;min-height:44px}
-@media(max-width:700px){.course-confirm-bar{position:fixed;bottom:0;left:0;right:0;margin:0;border-radius:14px 14px 0 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));gap:10px}.course-confirm-bar .field-help{font-size:11px}.service-content:has(.course-confirm-bar){padding-bottom:130px}}
 
 .result-summary.result-goal{grid-template-columns:minmax(0,1fr)}
 .career-editor{background:#f8faff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:24px;max-width:900px}

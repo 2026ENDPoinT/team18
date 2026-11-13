@@ -18,7 +18,8 @@ page.on('request', r => { if (r.url().endsWith('/course-selection-review')) revi
 const button = text => page.getByRole('button', { name: text, exact: true });
 async function poll(check, label) { for (let i=0;i<200;i++) { if (await check()) return; await delay(100); } throw Error('Timeout: '+label); }
 async function saved() { await page.getByRole('status').filter({ hasText: '저장되었습니다.' }).waitFor(); }
-async function ready() { await poll(() => page.getByRole('switch').first().isEnabled(), 'courses ready'); }
+async function ready() { await poll(async () => await page.getByRole('switch').first().isEnabled() && !(await page.locator('.course-save-status').innerText()).includes('저장 중'), 'courses saved and ready'); }
+async function missingReport(target) { const disclosure=page.getByRole('button',{name:/선택 목록·누락 신고/}); await disclosure.click(); await page.getByRole('checkbox',{name:'목록에 없는 이수 과목이 있어요'}).setChecked(target); await disclosure.click(); }
 async function go(path) { await page.goto(origin+path); }
 async function plan() { return page.evaluate(async () => (await fetch('/api/roadmap-inputs/'+sessionStorage.getItem('roadmap_request_id'))).json()); }
 async function courses() { const p=await plan(); return page.evaluate(async ({id,cid}) => (await fetch(`/api/roadmap-inputs/${id}/courses?catalog_id=${cid}&page_size=100`)).json(), {id:p.request_id,cid:p.input.catalog_id}); }
@@ -73,7 +74,7 @@ try {
  assert.ok(!(await page.locator('body').innerText()).includes('Google Cloud Vision으로 전송'));
  await page.screenshot({path:`${artifacts}/documents-desktop.png`,fullPage:true});
  await button('문서 없이 계속').click();await ready();
- await noMetadata();assert.equal(await page.locator('tbody tr').count(),20);
+ await noMetadata();assert.equal(await page.locator('[data-course-id]').count(),(await courses()).total);
  assert.equal(await button('이수 선택 확인').count(),1);
  assert.equal(await button('이수 선택 확인 완료').count(),0);
  assert.equal(await button('다음: 분석 내용 확인').count(),0);
@@ -82,7 +83,7 @@ try {
  console.log('PASS: school change, catalog fetch retry, upload-area skip, real course names and zero-selection confirmation');
 
  await go('/input/courses');await ready();
- await page.getByRole('checkbox',{name:'목록에 없는 이수 과목이 있어요'}).check();
+ await missingReport(true);
  await page.getByRole('switch').nth(0).click();await ready();
  assert.equal((await courses()).selection_summary.count,1);
  // Hold the GET after the last PATCH, then confirm twice while that save is pending.
@@ -100,9 +101,9 @@ try {
 
  await go('/input/courses');await ready();
  await page.getByRole('switch').nth(0).click();await ready();
- assert.equal(await page.getByRole('checkbox',{name:'목록에 없는 이수 과목이 있어요'}).isChecked(),true,'resumed missing report survives another toggle');
+ assert.equal(await page.locator('#course-selection-details input[type=checkbox]').isChecked(),true,'resumed missing report survives another toggle');
  await page.getByRole('switch').nth(0).click();await ready();
- await page.getByRole('checkbox',{name:'목록에 없는 이수 과목이 있어요'}).uncheck();
+ await missingReport(false);
  await page.route('**/course-selections',route=>route.fulfill({status:503,json:{message:'일시적인 선택 저장 실패'}}),{times:1});
  await page.getByRole('switch').nth(2).click();
  await button('다시 저장').waitFor();assert.equal(await button('이수 선택 확인').isDisabled(),true);
@@ -118,7 +119,7 @@ try {
  const tab=await context.newPage();await tab.goto(origin+'/input/courses');
  await poll(()=>tab.getByRole('switch').first().isEnabled(),'second tab ready');
  await tab.getByRole('switch').nth(3).click();
- await poll(()=>tab.getByRole('switch').nth(3).getAttribute('aria-checked').then(v=>v==='true'),'second tab saved');
+ await tab.locator('.course-save-status').filter({hasText:'이수 선택이 저장되었습니다.'}).waitFor();
  await button('이수 선택 확인').click();await page.getByRole('alert').waitFor();
  assert.equal(new URL(page.url()).pathname,'/input/courses');assert.equal(await button('이수 선택 확인').isDisabled(),true);
  await button('최신 상태 불러오기').click();await ready();
@@ -162,16 +163,15 @@ try {
 
  const all=await courses();const first=all.courses[0];
  await page.getByRole('textbox',{name:'과목명·코드 검색'}).fill(first.course_code);
- await poll(async()=>await page.locator('tbody tr').count()===1 && await page.getByRole('switch').first().isEnabled(),'search');
- await button('검색·필터 초기화').click();await poll(async()=>await page.locator('tbody tr').count()===20 && await page.getByRole('switch').first().isEnabled(),'reset');
- await page.getByRole('combobox',{name:'학년 필터'}).selectOption('2');await ready();
+ await poll(async()=>await page.locator('[data-course-id]').count()===1,'search');
+ assert.equal(await page.locator('.course-year-grid>.course-year').count(),4);
+ await button('필터 초기화').click();await poll(async()=>await page.locator('[data-course-id]').count()===all.total,'reset');
+ await page.getByRole('combobox',{name:'전공 구분 필터'}).selectOption(first.category);
  await page.getByRole('checkbox',{name:'선택한 과목만 보기'}).check();
  await poll(async()=>await page.getByRole('switch',{checked:false}).count()===0,'selected-only');
- await button('검색·필터 초기화').click();await poll(async()=>await page.locator('tbody tr').count()===20 && await page.getByRole('switch').first().isEnabled(),'reset again');
- await button('다음 페이지').click();await ready();
- assert.equal(await page.locator('.pagination').innerText().then(t=>t.includes('2 / 3')),true);
- assert.equal(await page.locator('.course-confirm-bar strong').innerText(),'선택 4개');
- await button('이전 페이지').click();await ready();
+ assert.equal(await page.locator('.course-confirm-summary strong').innerText(),`선택 ${all.selection_summary.count}과목 · ${all.selection_summary.known_credits}학점`);
+ await button('필터 초기화').click();await poll(async()=>await page.locator('[data-course-id]').count()===all.total,'reset again');
+ assert.equal(await page.locator('.pagination').count(),0);
  await page.addStyleTag({content:'nextjs-portal { display: none; }'}); // Hide Next's development-only badge in screenshots.
  for(const width of [390,320]){
   await page.setViewportSize({width,height:844});await page.evaluate(()=>scrollTo(0,0));
