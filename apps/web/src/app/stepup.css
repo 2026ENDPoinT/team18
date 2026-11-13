@@ -22,7 +22,13 @@ button.account-link{border:0;background:transparent;padding:8px 0;min-height:44p
 .side-toolbar{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:14px}
 .sidebar-toggle{display:inline-flex;align-items:center;justify-content:center;flex:none;gap:5px;min-height:36px;padding:7px 7px;border-color:#e2eaf4;background:#fff;color:#74869f;font-size:12px;white-space:nowrap}
 .sidebar-toggle svg{flex:none}
-.side-nav{display:grid;gap:5px;margin:0 0 28px}.side-nav a{display:flex;gap:11px;align-items:center;border-radius:9px;padding:12px;color:#758094;font-weight:600;text-decoration:none}.side-nav a:hover{background:#f5f7fd}.side-nav a.active{background:#edf1ff;color:#465fd8}.side-nav-icon{flex:0 0 20px;width:20px;font-size:17px;text-align:center}.side-nav-label{min-width:0}
+.side-nav{display:grid;gap:5px;margin:0 0 28px}
+.side-nav a{display:flex;gap:12px;align-items:center;border-radius:9px;padding:12px;color:#64748B;font-weight:600;text-decoration:none;transition:background-color 160ms ease,color 160ms ease}
+.side-nav a:hover{background:#F8FAFC;color:#4F46E5}
+.side-nav a.active{background:#EEF2FF;color:#4F46E5}
+.side-nav-icon{display:block;flex:0 0 22px;width:22px;height:22px}
+.side-nav-label{min-width:0}
+@media(prefers-reduced-motion:reduce){.side-nav a{transition:none}}
 @media(min-width:901px){
  .stepup-app[data-sidebar-collapsed=true]{--sidebar-width:72px}
  .stepup-app[data-sidebar-collapsed=true] .stepup-side{padding:28px 10px}
