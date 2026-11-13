@@ -26,7 +26,7 @@ export function dashboardCards(plan, resources) {
  const school = ref?.universities.find(item => item.university_id === input.university_id)?.university_name;
  const department = ref?.departments.find(item => item.department_id === input.department_id)?.department_name;
  const basic = make('basic', '기본 정보', '/input/basic', [
-  [school || (input.university_id ? '학교명 조회 필요' : '학교 미선택'), department || (input.department_id ? '학과명 조회 필요' : '학과 미선택'), input.year_level ? `${input.year_level}학년` : '학년 미입력'].join(' · '),
+  [school || (input.university_id ? '학교명 조회 필요' : '학교 미선택'), department || (input.department_id ? '학과명 조회 필요' : '학과 미선택')].join(' · '),
   input.career_goal || '목표·관심 분야를 입력해 주세요.', `희망 직무: ${input.target_role || '아직 정하지 않았어요'}`,
  ], '기본 정보 확인·수정');
  if (error('reference')) basic.lines.push('학교·학과 이름을 불러오지 못했습니다. 다시 조회해 주세요.');
@@ -39,7 +39,7 @@ export function dashboardCards(plan, resources) {
  ], '문서와 읽힌 내용 확인');
  const selected = data('courses');
  const courses = make('courses', '이수 과목', '/input/courses', selected ? [
-  `선택 ${selected.selection_summary.count}개 · ${selected.selection_summary.known_credits}학점${selected.selection_summary.unknown_credits_count ? ` · 학점 미제공 ${selected.selection_summary.unknown_credits_count}개` : ''}`,
+  `선택 ${selected.selection_summary.count}과목`,
   selected.selected_courses.slice(0, 3).map(course => course.course_name).join(', ') || '선택한 과목이 없습니다. 0개로도 확인할 수 있어요.',
  ] : ['연결된 과목 목록이 없습니다. 기본 정보에서 학교·학과를 확인해 주세요.'], '이수 선택 확인·수정');
  const analysis = data('experience');

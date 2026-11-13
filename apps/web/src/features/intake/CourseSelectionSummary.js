@@ -1,6 +1,6 @@
 'use client';
 import './courses.css';
-import { courseYear, termSections } from './courseCatalog.mjs';
+import { courseYears, termSections } from './courseCatalog.mjs';
 
 function SelectedYearTable({ year, courses }) {
  const title = year ? `${year}학년` : '학년 미지정';
@@ -17,13 +17,10 @@ function SelectedYearTable({ year, courses }) {
  </section>;
 }
 
-export function SelectedCoursesSummary({ data, byYear = false }) {
- const selected = data.selected_courses;
+export function SelectedCoursesSummary({ data }) {
+ const years = courseYears(data.selected_courses);
  return <>
   <p><strong>{data.selection_summary.count}개 과목</strong></p>
-  {byYear ? <>
-   <div className="course-year-grid">{[1, 2, 3, 4].map(year => <SelectedYearTable key={year} year={year} courses={selected.filter(course => courseYear(course) === year)}/>)}</div>
-   {selected.some(course => courseYear(course) === null) && <div className="course-unassigned"><SelectedYearTable year={null} courses={selected.filter(course => courseYear(course) === null)}/></div>}
-  </> : <ul>{selected.length ? selected.map(course => <li key={course.course_id}>{course.course_name}</li>) : <li>선택한 이수 과목 없음</li>}</ul>}
+  <div className="course-year-grid">{years.map(group => <SelectedYearTable key={group.year || 'unknown'} {...group}/>)}</div>
  </>;
 }

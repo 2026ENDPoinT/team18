@@ -29,29 +29,33 @@ export function withPendingSelections(data, pending) {
   ? { ...course, is_completed: pending.get(course.course_id) } : course);
  const selected = courses.filter(course => course.is_completed);
  return { ...data, courses, selected_courses: selected, review_status: 'unconfirmed',
-  selection_summary: {
-   count: selected.length,
-   known_credits: Number(selected.reduce((sum, course) => sum + Number(course.credits ?? 0), 0).toFixed(2)),
-   unknown_credits_count: selected.filter(course => course.credits === null).length,
-  },
+  selection_summary: { count: selected.length },
   out_of_scope_completed_courses: data.out_of_scope_completed_courses.filter(course => pending.get(course.course_id) !== false),
  };
 }
 export function courseYear(course) {
  return [1, 2, 3, 4].includes(Number(course.recommended_year)) ? Number(course.recommended_year) : null;
 }
+export function courseYears(courses) {
+ const groups = new Map([1, 2, 3, 4, null].map(year => [year, []]));
+ for (const course of courses) groups.get(courseYear(course)).push(course);
+ return [...groups].filter(([year, items]) => year !== null || items.length).map(([year, items]) => ({ year, courses: items }));
+}
 export function courseTerm(course) {
  const term = String(course.recommended_term ?? '').trim();
  return /^(1|2)(학기)?$/.test(term) ? Number(term[0]) : null;
 }
-export function filterCourses(courses, { search, category, only }) {
+export function filterCourses(courses, { search, only }) {
  const query = search.trim().toLocaleLowerCase();
  return courses.filter(course => (!query || `${course.course_name} ${course.course_code || ''}`.toLocaleLowerCase().includes(query)) &&
-  (!category || course.category === category) && (!only || course.is_completed));
+  (!only || course.is_completed));
+}
+const courseNameCollator = new Intl.Collator('ko', { numeric: true, sensitivity: 'base' });
+export function sortCoursesByName(courses) {
+ return [...courses].sort((a, b) => courseNameCollator.compare(a.course_name.trim(), b.course_name.trim()) || a.course_id.localeCompare(b.course_id));
 }
 export function termSections(courses) {
  return [1, 2, null].map(term => ({ term, title: term ? `${term}학기` : '학기 미지정',
-  courses: courses.filter(course => courseTerm(course) === term)
-   .sort((a, b) => a.course_name.localeCompare(b.course_name, 'ko') || a.course_id.localeCompare(b.course_id)),
+  courses: sortCoursesByName(courses.filter(course => courseTerm(course) === term)),
  }));
 }

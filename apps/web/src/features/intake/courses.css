@@ -1,55 +1,53 @@
 /* One page scroll, with stable year columns even when filters have no matches. */
-.service-content:has(.course-page) { max-width:none; padding-bottom:190px; }
+.service-content:has(.course-page) { max-width:none; padding-bottom:150px; }
 .course-toolbar { margin:0 0 18px; }
 .course-toolbar .filters { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
 .course-toolbar .filters>input { flex:1; min-width:150px; }
-.course-toolbar .filters>select { flex:0 1 175px; }
 .course-toolbar .check-line { align-items:center; flex:none; margin:0; white-space:nowrap; }
 .course-toolbar .check-line input { flex:0 0 16px; width:16px; height:16px; margin:0; }
-.course-toolbar .filters>button { flex:none; min-height:44px; font-size:12px; }
 .course-toolbar>p { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; margin:0; }
-/* Compact the tables uniformly while letting their columns fill the available width. */
-.course-year-grid,.course-unassigned { zoom:90%; }
+.course-toolbar .course-bulk-help { margin-top:6px; }
 .course-year-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); align-items:start; gap:14px; }
 .course-year { min-width:0; border:1px solid #dfe7f3; border-radius:12px; background:#fff; overflow:hidden; }
-.course-year-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:4px 8px; padding:16px 14px; border-bottom:1px solid var(--line); }
+.course-year-heading { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:6px 8px; padding:14px; border-bottom:1px solid var(--line); }
 .course-year-heading h2,.course-year-heading h3 { margin:0; color:#273c5b; font-size:18px; letter-spacing:-.5px; }
 .course-year-heading>span { font-size:11px; color:#627799; white-space:nowrap; }
+.course-term-actions { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:6px 8px; }
+.course-year-actions { display:contents; }
+.course-year-actions>.course-group-toggle { grid-column:2; grid-row:1 / 3; }
+.course-year-actions>span { grid-column:1; font-size:11px; color:#627799; white-space:nowrap; }
+.course-page .course-group-toggle { flex:none; min-height:32px; padding:5px 8px; border:1px solid #a9b8d0; border-radius:3px; background:#fff; color:#334c76; font-size:11px; line-height:1.4; white-space:nowrap; }
+.course-page .course-group-toggle:hover:not(:disabled) { background:#e8eeff; border-color:#7c91bd; }
 .course-year-table { width:100%; table-layout:fixed; }
 .course-check-column { width:56px; }
-.course-year-table th,.course-year-table td { padding:13px 0 13px 14px; vertical-align:top; border-bottom:1px solid #9aaac2; }
+.course-year-table th,.course-year-table td { padding:12px 0 12px 14px; vertical-align:top; border-bottom:1px solid #9aaac2; }
 .course-year-table td { vertical-align:middle; }
 .course-selected-table td { padding-right:14px; }
 .course-year-table .course-term th { background:#1e3a8a; padding:8px 14px; font-size:11px; color:#fff; }
 .course-term th>span { float:right; color:#dbeafe; font-weight:400; }
+.course-term-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px 8px; }
+.course-page .course-term .course-group-toggle { color:#fff; background:transparent; border-color:#91a9df; }
+.course-page .course-term .course-group-toggle:hover:not(:disabled) { background:#3153a1; border-color:#dbeafe; }
+.course-term-actions>span { color:#dbeafe; font-weight:400; white-space:nowrap; }
 .course-year-table tbody:last-child tr:last-child td { border-bottom:0; }
 .course-year-table tbody:not(:last-child) tr:last-child td { border-bottom:1px solid #9aaac2; }
-.course-year-table .is-completed { background:#f4f7ff; }
+.course-year-table .is-completed { background:#edf2ff; }
+.course-year[data-year=unknown],.course-year[data-selected-year=unknown] { grid-column:1 / -1; }
 .course-year-table tr[data-course-id]:has(.course-toggle:not(:disabled)) { cursor:pointer; }
 .course-name { display:block; font-size:14px; line-height:1.55; color:#273c5b; word-break:keep-all; overflow-wrap:anywhere; }
-.course-meta { margin-top:5px; font-size:11px; color:#6e7d93; line-height:1.6; }
 .course-year-table .course-check-cell { padding:11px 6px 11px 0; text-align:right; }
-.course-page .course-toggle { display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; width:44px; min-height:52px; border:0; border-radius:7px; padding:4px; background:transparent; font-size:10px; color:#7a899d; white-space:nowrap; }
-.course-checkmark { display:grid; place-items:center; width:24px; height:24px; border:1.5px solid #bcc9dd; border-radius:7px; background:#fff; color:#fff; font-size:16px; font-weight:700; }
+.course-page .course-toggle { display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; width:44px; min-height:52px; border:0; border-radius:2px; padding:4px; background:transparent; font-size:10px; color:#7a899d; white-space:nowrap; }
+.course-checkmark { display:grid; place-items:center; width:24px; height:24px; border:1.5px solid #bcc9dd; border-radius:2px; background:#fff; color:#fff; font-size:16px; font-weight:700; }
 .course-page .course-toggle[aria-checked=true] { color:#4662d6; }
 .course-toggle[aria-checked=true] .course-checkmark { background:#536de7; border-color:#536de7; }
 .course-page .course-toggle:focus-visible { outline-offset:-2px; }
 .course-year-empty { min-height:100px; padding:18px 14px; margin:0; color:#7b8aa1; font-size:12px; }
-.course-unassigned { margin-top:18px; }
-.course-unassigned .course-year-table { max-width:650px; }
-.course-page .course-confirm-bar { position:fixed; bottom:16px; left:280px; right:42px; z-index:5; padding:14px 20px; border:1px solid #dce5f5; border-radius:12px; background:#fff; box-shadow:0 4px 24px #263b5820; }
+.course-page .course-confirm-bar { position:fixed; bottom:16px; left:280px; right:42px; z-index:5; padding:12px 18px; border:1px solid #dce5f5; border-radius:12px; background:#fff; box-shadow:0 4px 24px #263b5820; }
 .course-confirm-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.course-confirm-summary { display:flex; align-items:center; gap:18px; flex-wrap:wrap; min-width:0; }
+.course-confirm-summary { display:flex; align-items:center; gap:12px; flex-wrap:wrap; min-width:0; }
 .course-confirm-summary>strong { font-size:16px; color:#273c5b; }
 .course-confirm-row>.primary { flex:none; min-height:44px; }
-.course-page .course-details-button { padding:4px 0; min-height:28px; border:0; background:transparent; color:#677ca0; font-size:12px; font-weight:400; text-align:left; }
-.course-details-button span { margin-left:4px; }
 .course-save-status { margin:4px 0 0; }
-.course-selection-details { max-height:min(50dvh,380px); overflow-y:auto; overscroll-behavior:contain; border-bottom:1px solid var(--line); padding:0 4px 16px; margin-bottom:14px; }
-.course-selection-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; }
-.course-selection-heading h2 { margin:0; font-size:16px; }
-.course-selection-details>p { font-size:12px; margin:8px 0; }
-.course-selection-details ul { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 28px; padding-left:20px; font-size:12px; overflow-wrap:anywhere; }
 @media (max-width:1199px) {
  .course-year-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
  .course-toolbar .filters { flex-wrap:wrap; }
@@ -61,8 +59,6 @@
  .course-year-grid { grid-template-columns:minmax(0,1fr); gap:18px; }
  .course-toolbar .filters { gap:10px; }
  .course-toolbar .filters>input { flex:1 0 100%; }
- .course-toolbar .filters>select { flex:1 0 100%; }
- .course-toolbar .filters>button { margin-left:auto; }
  .course-toolbar>p>span { flex-basis:100%; }
  .course-year-heading { padding:14px 16px; }
  .course-year-heading>span { font-size:12px; }
@@ -73,8 +69,6 @@
  .course-confirm-summary>strong { font-size:14px; }
  .course-confirm-row>.primary { font-size:13px; padding:10px 12px; }
  .course-save-status { font-size:11px; }
- .course-selection-details ul { grid-template-columns:minmax(0,1fr); }
- .course-selection-heading { align-items:flex-start; flex-wrap:wrap; }
 }
 
 /* Final review stays above the page and keeps its actions visible while tables scroll. */

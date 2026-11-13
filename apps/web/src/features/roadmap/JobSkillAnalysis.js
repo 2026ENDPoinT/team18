@@ -85,7 +85,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange 
   <div className="job-analysis-heading"><h3>채용공고 기술 스택 분석</h3>
   <button className="primary" disabled={phase === 'loading' || saving} onClick={() => { nextAction.current = { run: true, force: Boolean(data?.snapshot_id) }; setRetry(v => v + 1); }}>{hasPreviousAnalysis ? '직무 분석 다시 실행' : '직무 분석 실행'}</button></div>
   {(careerChanged||outdated)&&<p className="notice" role="status">진로 정보가 변경되었습니다. 현재 진로 정보로 분석하려면 ‘{hasPreviousAnalysis?'직무 분석 다시 실행':'직무 분석 실행'}’을 눌러 주세요.</p>}
-  {phase === 'loading' && <p role="status">{analyzing ? '직무 검색어 생성 → 채용공고 수집 → 기술 및 원문 근거 분석 중입니다…' : '저장된 직무 분석을 불러오고 있습니다…'}</p>}
+  {phase === 'loading' && <p role="status">{analyzing ? '분석 중입니다' : '저장된 직무 분석을 불러오고 있습니다…'}</p>}
   {data?.status === 'not_started' && <p className="notice">직무 분석을 실행한 뒤 경험을 비교하고 로드맵을 생성할 수 있습니다. 외부 분석이 어려우면 제한 안내 로드맵을 이용해 주세요.</p>}
   {phase === 'error' && <p role="alert">{message}</p>}
   {data && <>

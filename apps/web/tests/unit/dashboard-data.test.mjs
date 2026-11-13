@@ -17,7 +17,8 @@ test('a failed card stays an error while independent saved values survive; GET o
  assert.equal(cards.length,8);
  assert.equal(cards.find(card=>card.key==='documents').error,'문서 일시 실패');
  assert.ok(cards.find(card=>card.key==='experience').lines.includes('수정한 수행'));
- assert.ok(cards.find(card=>card.key==='courses').lines.includes('선택 0개 · 0학점'));
+ assert.ok(cards.find(card=>card.key==='courses').lines.includes('선택 0과목'));
+ assert.ok(!cards.find(card=>card.key==='basic').lines.join(' ').includes('학년'));
  assert.ok(calls.every(([,options])=>options===undefined));
 });
 test('no goal or catalog skips unavailable lookups; current owner/plan paths only', async()=>{
