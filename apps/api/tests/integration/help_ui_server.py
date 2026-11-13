@@ -7,9 +7,10 @@ from contextlib import closing
 import explore_ui_server as explore
 from repositories.plans import connect
 from scripts.seed_dev import U, D, C1, C2
-from services.roadmap_schemas import GeneratedRoadmap
+from services import activity_reasons
 
 server = explore.server
+explore.state['partial'] = False
 with closing(connect()) as db:
     db.execute('UPDATE universities SET university_name=? WHERE university_id=?', ('한빛대학교 (예시)', U))
     db.execute('UPDATE departments SET department_name=? WHERE department_id=?', ('컴퓨터공학과', D))
@@ -18,43 +19,21 @@ with closing(connect()) as db:
     db.execute('UPDATE course_catalogs SET is_selectable=0 WHERE catalog_id=?', (C2,))
     db.execute('UPDATE catalog_courses SET description_text=?,description_page_start=12,description_page_end=12 WHERE catalog_id=? AND course_id=?',
                ('관계형 데이터베이스의 구조와 SQL을 활용한 데이터 조회 및 집계를 학습한다.', C1, server.roadmap_scenario.DB_COURSE))
+    db.execute('UPDATE catalog_courses SET recommendation_reason=? WHERE catalog_id=? AND course_id=?',
+               ('SQL로 데이터를 조회하고 집계하는 방법을 익혀 데이터 분석에 필요한 기초를 다질 수 있습니다.', C1, server.roadmap_scenario.DB_COURSE))
+    for name, description, reason in [
+        ('소프트웨어 설계', '요구사항을 정리하고 소프트웨어의 구조와 구성 요소를 설계한다.',
+         '분석 결과를 제공하는 서비스를 구상할 때 필요한 요구사항 정리와 소프트웨어 구조 설계를 연습할 수 있습니다.'),
+        ('운영체제', '프로세스와 메모리 관리, 파일 시스템의 동작 원리를 학습한다.',
+         '데이터 처리 프로그램이 실행되는 환경을 이해하는 데 필요한 프로세스·메모리·파일 관리의 기초를 학습합니다.'),
+        ('프로젝트 실습', '문제를 정의하고 팀 프로젝트의 구현 결과를 검증하여 문서로 정리한다.',
+         '관심 있는 데이터 문제를 프로젝트로 구체화하고, 구현 결과와 본인이 맡은 역할을 정리하는 연습을 할 수 있습니다.'),
+    ]:
+        db.execute('UPDATE catalog_courses SET description_text=?,recommendation_reason=? WHERE catalog_id=? AND course_name=?',
+                   (description, reason, C1, name))
     db.execute('INSERT INTO catalog_course_keywords(catalog_id,course_id,keyword,keyword_role,evidence_text,evidence_page_start,evidence_page_end) VALUES(?,?,?,?,?,?,?)',
                (C1, server.roadmap_scenario.DB_COURSE, 'SQL', 'learning', 'SQL을 활용한 데이터 조회 및 집계를 학습한다.', 12, 12))
     db.commit()
-
-
-def roadmap(data):
-    server.counters['roadmap_fixture'] += 1
-    raw = server.roadmap_scenario.fake_roadmap(data).model_dump()
-    skill = next(item for item in data['skills'] if item['skill_name'] == 'SQL')
-    for course in raw['recommended_courses']:
-        course['reason'] = 'SQL로 데이터를 조회하고 집계하는 학습 내용이 데이터 분석 목표와 연결됩니다.'
-        course['personalization_reason'] = '행사 신청 데이터를 분석하려는 목표와 연결해 SQL 조회·집계 내용을 살펴볼 수 있어요.'
-    tasks = [
-        ('SQL로 맡은 조회 작업 확인하기', '행사 신청 프로젝트에서 SQL을 직접 사용한 경험을 확인하고 담당한 쿼리를 찾아 정리하세요.', '담당한 쿼리와 역할을 적거나, 찾지 못한 경우 확인이 필요하다고 기록하면 완료입니다.', '담당 쿼리와 역할을 적은 경험 확인 메모'),
-        ('집계 결과를 설명한 경험 확인하기', 'SQL 집계 결과를 직접 설명한 경험을 확인하고 결과 화면이나 메모를 찾아 정리하세요.', '본인이 설명한 부분과 자료 위치 또는 확인할 질문을 기록하면 완료입니다.', '결과 화면과 본인 설명을 묶은 기록'),
-        ('SQL 경험 확인 답변 정리하기', '앞서 찾은 자료로 SQL 경험을 확인하고 본인의 수행 내용과 더 확인할 질문을 정리하세요.', '직접 수행한 일과 팀원이 맡은 일을 구분한 기록이 있으면 완료입니다.', '본인 역할과 팀 역할을 구분한 프로젝트 메모'),
-    ]
-    for step, (title, action, criteria, artifact) in zip(raw['roadmap'], tasks):
-        step.update(title=title, purpose='데이터 분석 목표와 연결되는 본인의 SQL 경험 정리',
-                    reason='행사 신청 데이터를 분석하고 싶다는 목표가 있고, 문서에 있는 SQL 경험은 본인 확인이 필요해요.',
-                    limitations='현재 확인한 프로젝트 자료를 기준으로 합니다.')
-        task = step['tasks'][0]
-        if skill['student_status'] not in ('confirmed_experience', 'no_experience'):
-            task.update(title=title, action=action, completion_criteria=criteria, deliverable=artifact)
-    return GeneratedRoadmap(**raw)
-
-
-server.roadmaps.generate_roadmap = roadmap
-
-
-def course_reasons(data):
-    return {'reasons': [{'course_id': course['course_id'],
-        'personalization_reason': '행사 신청 데이터를 분석하려는 목표와 연결해 SQL 조회·집계 내용을 살펴볼 수 있어요.',
-        'evidence_ids': [course['evidence'][0]['id']] if course['evidence'] else []} for course in data['courses']]}
-
-
-server.roadmaps.generate_course_reasons = course_reasons
 
 
 def activities(db, *, include_event_context=False):
@@ -67,6 +46,27 @@ def activities(db, *, include_event_context=False):
 
 
 server.activities.load_contestkorea_catalog = activities
+
+
+def activity_reason_response(schema, instruction, data, **kwargs):
+    """Mock only AI output; real evidence validation and saved reasons still run."""
+    server.counters['activity_reason_fixture'] = server.counters.get('activity_reason_fixture', 0) + 1
+    reasons = []
+    for activity in data['activities']:
+        evidence = next(item for item in activity['evidence'] if item['kind'] == 'detail')
+        references = [{'evidence_id': evidence['id'], 'quote': evidence['text']}]
+        reasons.append({'activity_id': activity['activity_id'], 'sentences': [
+            {'perspective': 'career', 'basis': 'inference',
+             'text': '공공데이터로 지역 생활의 문제를 살펴보는 활동을 통해 데이터 분석가라는 진로에 필요한 문제 정의와 분석 방향 설정을 연습해 볼 수 있습니다.',
+             'evidence': references, 'experience_ids': []},
+            {'perspective': 'expected', 'basis': 'inference',
+             'text': '관심 있는 문제와 관련된 데이터를 찾아보고 분석 결과를 해결 아이디어로 정리하는 경험으로 확장할 수 있습니다.',
+             'evidence': references, 'experience_ids': []},
+        ]})
+    return schema(reasons=reasons)
+
+
+activity_reasons._generate = activity_reason_response
 
 if __name__ == '__main__':
     import uvicorn
