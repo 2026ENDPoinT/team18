@@ -149,7 +149,7 @@ class ProjectExperienceAPI(unittest.TestCase):
             basis = capture_basis(db, db.execute('SELECT * FROM roadmap_inputs WHERE request_id=?', (self.rid,)).fetchone())
         self.assertTrue(model_input(basis)['skills'])
         self.assertTrue(all(s['allowed_action_type'] == 'verify_experience' for s in model_input(basis)['skills']))
-        with patch('api.routes.roadmaps.generate_roadmap', side_effect=fake_roadmap):
+        with patch('services.gemini_roadmap.generate_roadmap', side_effect=fake_roadmap):
             response = self.client.post(self.base + '/roadmap', json={'expected_input_revision': self.revision()})
         self.assertEqual(response.status_code, 201, response.text)
         saved = self.client.get(self.base + '/roadmap').json()

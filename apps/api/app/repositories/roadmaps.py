@@ -54,7 +54,7 @@ class RoadmapRepository(AnalysisRepository):
         self.db.execute('''INSERT INTO roadmap_runs(run_id,request_id,input_revision,basis_hash,catalog_id,
             basis_json,status,model_name,rules_version,created_at,lease_until) VALUES(?,?,?,?,?,?,'generating',?,?,?,?)''',
             (run_id, rid, basis['input_revision'], digest(basis), basis['profile']['catalog_id'], self.encode(basis),
-             basis['model_name'], basis['rules_version'], created, lease))
+             'server-assembled-v1', basis['rules_version'], created, lease))
         return self.get(rid, run_id)
 
     def update_work(self, rid, run_id, basis, work, *, update_hash=False):
@@ -106,7 +106,8 @@ def metadata(run, current):
         'limited_guidance_available': current.get('generation_mode') == 'limited_guidance',
         'restriction_reason': 'document_basis_changed' if restricted else None,
         'generation_expired': expired,
-        **({'generation_tasks': states, 'generation_complete': bool(work.get('verified')),
+        **({'generation_tasks': states, 'generation_complete': bool(work.get('verified'))
+            and run['status'] in ('success', 'partial') and states.get('roadmap') == 'success',
             'generation_error': work.get('error'), 'lease_until': lease.isoformat()} if work else {}),
     }
 

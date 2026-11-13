@@ -19,10 +19,10 @@ function install() {
   generation_complete:true, status:'partial', career_goal:plan.input.career_goal, skill_comparison:comparison,
   activity_recommendations:activities,
   recommended_courses:[{course_id:'course-1',course_name:'데이터베이스',personalization_reason:'기본 근거'}],
-  course_reasons:[{course_id:'course-1',personalization_reason:'저장된 AI 추천 이유입니다.'}], course_status:'available',
+  course_reasons:[{course_id:'course-1',personalization_reason:'저장된 교육과정 추천 이유입니다.'}], course_status:'available',
   basis:{catalog:{},review_status:'confirmed',outside_completed_courses:[]},
   preparation_summary:{confirmed_skills:[],skills_to_verify:[],learning_candidates:[]},
-  roadmap:[{step_id:'one',title:'분석 프로젝트 계획',purpose:'관심 분야 살펴보기',reason:'저장한 목표에 맞춘 실행 활동',tasks:[{task_id:'task-1',action:'데이터 분석 경험을 정리한다.',completion_criteria:'경험을 기록함',deliverable:'경험 메모',is_completed:!!run.task_completed,progress_version:run.task_version || 0}]}] });
+  roadmap:[] });
  const native = window.fetch;
  window.fetch = async (input, options={}) => {
   const url=String(input); if(!url.includes('/api/')) return native(input, options);
@@ -39,16 +39,11 @@ function install() {
    const run=state.runs[state.latest];
    return json(run ? {...(run.generation_complete ? full(run) : {status:'not_started'}),latest_generation:run} : {status:'not_started'});
   }
-  if(url.includes('/roadmaps/') && url.includes('/tasks/') && options.method==='PATCH') {
-   const run=state.runs[url.split('/roadmaps/')[1].split('/')[0]], body=JSON.parse(options.body);
-   if(body.expected_progress_version !== (run.task_version || 0)) return json({message:'진행 상태가 변경되었습니다.'},409);
-   run.task_completed=body.is_completed; run.task_version=(run.task_version || 0)+1;
-   window.saveBatch(); return json(full(run));
-  }
   if(url.includes('/roadmaps/')) {
    const run=state.runs[url.split('/roadmaps/')[1].split('/')[0]];
    return json(run?.generation_complete ? full(run) : {status:'generating', generation_complete:false, ...run});
   }
+  if(url.endsWith('/activities')) return json(activities);
   if(url.includes('/skill-comparison')) return json(comparison);
   if(url.includes('/courses?')) return json({selected_courses:[]});
   if(url.endsWith('/roadmap-inputs/test-plan')) return json(plan);
@@ -61,6 +56,7 @@ try {
   const context = await browser.newContext({viewport:slow === 'activities' ? {width:1440,height:900} : {width:390,height:844}});
   await context.addInitScript(install);
   const page=await context.newPage(), errors=[];
+  page.setDefaultTimeout(15000);
   page.on('pageerror', error=>errors.push(error.message));
   await page.goto(`${origin}/result?generate=1`);
   await page.getByRole('heading',{name:'맞춤형 진로 로드맵을 만들고 있어요'}).waitFor();
@@ -89,43 +85,38 @@ try {
    Object.keys(run.generation_tasks).forEach(key=>run.generation_tasks[key]='success');
    run.generation_complete=true; window.saveBatch();
   });
-  const roadmapTab = page.getByRole('tab',{name:'실행 로드맵',exact:true});
+  const roadmapTab = page.getByRole('tab',{name:'결과 요약',exact:true});
   await roadmapTab.waitFor();
   assert.equal(await roadmapTab.getAttribute('aria-selected'),'true');
-  assert.deepEqual(await page.getByRole('tab').allTextContents(),['실행 로드맵','수강 후보','직무 역량 비교','공모전·대외활동']);
+  assert.deepEqual(await page.getByRole('tab').allTextContents(),['결과 요약','수강 후보','직무 역량 비교','공모전·대외활동']);
   assert.equal(await page.getByRole('tab',{name:'준비 상태',exact:true}).count(),0);
   await page.locator('.result-basic').getByText('데이터 분석가',{exact:true}).waitFor();
   await page.locator('.result-course-summary').getByText('데이터베이스',{exact:true}).waitFor();
   await page.locator('.result-skill-summary').getByText('SQL',{exact:true}).first().waitFor();
   await page.locator('.result-activity-summary').getByText('데이터 분석 아이디어 공모전',{exact:false}).first().waitFor();
-  const task = page.getByRole('checkbox',{name:'데이터 분석 경험을 정리한다.'});
-  await task.click();
-  await page.waitForFunction(() => window.batchMock.reads.some(read => read.startsWith('PATCH ') && read.includes('/tasks/task-1')));
-  await page.waitForFunction(() => document.querySelector('.execution-steps input')?.checked === true);
+  assert.equal(await page.getByRole('checkbox').count(),0);
   await page.reload(); await roadmapTab.waitFor();
-  assert.equal(await task.isChecked(),true,'task progress remains saved on the combined roadmap');
   if (slow==='comparison') {
    await page.goto(`${origin}/result?tab=readiness`);
    await page.waitForURL('**/result?tab=roadmap');
    await page.locator('.result-basic').getByText('데이터 분석가',{exact:true}).waitFor();
    assert.equal(await roadmapTab.getAttribute('aria-selected'),'true');
-   assert.equal(await task.isChecked(),true);
    await roadmapTab.focus(); await page.keyboard.press('ArrowRight');
    await page.waitForURL('**/result?tab=courses');
    assert.equal(await page.getByRole('tab',{name:'수강 후보',exact:true}).evaluate(el=>el===document.activeElement),true);
    await page.keyboard.press('End'); await page.waitForURL('**/result?tab=activities');
-   await page.getByRole('button',{name:'결과 확인 완료 · 실행 로드맵 →',exact:true}).click();
+   await page.getByRole('button',{name:'결과 확인 완료 · 결과 요약 →',exact:true}).click();
    await page.waitForURL('**/result?tab=roadmap');
    assert.equal(await roadmapTab.evaluate(el=>el===document.activeElement),true);
   }
-  for (const name of ['실행 로드맵','수강 후보','직무 역량 비교','공모전·대외활동']) {
+  for (const name of ['결과 요약','수강 후보','직무 역량 비교','공모전·대외활동']) {
    await page.getByRole('tab',{name,exact:true}).click();
    await page.waitForFunction(label => [...document.querySelectorAll('[role=tab]')].find(tab => tab.textContent === label)?.getAttribute('aria-selected') === 'true', name);
    assert.equal(await page.getByRole('tab',{name,exact:true}).getAttribute('aria-selected'),'true');
-   if (name==='수강 후보') await page.getByText('저장된 AI 추천 이유입니다.').waitFor();
+   if (name==='수강 후보') await page.getByText('저장된 교육과정 추천 이유입니다.').waitFor();
   }
   assert.equal(await page.evaluate(() => window.batchMock.posts),1);
-  assert.equal(await page.evaluate(() => window.batchMock.reads.filter(x=>/\/activities$|course-reasons|job-skill-analysis|course-recommendations/.test(x)).length),0);
+  assert.equal(await page.evaluate(() => window.batchMock.reads.filter(x=>/course-reasons|job-skill-analysis|course-recommendations|\/tasks\//.test(x)).length),0);
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth<=innerWidth));
   if (slow==='comparison') {
    await page.getByRole('button',{name:'재분석',exact:true}).click();
@@ -133,8 +124,8 @@ try {
    await page.waitForFunction(() => window.batchMock.posts===2);
    assert.equal(await page.evaluate(() => window.batchMock.lastBody.refresh),true);
    await page.evaluate(() => { const run=window.batchMock.runs[window.batchMock.latest]; run.status='generating'; run.generation_tasks.activities='failed'; window.saveBatch(); });
-   await page.getByRole('alert').getByText('로드맵 생성 중 일부 작업을 완료하지 못했어요.').waitFor();
-   assert.equal(await page.getByRole('button',{name:'다시 시도'}).isDisabled(),true);
+   await page.getByText('일부 자료를 조회하지 못했습니다. 나머지 결과를 확인하고 저장합니다.',{exact:true}).waitFor();
+   assert.equal(await page.getByRole('button',{name:'다시 시도'}).count(),0);
    await page.evaluate(() => { window.batchMock.runs[window.batchMock.latest].status='failed'; window.saveBatch(); });
    await page.waitForFunction(() => ![...document.querySelectorAll('button')].find(button=>button.textContent==='다시 시도')?.disabled);
    await page.getByRole('button',{name:'다시 시도'}).click();
@@ -161,5 +152,5 @@ try {
   assert.deepEqual(errors,[]);
   await context.close();
  }
- console.log('PASS: three completion orders, four result tabs, summary and saved task progress on the roadmap, legacy link, retry and desktop/mobile layout');
+ console.log('PASS: three completion orders, four result tabs, summary without execution tasks, legacy link, retry and desktop/mobile layout');
 } finally { await browser.close(); }

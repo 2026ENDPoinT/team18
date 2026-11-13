@@ -11,9 +11,9 @@ class GuestGuardrails(RoadmapAPI):
     def test_failed_jobs_allow_saved_guidance_and_reanalysis(self):
         with patch('api.routes.job_skill_analysis.analyze_job_skills', return_value={'status':'error','skills':[], 'errors':[{'code':'upstream_down'}]}):
             self.assertEqual(self.client.post(self.base+'/job-skill-analysis', json={}).status_code,200)
-        with patch('api.routes.roadmaps.generate_roadmap') as ai:
+        with patch('services.gemini_roadmap.generate_roadmap') as ai:
             limited = self.make().json()
-            self.assertEqual(limited['generation_mode'],'limited_guidance')
+            self.assertEqual(limited['generation_mode'],'saved_data')
             self.assertEqual([c['course_id'] for c in limited['recommended_courses']], [DB_COURSE])
             self.assertEqual(limited['recommended_courses'][0]['recommendation_type'], 'exploration')
             self.assertEqual(limited['evidence'],{})
@@ -25,7 +25,7 @@ class GuestGuardrails(RoadmapAPI):
         self.jobs()
         self.assertFalse(self.client.get(self.base+'/roadmap').json()['limited_guidance_available'])
         run, calls = self.generated()
-        self.assertEqual(calls,1)
+        self.assertEqual(calls,0)
         self.assertNotEqual(run['run_id'],new['run_id'])
 
     def test_job_and_project_inflight_cost_only_once(self):
@@ -53,7 +53,7 @@ class GuestGuardrails(RoadmapAPI):
             self.assertEqual(result.status_code,429,result.text)
             self.assertEqual(result.json()['error'],'ai_budget_exceeded')
             self.assertEqual(self.client.get(self.base+'/skill-comparison').status_code,200)
-            self.assertEqual(self.make().json()['generation_mode'],'limited_guidance')
+            self.assertEqual(self.make().json()['generation_mode'],'saved_data')
             ai.assert_not_called()
 
     def test_verified_outside_equivalence_and_same_name_remain_distinct(self):

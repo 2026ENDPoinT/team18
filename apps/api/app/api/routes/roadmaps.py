@@ -1,7 +1,6 @@
 """Persisted, owner-scoped roadmap generation; GET and progress never call AI."""
 from datetime import datetime, timezone
 import json
-import logging
 from fastapi import APIRouter, Depends
 
 from api.dependencies import owned_context, parse_body, require_origin, respond
@@ -9,19 +8,12 @@ from api.domain import Problem, json_value
 from api.schemas import EmptyRequest, openapi_body, validate_body
 from repositories.roadmaps import RoadmapRepository, metadata, run_payload
 from repositories.postgres import StorageConflict
-from services.gemini import GeminiError
-from services.gemini_roadmap import generate_roadmap
-from services.project_experience import current_comparison, digest, model_basis
+from services.project_experience import current_comparison, digest
 from services.activity_recommendations import capture_profile
 from repositories.experience_analysis import decode
-from services.course_reasons import VERSION as REASONS_VERSION, reason_input, generate_course_reasons
-from services.roadmap_generation import capture_basis, model_input, validate_result
+from services.roadmap_generation import capture_basis
 from services.roadmap_schemas import GenerationRequest, ProgressRequest
-from services.ai_guard import guarded_call
-from services.limited_roadmap import limited_roadmap
-from services.roadmap_validation import RoadmapValidationError, stored_error_code
 
-logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix='/api/roadmap-inputs/{rid:roadmap_id}', tags=['roadmaps'])
 
@@ -71,116 +63,51 @@ def generate(rid: str, ctx=Depends(owned_context), body=Depends(parse_body)):
     basis = read_basis(ctx, rid, request.expected_input_revision, serialize=True)
     if not (basis['profile']['career_goal'] or '').strip():
         raise Problem(422, 'goal_required', '진로 목표를 먼저 입력해 주세요.')
-    if request.background:
-        from services.roadmap_batch import TASKS, _valid_bundle, _valid_reasons, new_work, start
-        store = RoadmapRepository(db)
-        store.expire(rid)
-        active = store.active(rid)
-        if active:
-            response = metadata(active, basis)
-            db.commit()
-            return respond(202, response)
-        run = store.get(rid, request.retry_run_id) if request.retry_run_id else None
-        if run and run['status'] == 'failed' and run['basis_hash'] == digest(basis):
-            stored = decode(run['basis_json'])
-            work = stored.get('_generation_work')
-            if work:
-                row = ctx[1].plan(rid, ctx[2]['owner_id'])
-                current_comparison_data = json.loads(json.dumps(current_comparison(db, row), ensure_ascii=False, default=json_value))
-                if ('comparison' in work['results'] and
-                        digest(work['results']['comparison']) != digest(current_comparison_data)):
-                    work['results'].pop('comparison')
-                if ('activities' in work['results'] and
-                        work['results']['activities'].get('activity_basis') != capture_profile(db, row)[1]):
-                    work['results'].pop('activities')
-                reasons = work['results'].get('course_reasons', {})
-                if ('course_reasons' in work['results'] and
-                        (not isinstance(reasons, dict) or not _valid_reasons(work['results'].get('courses', []), reasons.get('reasons'), basis['profile']['catalog_id']))):
-                    work['results'].pop('course_reasons')
-                work['states'] = {key: 'success' if key in work['results'] and key != 'roadmap' else 'pending' for key in TASKS}
-                if 'course_reasons' not in work['results']:
-                    work['states']['courses'] = 'pending'
-                work['verified'], work['error'] = False, None
-                store.retry(rid, run['run_id'], basis, work)
-                run = store.get(rid, run['run_id'])
-            else:
-                run = None
-        else:
-            run = None
-        if not run and not request.refresh and not request.retry_run_id:
-            cached = store.reusable(rid, digest(basis))
-            work = decode(cached['basis_json']).get('_generation_work') if cached else None
-            if work and work.get('verified'):
-                result = run_payload(store, cached, basis)
-                activity = result.get('activity_recommendations', {})
-                row = ctx[1].plan(rid, ctx[2]['owner_id'])
-                comparison = json.loads(json.dumps(current_comparison(db, row), ensure_ascii=False, default=json_value))
-                try:
-                    fresh = timestamp(activity['valid_until']) > datetime.now(timezone.utc)
-                except (KeyError, TypeError, ValueError):
-                    fresh = False
-                if (_valid_bundle(result) and fresh and activity.get('activity_basis') == capture_profile(db, row)[1]
-                        and digest(result['skill_comparison']) == digest(comparison)):
-                    db.commit()
-                    return respond(200, {**result, 'reused': True})
-        if not run:
-            run = store.create(rid, basis, lease_minutes=10)
-            store.update_work(rid, run['run_id'], basis, new_work())
-            run = store.get(rid, run['run_id'])
-        response = metadata(run, basis)
+    from services.roadmap_batch import _valid_bundle, new_work, start, run as execute_run
+    store = RoadmapRepository(db)
+    store.expire(rid)
+    active = store.active(rid)
+    if active:
+        response = metadata(active, basis)
         db.commit()
+        if not request.background:
+            raise Problem(409, 'generation_in_progress', '결과를 저장 중입니다. 잠시 후 저장 결과를 다시 조회해 주세요.')
+        return respond(202, response)
+    run = store.get(rid, request.retry_run_id) if request.retry_run_id else None
+    if run and run['status'] == 'failed' and run['basis_hash'] == digest(basis):
+        # Recompute cheap server-only sections; never revive legacy generated tasks.
+        store.retry(rid, run['run_id'], basis, new_work())
+        run = store.get(rid, run['run_id'])
+    else:
+        run = None
+    if not run and not request.refresh and not request.retry_run_id:
+        cached = store.reusable(rid, digest(basis))
+        work = decode(cached['basis_json']).get('_generation_work') if cached else None
+        if work and work.get('version') == 2 and work.get('verified'):
+            result = run_payload(store, cached, basis)
+            activity = result.get('activity_recommendations', {})
+            row = ctx[1].plan(rid, ctx[2]['owner_id'])
+            comparison = json.loads(json.dumps(current_comparison(db, row), ensure_ascii=False, default=json_value))
+            try:
+                fresh = timestamp(activity['valid_until']) > datetime.now(timezone.utc)
+            except (KeyError, TypeError, ValueError):
+                fresh = False
+            if (_valid_bundle(result) and fresh and activity.get('activity_basis') == capture_profile(db, row)[1]
+                    and digest(result['skill_comparison']) == digest(comparison)):
+                db.commit()
+                return respond(200, {**result, 'reused': True})
+    if not run:
+        run = store.create(rid, basis, lease_minutes=10)
+        store.update_work(rid, run['run_id'], basis, new_work())
+        run = store.get(rid, run['run_id'])
+    response = metadata(run, basis)
+    db.commit()
+    if request.background:
         start(rid, ctx[2], run['run_id'])
         return respond(202, response)
-    if basis.get('job_analysis_outdated'):
-        raise Problem(409, 'job_analysis_outdated', '이전 직무 분석 기준입니다. 직무 역량 비교에서 직무 분석 다시 실행 후 새 로드맵을 생성해 주세요. 저장 결과와 완료 기록은 유지됩니다.')
-    limited = basis['generation_mode'] == 'limited_guidance'
-    store = RoadmapRepository(db)
-    if not request.refresh or limited:
-        cached = store.reusable(rid, digest(basis))
-        if cached:
-            result = run_payload(store, cached, basis)
-            db.commit()
-            return respond(200, {**result, 'reused': True})
-    store.expire(rid)
-    if store.active(rid):
-        db.commit()
-        raise Problem(409, 'generation_in_progress', '로드맵을 생성 중입니다. 잠시 후 저장 결과를 다시 조회해 주세요.')
-    recent = next(iter(store.history(rid)), None)
-    if recent and recent['error_code'] == 'gemini_rate_limited' and (datetime.now(timezone.utc) - timestamp(recent['finished_at'])).total_seconds() < 60:
-        db.commit()
-        raise Problem(503, 'gemini_rate_limited', '사용량 제한 이후 잠시 기다린 뒤 다시 요청해 주세요.')
-    run = store.create(rid, basis)
-    db.commit()  # No DB transaction/lock while Gemini runs. The unique lease survives across processes.
-    try:
-        result = limited_roadmap(basis) if limited else guarded_call(ctx, 'roadmap', digest(basis),
-            lambda: validate_result(generate_roadmap(model_input(basis)), basis))
-    except Exception as error:
-        # Do not erase any previous successful run or retain unvalidated provider output.
-        if isinstance(error, RoadmapValidationError):
-            error.run_id = run['run_id']
-            # No exc_info, provider values, project text, prompts, keys or tokens.
-            logger.warning('roadmap_validation_failed %s', json.dumps({
-                'run_id': run['run_id'], 'rules_version': basis['rules_version'], **error.diagnostic}))
-        current = read_basis(ctx, rid, serialize=True)
-        store.fail(rid, run['run_id'], stored_error_code(error) if isinstance(error, (GeminiError, Problem)) else 'generation_failed')
-        db.commit()
-        if digest(current) != run['basis_hash']:
-            raise Problem(409, 'revision_conflict', '생성 중 입력 또는 분석 근거가 변경되었습니다.') from None
-        if isinstance(error, (GeminiError, Problem)):
-            raise
-        raise GeminiError('generation_failed', '로드맵을 생성하지 못했습니다. 이전 저장 결과는 유지됩니다.') from None
-    current = read_basis(ctx, rid, serialize=True)
-    saved = store.get(rid, run['run_id'])
-    if digest(current) != run['basis_hash']:
-        store.fail(rid, run['run_id'], 'revision_conflict')
-        db.commit()
-        raise Problem(409, 'revision_conflict', '생성 중 입력 또는 분석 근거가 변경되었습니다. 최신 기준으로 다시 요청해 주세요.')
-    if saved['status'] != 'generating' or timestamp(saved['lease_until']) < datetime.now(timezone.utc):
-        store.fail(rid, run['run_id'], 'generation_expired')
-        db.commit()
-        raise Problem(409, 'generation_expired', '생성 요청의 유효 시간이 지났습니다. 다시 요청해 주세요.')
-    saved = store.finish(rid, run['run_id'], result)
-    result = run_payload(store, saved, current)
+    execute_run(rid, ctx[2], run['run_id'], propagate=True)
+    current = read_basis(ctx, rid)
+    result = run_payload(store, store.get(rid, run['run_id']), current)
     db.commit()
     return respond(201, {**result, 'reused': False})
 
@@ -224,21 +151,18 @@ def course_reasons(rid: str, run_id: str, ctx=Depends(owned_context), body=Depen
         raise Problem(409, 'evidence_unavailable', '문서 근거가 변경되어 추천 이유를 확인할 수 없습니다.')
     if run['status'] not in ('success', 'partial'):
         raise Problem(409, 'roadmap_not_ready', '수강 후보 생성이 완료된 뒤 추천 이유를 확인해 주세요.')
-    data = reason_input(decode(run['basis_json']), run_payload(store, run, current)['recommended_courses'])
-    current_hash = digest(current)
-    model = model_basis()
-    cache_key = digest([REASONS_VERSION, rid, run_id, model, data])
+    from services.roadmap_batch import _fallback_course_reasons
+    saved = run_payload(store, run, current)
+    if 'recommended_courses' not in saved:
+        raise Problem(409, 'roadmap_not_ready', '결과 저장 확인이 끝난 뒤 추천 이유를 확인해 주세요.')
+    # Existing explanations are immutable history. Legacy runs use saved ranking
+    # evidence if they predate the bundled explanations; no provider is involved.
+    result = ({'reasons': saved['course_reasons'], 'source': saved.get('course_reasons_source', 'saved_result')}
+              if 'course_reasons' in saved else
+              _fallback_course_reasons(saved['recommended_courses'], run['catalog_id']))
     ctx[0].commit()
-    # One batch for the saved candidates; the durable cache and request lease
-    # cover remounts, reloads, multiple windows and multiple API workers.
-    result = guarded_call(ctx, 'course_reasons', cache_key,
-                          lambda: generate_course_reasons(data), cache=True) if data['courses'] else {'reasons': []}
-    latest = read_basis(ctx, rid)
-    if digest(latest) != current_hash:
-        raise Problem(409, 'revision_conflict', '추천 이유를 작성하는 동안 입력이 변경되었습니다. 최신 내용을 확인해 주세요.')
-    ctx[0].commit()
-    return respond(200, {**result, 'run_id': run_id, 'provider': 'gemini', 'model_name': model,
-                         'reason_version': REASONS_VERSION})
+    return respond(200, {**result, 'run_id': run_id, 'provider': 'server',
+                         'reason_version': 'catalog-evidence-v1'})
 
 
 @router.get('/roadmaps/{run_id:roadmap_id}')

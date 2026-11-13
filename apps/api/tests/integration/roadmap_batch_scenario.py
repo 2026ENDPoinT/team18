@@ -15,18 +15,10 @@ from repositories.postgres import StorageUnavailable
 from repositories.roadmaps import RoadmapRepository
 from services import roadmap_batch
 from api.domain import Problem
-from services.gemini import GeminiError
 
 for name in ('GUEST_HOURLY_UNITS', 'GUEST_DAILY_UNITS', 'USER_HOURLY_UNITS', 'USER_DAILY_UNITS', 'GLOBAL_DAILY_UNITS'):
     os.environ['ROADMAP_AI_' + name] = '100000'
 os.environ['ROADMAP_AI_COOLDOWN_SECONDS'] = '0'
-
-
-def fake_reasons(data):
-    return {'reasons': [{'course_id': course['course_id'], 'personalization_reason': '과목명과 목표의 연결을 확인해 볼 후보입니다.',
-                         'evidence_ids': [course['evidence'][0]['id']] if course['evidence'] else []}
-                        for course in data['courses']]}
-
 
 class BatchAPI(RoadmapAPI):
     def setUp(self):
@@ -35,10 +27,15 @@ class BatchAPI(RoadmapAPI):
         for path in ('api.routes.activities.load_catalog', 'api.routes.activities.load_contestkorea_catalog'):
             mock = patch(path, return_value=([], source))
             mock.start(); self.addCleanup(mock.stop)
-        model = patch('api.routes.roadmaps.generate_roadmap', side_effect=fake_roadmap)
+        model = patch('services.gemini_roadmap.generate_roadmap', side_effect=AssertionError('Unexpected roadmap AI'))
         self.model = model.start(); self.addCleanup(model.stop)
-        reasons = patch('services.roadmap_batch.generate_course_reasons', side_effect=fake_reasons)
+        reasons = patch('services.course_reasons.generate_course_reasons', side_effect=AssertionError('Unexpected reason AI'))
         self.reasons = reasons.start(); self.addCleanup(reasons.stop)
+        for path in ('services.gemini_roadmap._generate', 'services.course_reasons._generate'):
+            blocked = patch(path, side_effect=AssertionError('Unexpected Gemini transport'))
+            spy = blocked.start()
+            self.addCleanup(blocked.stop)
+            self.addCleanup(spy.assert_not_called)
 
     def start_batch(self, **kwargs):
         response = self.client.post(self.base + '/roadmap', json={
@@ -98,151 +95,10 @@ class BatchAPI(RoadmapAPI):
                     self.assertTrue(result['generation_complete'], result)
                     self.assertTrue(all(state == 'success' for state in result['generation_tasks'].values()))
                     self.assertEqual(result['activity_recommendations']['activities'], [])
-                    self.assertTrue(result['roadmap'])
+                    self.assertEqual(result['roadmap'], [])
                     self.assertEqual(len(result['course_reasons']), len(result['recommended_courses']))
                     self.assertEqual(result['run_id'], run_id)
-        self.assertEqual(self.model.call_count, 3)
-
-    def test_batch_no_courses_and_automatic_job_analysis(self):
-        self.complete_course()
-        with patch('api.routes.job_skill_analysis.analyze_job_skills', return_value=job_result()) as jobs:
-            result = self.terminal(self.start_batch()['run_id'])
-        self.assertTrue(result['generation_complete'], result)
-        self.assertEqual(result['recommended_courses'], [])
-        self.assertEqual(result['activity_recommendations']['activities'], [])
-        self.assertEqual(jobs.call_count, 1)
-        self.assertEqual(self.reasons.call_count, 0)
-
-    def test_batch_reason_failure_blocks_and_retry_reuses_ranked_courses_and_roadmap(self):
-        self.jobs()
-        self.reasons.side_effect = [GeminiError('gemini_timeout', 'synthetic timeout'), fake_reasons({
-            'courses': [{'course_id': 'roadmap-test-database', 'evidence': []}]})]
-        run_id = self.start_batch()['run_id']
-        failed = self.terminal(run_id)
-        self.assertEqual(failed['status'], 'failed')
-        self.assertEqual(failed['generation_tasks']['courses'], 'failed')
-        self.assertNotIn('roadmap', failed)
-        self.assertEqual(self.start_batch(refresh=True, retry_run_id=run_id)['run_id'], run_id)
-        done = self.terminal(run_id)
-        self.assertTrue(done['generation_complete'], done)
-        self.assertEqual(done['course_reasons'][0]['course_id'], done['recommended_courses'][0]['course_id'])
-        self.assertEqual(self.model.call_count, 1)
-        self.assertEqual(self.reasons.call_count, 2)
-
-    def test_batch_invalid_roadmap_uses_verified_evidence_fallback(self):
-        self.jobs()
-        from services.roadmap_validation import RoadmapValidationError
-        self.model.side_effect = RoadmapValidationError('skill_not_allowed', ('roadmap', 0, 'evidence_refs'))
-        run_id = self.start_batch()['run_id']
-        result = self.terminal(run_id)
-        self.assertTrue(result['generation_complete'], result)
-        self.assertEqual(result['status'], 'partial')
-        self.assertEqual(result['roadmap_source'], 'server_verified_evidence')
-        self.assertEqual(result['generation_mode'], 'verified_evidence_fallback')
-        self.assertEqual(result['generation_tasks']['roadmap'], 'success')
-        self.assertEqual(len(result['recommended_courses']), len(result['course_reasons']))
-        self.assertTrue(result['roadmap'])
-        self.assertEqual(self.model.call_count, 1)
-        for step in result['roadmap']:
-            self.assertEqual(len(step['skill_targets']), 1)
-            self.assertEqual(step['skill_targets'][0]['action_type'], 'verify_experience')
-            self.assertTrue(all(task['task_type'] == 'verify_experience'
-                                and '경험' in task['action'] and '확인' in task['action']
-                                for task in step['tasks']))
-            self.assertFalse(step['related_course_ids'])
-            self.assertEqual(step['recommendation_kind'], 'guidance')
-
-    def test_batch_cooldown_uses_fallback_without_spending_another_roadmap_call(self):
-        self.jobs()
-        self.model.side_effect = Problem(429, 'ai_cooldown', 'synthetic cooldown')
-        result = self.terminal(self.start_batch()['run_id'])
-        self.assertTrue(result['generation_complete'], result)
-        self.assertEqual(result['status'], 'partial')
-        self.assertEqual(result['roadmap_source'], 'server_verified_evidence')
-        self.assertTrue(result['roadmap'])
-        self.assertEqual(self.model.call_count, 1)
-
-    def test_batch_provider_503_uses_fallback_and_preserves_other_results(self):
-        self.jobs()
-        self.model.side_effect = GeminiError('gemini_call_failed', 'synthetic HTTP 503')
-        result = self.terminal(self.start_batch()['run_id'])
-        self.assertTrue(result['generation_complete'], result)
-        self.assertEqual(result['status'], 'partial')
-        self.assertEqual(result['roadmap_source'], 'server_verified_evidence')
-        self.assertEqual(result['generation_tasks'], {key: 'success' for key in roadmap_batch.TASKS})
-        self.assertTrue(result['roadmap'])
-        self.assertEqual(len(result['recommended_courses']), len(result['course_reasons']))
-        self.assertEqual(result['activity_recommendations']['status'], 'success')
-        self.assertTrue(result['skill_comparison']['job_analysis']['snapshot_id'])
-        self.assertEqual(self.model.call_count, 1)
-
-    def test_batch_transient_gemini_timeouts_and_rate_limits_use_free_fallback(self):
-        self.jobs()
-        for code in ('gemini_timeout', 'gemini_rate_limited'):
-            with self.subTest(code=code):
-                self.model.side_effect = GeminiError(code, 'synthetic provider error')
-                result = self.terminal(self.start_batch(refresh=True)['run_id'])
-                self.assertTrue(result['generation_complete'], result)
-                self.assertEqual(result['roadmap_source'], 'server_verified_evidence')
-
-    def test_batch_unrelated_roadmap_provider_error_still_fails(self):
-        self.jobs()
-        self.model.side_effect = GeminiError('gemini_auth_failed', 'synthetic authentication error')
-        result = self.terminal(self.start_batch()['run_id'])
-        self.assertEqual(result['status'], 'failed')
-        self.assertEqual(result['generation_tasks']['roadmap'], 'failed')
-        self.assertNotIn('roadmap', result)
-
-    def test_batch_gemini_call_failed_uses_verified_course_explanations(self):
-        self.jobs()
-        self.reasons.side_effect = GeminiError('gemini_call_failed', 'synthetic provider failure')
-        result = self.terminal(self.start_batch()['run_id'])
-        self.assertTrue(result['generation_complete'], result)
-        self.assertEqual(result['status'], 'partial')
-        self.assertEqual(result['course_reasons_source'], 'catalog_evidence_fallback')
-        self.assertEqual(len(result['course_reasons']), len(result['recommended_courses']))
-        self.assertTrue(all(reason['personalization_reason'].strip() for reason in result['course_reasons']))
-        self.assertEqual(self.model.call_count, 1)
-        self.assertEqual(self.reasons.call_count, 1)
-
-    def test_batch_invalid_gemini_reason_falls_back_without_losing_roadmap(self):
-        self.jobs()
-        self.reasons.side_effect = GeminiError('gemini_invalid_response', 'synthetic invalid JSON')
-        result = self.terminal(self.start_batch()['run_id'])
-        self.assertTrue(result['generation_complete'], result)
-        self.assertEqual(result['status'], 'partial')
-        self.assertEqual(result['course_reasons_source'], 'catalog_evidence_fallback')
-        self.assertEqual(len(result['course_reasons']), len(result['recommended_courses']))
-        self.assertTrue(result['roadmap'])
-        self.assertEqual(self.model.call_count, 1)
-        self.assertEqual(self.reasons.call_count, 1)
-
-    def test_batch_ai_cooldown_falls_back_without_another_gemini_call(self):
-        self.jobs()
-        self.reasons.side_effect = Problem(429, 'ai_cooldown', 'synthetic cooldown')
-        result = self.terminal(self.start_batch()['run_id'])
-        self.assertTrue(result['generation_complete'], result)
-        self.assertEqual(result['status'], 'partial')
-        self.assertEqual(result['course_reasons_source'], 'catalog_evidence_fallback')
-        self.assertEqual(len(result['course_reasons']), len(result['recommended_courses']))
-        self.assertEqual(self.model.call_count, 1)
-        self.assertEqual(self.reasons.call_count, 1)
-
-    def test_batch_invalid_course_evidence_is_rejected_then_falls_back(self):
-        self.jobs()
-        def invalid_evidence(data):
-            from services.course_reasons import validate_course_reasons
-            return validate_course_reasons(data, {'reasons': [
-                {'course_id': course['course_id'],
-                 'personalization_reason': '근거를 연결하는 설명',
-                 'evidence_ids': ['wrong-evidence-id']}
-                for course in data['courses']
-            ]})
-        self.reasons.side_effect = invalid_evidence
-        result = self.terminal(self.start_batch()['run_id'])
-        self.assertTrue(result['generation_complete'], result)
-        self.assertEqual(result['course_reasons_source'], 'catalog_evidence_fallback')
-        self.assertTrue(result['roadmap'])
+        self.model.assert_not_called()
 
     def test_batch_keeps_verified_items_when_project_analysis_is_partial(self):
         self.doc()
@@ -262,27 +118,6 @@ class BatchAPI(RoadmapAPI):
         self.assertEqual(completed['status'], 'partial')
         self.assertEqual(completed['skill_comparison']['project_analysis']['status'], 'partial')
         self.assertTrue(completed['skill_comparison']['project_analysis']['experiences'])
-
-    def test_batch_course_reasons_wait_for_roadmap_ai_guard(self):
-        self.jobs()
-        gate, entered = threading.Event(), threading.Event()
-        def slow_roadmap(data):
-            entered.set()
-            if not gate.wait(8): raise RuntimeError('test gate timed out')
-            return fake_roadmap(data)
-        self.model.side_effect = slow_roadmap
-        try:
-            run_id = self.start_batch()['run_id']
-            self.assertTrue(entered.wait(5))
-            pending = self.until(lambda: (data if (data := self.detail(run_id))['generation_tasks']['activities'] == 'success'
-                                            and data['generation_tasks']['comparison'] == 'success' else None))
-            self.assertEqual(pending['generation_tasks']['courses'], 'running')
-            self.assertFalse(pending['generation_complete'])
-            self.assertEqual(self.reasons.call_count, 0)
-        finally:
-            gate.set()
-        self.assertTrue(self.terminal(run_id)['generation_complete'])
-        self.assertEqual(self.reasons.call_count, 1)
 
     def test_batch_cached_result_requires_fresh_activity_snapshot(self):
         self.jobs()
@@ -312,69 +147,11 @@ class BatchAPI(RoadmapAPI):
         unverified = self.detail(run_id)
         self.assertFalse(unverified['generation_complete'])
         self.assertNotIn('roadmap', unverified)
+        self.assertEqual(self.client.post(f'{self.base}/roadmaps/{run_id}/course-reasons', json={}).status_code, 409)
         self.assertEqual(self.start_batch(refresh=True)['run_id'], run_id)
         duplicate = self.make(refresh=True)
         self.assertEqual(duplicate.status_code, 409)
         self.assertEqual(duplicate.json()['error'], 'generation_in_progress')
-
-    def test_batch_failed_activity_and_retry_reuses_success(self):
-        self.jobs()
-        original = roadmap_batch._execute
-        counts = {key: 0 for key in roadmap_batch.TASKS}
-        def fail_once(task, *args):
-            counts[task] += 1
-            if task == 'activities' and counts[task] == 1:
-                raise RuntimeError('PRIVATE_CONTENT_DO_NOT_LOG')
-            return original(task, *args)
-        with patch.object(roadmap_batch, '_execute', side_effect=fail_once):
-            run_id = self.start_batch()['run_id']
-            failed = self.terminal(run_id)
-            self.assertEqual(failed['status'], 'failed')
-            self.assertFalse(failed['generation_complete'])
-            self.assertEqual(failed['generation_tasks']['activities'], 'failed')
-            self.assertNotIn('roadmap', failed)
-            self.assertEqual(self.start_batch(refresh=True, retry_run_id=run_id)['run_id'], run_id)
-            done = self.terminal(run_id)
-        self.assertTrue(done['generation_complete'], done)
-        self.assertEqual(counts, {'comparison': 1, 'courses': 1, 'activities': 2, 'roadmap': 1})
-
-    def test_batch_empty_activity_from_failed_source_is_not_success(self):
-        self.jobs()
-        for status in ('error', 'partial'):
-            with self.subTest(source_status=status), patch('api.routes.activities.load_catalog', return_value=([], {'status': status, 'error_code': 'snapshot_unavailable'})):
-                result = self.terminal(self.start_batch(refresh=True)['run_id'])
-            self.assertEqual(result['status'], 'failed')
-            self.assertEqual(result['generation_tasks']['activities'], 'failed')
-            self.assertNotIn('activity_recommendations', result)
-
-    def test_batch_retry_invalidates_stale_saved_outputs_even_when_revision_is_unchanged(self):
-        self.doc('제가 React 화면을 구현했습니다.')
-        with patch('services.project_experience.extract_project_experiences', side_effect=fake_extraction):
-            self.analyze()
-        self.jobs()
-        original = roadmap_batch._execute
-        counts = {key: 0 for key in roadmap_batch.TASKS}
-        def fail_once(task, *args):
-            counts[task] += 1
-            if task == 'courses' and counts[task] == 1:
-                raise RuntimeError('synthetic course failure')
-            return original(task, *args)
-        with patch.object(roadmap_batch, '_execute', side_effect=fail_once):
-            run_id = self.start_batch()['run_id']
-            self.assertEqual(self.terminal(run_id)['status'], 'failed')
-            revision = self.revision()
-            # Emulate stale intermediate snapshots without changing the plan revision.
-            with closing(connect()) as db:
-                store = RoadmapRepository(db)
-                saved = decode(store.get(self.rid, run_id)['basis_json'])
-                saved['_generation_work']['results']['comparison']['project_analysis']['verified_experiences'] = 999
-                saved['_generation_work']['results']['activities']['activity_basis'] = 'stale-basis'
-                db.execute('UPDATE roadmap_runs SET basis_json=? WHERE run_id=?', (store.encode(saved), run_id))
-            self.assertEqual(self.revision(), revision)
-            self.assertEqual(self.start_batch(refresh=True, retry_run_id=run_id)['run_id'], run_id)
-            result = self.terminal(run_id)
-        self.assertTrue(result['generation_complete'], result)
-        self.assertEqual(counts, {'comparison': 2, 'courses': 2, 'activities': 2, 'roadmap': 1})
 
     def test_batch_storage_failure_and_retry(self):
         self.jobs()
@@ -393,8 +170,8 @@ class BatchAPI(RoadmapAPI):
             self.assertEqual(self.start_batch(refresh=True, retry_run_id=run_id)['run_id'], run_id)
             result = self.terminal(run_id)
         self.assertTrue(result['generation_complete'], result)
-        self.assertEqual(self.model.call_count, 1)
-        self.assertEqual(self.reasons.call_count, 1)
+        self.model.assert_not_called()
+        self.reasons.assert_not_called()
         self.assertIn('sqlstate_08006', ''.join(logs.output))
         self.assertNotIn('PASSWORD', ''.join(logs.output))
         self.assertNotIn('document', ''.join(logs.output))
@@ -424,7 +201,7 @@ class BatchAPI(RoadmapAPI):
                 db.execute('DROP TRIGGER test_roadmap_write_failure ON roadmap_runs')
             self.assertEqual(self.start_batch(refresh=True, retry_run_id=run_id)['run_id'], run_id)
             self.assertTrue(self.terminal(run_id)['generation_complete'])
-            self.assertEqual(self.model.call_count, 1)
+            self.model.assert_not_called()
         finally:
             with closing(connect()) as db:
                 db.execute('DROP TRIGGER IF EXISTS test_roadmap_write_failure ON roadmap_runs')
@@ -475,6 +252,171 @@ class BatchAPI(RoadmapAPI):
                 gate.set()
             time.sleep(.1)
             self.assertEqual(self.detail(run_id)['status'], 'failed')
+
+    def assert_no_generation_ai(self):
+        self.model.assert_not_called()
+        self.reasons.assert_not_called()
+
+    def test_batch_zero_gemini_with_and_without_saved_jobs(self):
+        from contextlib import ExitStack
+        with ExitStack() as stack:
+            stack.enter_context(patch.dict(os.environ, GEMINI_API_KEY='', GOOGLE_API_KEY=''))
+            jobs = stack.enter_context(patch('api.routes.job_skill_analysis.job_skill_analysis', side_effect=AssertionError('Automatic job analysis')))
+            transport = stack.enter_context(patch('services.gemini_jobs._generate', side_effect=AssertionError('Gemini transport')))
+            for background in (False, True):
+                response = self.client.post(self.base + '/roadmap', json={'expected_input_revision': self.revision(), 'background': background, 'refresh': True})
+                self.assertIn(response.status_code, (201, 202), response.text)
+                result = self.terminal(response.json()['run_id'])
+                self.assertTrue(result['generation_complete'], result)
+                self.assertEqual(result['status'], 'partial')
+                self.assertEqual(result['generation_tasks']['comparison'], 'unavailable')
+                self.assertEqual(result['skill_comparison']['job_analysis']['status'], 'not_started')
+                self.assertTrue(result['recommended_courses'])
+                self.assertEqual(result['roadmap'], [])
+            jobs.assert_not_called(); transport.assert_not_called()
+        self.jobs()  # Explicit user analysis is still supported.
+        with patch('api.routes.job_skill_analysis.job_skill_analysis', side_effect=AssertionError('Automatic analysis')) as jobs, \
+             patch('services.gemini_jobs._generate', side_effect=AssertionError('Gemini transport')) as transport:
+            for background in (False, True):
+                response = self.client.post(self.base + '/roadmap', json={'expected_input_revision': self.revision(), 'background': background, 'refresh': True})
+                result = self.terminal(response.json()['run_id'])
+                self.assertEqual(result['status'], 'success', result)
+                self.assertEqual(result['roadmap'], [])
+                self.assertEqual(result['model_name'], 'server-assembled-v1')
+                for suffix in ('/roadmap', '/roadmaps', '/roadmaps/' + result['run_id']):
+                    self.assertEqual(self.client.get(self.base + suffix).status_code, 200)
+                reasons = self.client.post(f'{self.base}/roadmaps/{result["run_id"]}/course-reasons', json={}).json()
+                self.assertEqual(reasons['reasons'], result['course_reasons'])
+            jobs.assert_not_called(); transport.assert_not_called()
+        self.assert_no_generation_ai()
+
+    def test_batch_failed_sections_preserve_other_results(self):
+        self.jobs()
+        original = roadmap_batch._execute
+        for broken in ('comparison', 'courses', 'activities'):
+            with self.subTest(section=broken):
+                def fail_section(task, *args):
+                    if task == broken:
+                        raise Problem(503, 'source_unavailable', 'synthetic failure')
+                    return original(task, *args)
+                with patch.object(roadmap_batch, '_execute', side_effect=fail_section):
+                    result = self.terminal(self.start_batch(refresh=True)['run_id'])
+                self.assertTrue(result['generation_complete'], result)
+                self.assertEqual(result['status'], 'partial')
+                self.assertEqual(result['component_status'][broken], 'failed')
+                self.assertEqual(result['generation_tasks']['roadmap'], 'success')
+                if broken != 'courses': self.assertTrue(result['recommended_courses'])
+                if broken != 'comparison': self.assertTrue(result['skill_comparison']['job_analysis']['snapshot_id'])
+        self.assert_no_generation_ai()
+
+    def test_batch_no_catalog_is_unavailable_not_failed(self):
+        self.client.patch(self.base, json={'expected_input_revision': self.revision(), 'changes': {'catalog_id': None}})
+        result = self.terminal(self.start_batch()['run_id'])
+        self.assertTrue(result['generation_complete'], result)
+        self.assertEqual(result['component_status']['courses'], 'unavailable')
+        self.assertEqual(result['recommended_courses'], [])
+        self.assertEqual(result['course_reasons'], [])
+
+    def test_batch_empty_success_and_failed_activity_source_are_distinct(self):
+        self.jobs()
+        empty = self.terminal(self.start_batch()['run_id'])
+        self.assertEqual(empty['component_status']['activities'], 'success')
+        self.assertEqual(empty['activity_recommendations']['activities'], [])
+        with patch('api.routes.activities.load_catalog', return_value=([], {'status': 'error', 'collected': 0, 'kind': 'competition', 'error_code': 'source_failed'})):
+            partial = self.terminal(self.start_batch(refresh=True)['run_id'])
+        self.assertTrue(partial['generation_complete'], partial)
+        self.assertEqual(partial['component_status']['activities'], 'partial')
+        self.assertTrue(any(s['status'] == 'error' for s in partial['activity_recommendations']['sources']))
+        with patch('api.routes.activities.load_catalog', side_effect=RuntimeError('source failed')):
+            failed = self.terminal(self.start_batch(refresh=True)['run_id'])
+        self.assertEqual(failed['component_status']['activities'], 'failed')
+        self.assertEqual(failed['activity_recommendations']['status'], 'error')
+        self.assertTrue(failed['recommended_courses'])
+
+    def test_batch_reanalysis_preserves_input_versions_and_legacy_progress(self):
+        from repositories.plans import Repository
+        from services.roadmap_generation import capture_basis, model_input, validate_result
+        self.jobs()
+        with closing(connect()) as db:
+            repo = Repository(db); repo.begin()
+            basis = capture_basis(db, db.execute('SELECT * FROM roadmap_inputs WHERE request_id=?', (self.rid,)).fetchone())
+            legacy = validate_result(fake_roadmap(model_input(basis)), basis)
+            store = RoadmapRepository(db)
+            old = store.create(self.rid, basis)
+            store.finish(self.rid, old['run_id'], legacy)
+            store.update_progress(old['run_id'], 'task-1', True, 0)
+            db.commit()
+            original = store.get(self.rid, old['run_id'])
+        for _ in range(2):
+            restored = self.detail(old['run_id'])
+            self.assertTrue(restored['roadmap'])
+            self.assertEqual(restored['progress']['completed'], 1)
+        first = self.terminal(self.start_batch(refresh=True)['run_id'])
+        self.client.patch(self.base, json={'expected_input_revision': self.revision(), 'changes': {'career_goal': 'SQL 데이터 분석'}})
+        second = self.terminal(self.start_batch(refresh=True)['run_id'])
+        self.assertGreater(second['input_revision'], first['input_revision'])
+        self.assertNotEqual(second['run_id'], first['run_id'])
+        self.assertEqual(len(self.client.get(self.base + '/roadmaps').json()['runs']), 3)
+        with closing(connect()) as db:
+            self.assertEqual(RoadmapRepository(db).get(self.rid, old['run_id']), original)
+        self.assertEqual(self.detail(old['run_id'])['progress']['completed'], 1)
+        self.assert_no_generation_ai()
+
+    def test_batch_storage_integrity_failure_is_not_success(self):
+        original = RoadmapRepository.finish
+        def corrupt(store, rid, run_id, result):
+            return original(store, rid, run_id, {**result, 'career_goal': 'corrupted'})
+        with patch.object(RoadmapRepository, 'finish', corrupt):
+            failed = self.terminal(self.start_batch()['run_id'])
+        self.assertEqual(failed['status'], 'failed')
+        self.assertFalse(failed['generation_complete'])
+        self.assertEqual(failed['error_code'], 'storage_verification_failed')
+        self.assertNotIn('recommended_courses', failed)
+
+    def test_batch_sync_storage_failure_returns_http_error(self):
+        with patch.object(RoadmapRepository, 'finish', side_effect=StorageUnavailable('synthetic', 'sqlstate_08006')):
+            response = self.make()
+        self.assertEqual(response.status_code, 503, response.text)
+        latest = self.client.get(self.base + '/roadmap').json()
+        self.assertEqual(latest['status'], 'failed')
+        self.assertFalse(latest['generation_complete'])
+
+    def test_batch_revision_race_never_commits_stale_success(self):
+        original = roadmap_batch._execute
+        def change(task, *args):
+            value = original(task, *args)
+            if task == 'courses':
+                with closing(connect()) as db:
+                    db.execute('UPDATE roadmap_inputs SET input_revision=input_revision+1 WHERE request_id=?', (self.rid,))
+            return value
+        with patch.object(roadmap_batch, '_execute', side_effect=change):
+            failed = self.terminal(self.start_batch()['run_id'])
+        self.assertEqual(failed['status'], 'failed')
+        self.assertFalse(failed['generation_complete'])
+        self.assertEqual(failed['error_code'], 'revision_conflict')
+
+
+    def test_batch_old_job_snapshot_is_reused_without_automatic_upgrade(self):
+        from services import project_experience as experience
+        legacy = job_result()
+        legacy.pop('analysis_version')
+        legacy.update(career_goal='데이터 분석 분야', target_role='데이터 분석가')
+        with patch.object(experience, 'JOB_VERSION', 'job-skills-v1'), \
+             patch('api.routes.job_skill_analysis.analyze_job_skills', return_value=legacy):
+            old = self.client.post(self.base + '/job-skill-analysis', json={}).json()
+        with patch('api.routes.job_skill_analysis.job_skill_analysis', side_effect=AssertionError('Automatic analysis')) as ai:
+            result = self.terminal(self.start_batch()['run_id'])
+            self.assertTrue(result['generation_complete'], result)
+            self.assertEqual(result['status'], 'partial')
+            self.assertEqual(result['skill_comparison']['job_analysis']['snapshot_id'], old['snapshot_id'])
+            self.assertTrue(result['skill_comparison']['job_analysis']['previous_analysis_version'])
+            ai.assert_not_called()
+        upgraded, calls = self.jobs()
+        self.assertEqual(calls, 1)
+        self.assertNotEqual(upgraded['snapshot_id'], old['snapshot_id'])
+        with closing(connect()) as db:
+            self.assertIn(old['snapshot_id'], [row['snapshot_id'] for row in AnalysisRepository(db).job_history(self.rid)])
+        self.assertEqual(self.detail(result['run_id'])['skill_comparison']['job_analysis']['snapshot_id'], old['snapshot_id'])
 
 
 if __name__ == '__main__':

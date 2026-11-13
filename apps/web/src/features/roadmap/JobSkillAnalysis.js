@@ -11,7 +11,7 @@ const requirementLabels = { required: '필수', preferred: '우대', mentioned: 
 const categoryLabels = { programming_language: '프로그래밍 언어', database_query_language: '쿼리 언어', framework: '프레임워크', database: '데이터베이스', cloud: '클라우드', devops: '개발·운영', development_tool: '개발 도구', data_ai: '데이터·AI', technical_competency: '기술 역량', other: '기타 기술' };
 const levelLabels = { entry: '초급', mid: '중급', senior: '고급', unknown: '경력 미확인' };
 
-export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange, savedComparison, savedRunId }) {
+export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange, savedComparison, savedRunId, savedRequestId }) {
  const loader = useRef(null);
  if (!loader.current) loader.current = createJobSkillLoader({ apiRequest, resolvePlanId });
  const sequence = useRef(0), previousAnalysis=useRef(null);
@@ -29,7 +29,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange,
   async function load() {
    if (disposed || busy) return;
    const action = nextAction.current;
-   const snapshotKey = `${plan?.request_id}:${savedRunId}`;
+   const snapshotKey = `${plan?.request_id || savedRequestId}:${savedRunId}`;
    if (savedComparison && !action.run && !action.answersChanged && loadedSnapshot.current === snapshotKey) return;
    busy = true;
    const attempt = ++sequence.current;
@@ -40,7 +40,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange,
     const data = savedComparison && !action.run && !action.answersChanged ? {
      keyword_details: [], collection_summary: { selected_jobs: 0 }, analysis_summary: { analyzed_jobs: 0, failed_jobs: 0, skipped_jobs: 0 },
      skills: [], errors: [], ...savedComparison.job_analysis, input_revision: savedComparison.input_revision,
-     comparison: savedComparison, request_id: plan.request_id,
+     comparison: savedComparison, request_id: plan?.request_id || savedRequestId,
     } : await loader.current(action);
     if (!disposed && sequence.current === attempt) {
      loadedSnapshot.current = snapshotKey;
@@ -59,7 +59,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange,
   }
   load();
   return () => { disposed = true; };
- }, [active, retry, onResult, savedComparison, savedRunId, plan?.request_id]);
+ }, [active, retry, onResult, savedComparison, savedRunId, savedRequestId, plan?.request_id]);
  const { phase, data:loadedData, message } = state;
  const outdated=!!(loadedData&&plan&&(loadedData.request_id!==plan.request_id||loadedData.comparison?.career_goal!==plan.input.career_goal||(loadedData.comparison?.target_role||'')!==(plan.input.target_role||'')));
  const data=outdated?null:loadedData;
@@ -88,7 +88,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange,
   <button className="primary" disabled={phase === 'loading' || saving} onClick={() => { nextAction.current = { run: true, force: Boolean(data?.snapshot_id) }; setRetry(v => v + 1); }}>{hasPreviousAnalysis ? '직무 분석 다시 실행' : '직무 분석 실행'}</button></div>
   {(careerChanged||outdated)&&<p className="notice" role="status">진로 정보가 변경되었습니다. 현재 진로 정보로 분석하려면 ‘{hasPreviousAnalysis?'직무 분석 다시 실행':'직무 분석 실행'}’을 눌러 주세요.</p>}
   {phase === 'loading' && <p role="status">{analyzing ? '분석 중입니다' : '저장된 직무 분석을 불러오고 있습니다…'}</p>}
-  {data?.status === 'not_started' && <p className="notice">직무 분석을 실행한 뒤 경험을 비교하고 로드맵을 생성할 수 있습니다. 외부 분석이 어려우면 제한 안내 로드맵을 이용해 주세요.</p>}
+  {data?.status === 'not_started' && <p className="notice">저장된 직무 분석이 없어 미분석 상태입니다. 직무 분석 실행 버튼으로 분석할 수 있으며, 다른 결과는 바로 확인할 수 있습니다.</p>}
   {phase === 'error' && <p role="alert">{message}</p>}
   {data && <>
    <dl className="skill-summary">

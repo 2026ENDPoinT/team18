@@ -14,10 +14,10 @@ function ResourceMessage({ resource, loading, error, retry }) {
 export default function ResultOverview({ resources, reload, activities }) {
  const { plan: profile, roadmap, comparison, courses: selection } = resources;
  const plan = profile?.data, input = plan?.input, result = roadmap?.data;
- const ready = profile?.phase === 'ready', courseReady = roadmap?.phase === 'ready' && selection?.phase === 'ready';
+ const ready = profile?.phase === 'ready', courseReady = roadmap?.phase === 'ready';
  const courses = recommendedCourseCards(result, selection?.data?.selected_courses);
  const skills = analyzedSkills(comparison?.data);
- const hasRun = Boolean(result?.roadmap) && !result.details_restricted;
+ const hasRun = Array.isArray(result?.recommended_courses) && !result.details_restricted;
  return <div className="result-overview">
   <section className="result-card result-basic" aria-labelledby="result-basic-title">
    <div className="result-card-heading"><h2 id="result-basic-title">기본 정보</h2><Link className="summary-link" href="/input/basic" aria-label="기본 정보 수정">수정 →</Link></div>
@@ -29,7 +29,8 @@ export default function ResultOverview({ resources, reload, activities }) {
   </section>
   <section className="result-card result-course-summary" aria-labelledby="result-course-title">
    <h2 id="result-course-title">이수 추천과목</h2>
-   <ResourceMessage resource={roadmap?.phase === 'ready' ? selection : roadmap} loading="수강 추천을 불러오는 중이에요…" error="수강 추천을 불러오지 못했어요." retry={reload}/>
+   <ResourceMessage resource={roadmap} loading="수강 추천을 불러오는 중이에요…" error="수강 추천을 불러오지 못했어요." retry={reload}/>
+   {selection?.phase === 'error' && <p className="summary-note">현재 이수 선택을 조회하지 못해 저장 당시의 추천을 표시해요.</p>}
    {courseReady && <>
     {result?.details_restricted ? <p role="status">근거가 변경되어 이 결과를 확인할 수 없어요.</p>
      : result?.status === 'failed' ? <p role="alert">로드맵 생성을 완료하지 못했어요. 상세 화면에서 다시 생성해 주세요.</p>
@@ -37,7 +38,7 @@ export default function ResultOverview({ resources, reload, activities }) {
      : <>
       {result.is_stale && <p className="summary-note" role="status">이전 입력 기준의 추천이에요. 현재 이수한 과목은 제외했어요.</p>}
       {courses.length ? <ul className="result-brief-list">{courses.map(course => <li key={course.course_id} data-recommended-course={course.course_id}><h3>{course.course_name}</h3></li>)}</ul>
-       : <p role="status">{result.course_status === 'catalog_unavailable' ? '추천에 사용할 과목 목록이 없어요.' : result.course_status === 'evidence_unavailable' ? '수강 추천에 필요한 직무 근거가 없어요.' : '현재 조건에 맞는 추천 과목이 없어요.'}</p>}
+       : <p role="status">{result.course_status === 'failed' ? '수강 후보를 불러오지 못했어요.' : result.course_status === 'catalog_unavailable' ? '추천에 사용할 과목 목록이 없어요.' : result.course_status === 'evidence_unavailable' ? '수강 추천에 필요한 직무 근거가 없어요.' : '현재 조건에 맞는 추천 과목이 없어요.'}</p>}
      </>}
     <Link className="summary-link" href={resultHref('courses')}>{hasRun ? `전체 ${courses.length}과목·추천 근거 보기 →` : '로드맵 생성하러 가기 →'}</Link>
     {hasRun && !courses.length && <Link className="summary-link" href="/input/courses">과목 목록·이수 선택 확인 →</Link>}

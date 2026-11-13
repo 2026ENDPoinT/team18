@@ -12,22 +12,18 @@ from repositories.plans import Repository, connect
 from repositories.roadmaps import RoadmapRepository, run_payload
 from services.activity_recommendations import capture_profile
 from services.course_recommendations import rank_courses
-from services.course_reasons import VERSION as REASONS_VERSION, reason_input, generate_course_reasons, validate_course_reasons
-from services.project_experience import current_comparison, digest, model_basis
-from services.roadmap_generation import capture_basis, model_input, validate_result
-from services.ai_guard import guarded_call
-from services.gemini import GeminiError
-from services.limited_roadmap import limited_roadmap
-from services.verified_roadmap_fallback import verified_roadmap_fallback
+from services.project_experience import current_comparison, digest
+from services.roadmap_generation import capture_basis, roadmap_context
 from course_groups import grouped_courses
 
 logger = logging.getLogger(__name__)
 TASKS = ('comparison', 'courses', 'activities', 'roadmap')
+TERMINAL = ('success', 'partial', 'failed', 'unavailable')
 executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix='roadmap-run')
 
 
 def new_work():
-    return {'version': 1, 'states': {key: 'pending' for key in TASKS}, 'results': {}, 'verified': False, 'error': None}
+    return {'version': 2, 'states': {key: 'pending' for key in TASKS}, 'results': {}, 'verified': False, 'error': None}
 
 
 def _date(value):
@@ -83,10 +79,10 @@ def _fallback_course_reasons(courses, catalog_id):
     for course in grouped_courses(courses, catalog_id):
         reason = course.get('personalization_reason') or course.get('reason')
         if not isinstance(reason, str) or not reason.strip():
-            raise Problem(502, 'course_reasons_unavailable', '검증된 수강 추천 근거를 찾을 수 없습니다.')
+            reason = '저장된 추천 근거가 부족하여 실제 학습 내용과 목표의 관련성을 확인해야 합니다.'
         reasons.append({'course_id': course['course_id'], 'personalization_reason': reason,
                         'evidence_ids': []})
-    return {'reasons': reasons, 'source': 'catalog_evidence_fallback'}
+    return {'reasons': reasons, 'source': 'catalog_evidence'}
 
 
 def _log(rid, run_id, task, error):
@@ -144,51 +140,36 @@ def _fail(rid, owner, run_id, task, error):
 
 
 def _comparison(db, row):
-    value = current_comparison(db, row)
-    if not _comparison_available(value):
-        raise Problem(422, 'comparison_unavailable', '직무 또는 프로젝트 분석의 검증된 근거를 확인하지 못했습니다.')
-    # PostgreSQL returns timestamps/decimals as native Python values; the
-    # durable JSON snapshot and later comparison must use the same encoding.
-    return json.loads(json.dumps(value, ensure_ascii=False, default=json_value))
+    # Reading a comparison never starts job/project analysis.
+    return json.loads(json.dumps(current_comparison(db, row), ensure_ascii=False, default=json_value))
 
 
 def _prepare_job(rid, owner, run_id):
-    """Job analysis is a prerequisite only when no current verified snapshot exists."""
-    with closing(connect()) as db:
-        repo, row, store, run = _locked(db, rid, owner, run_id)
-        if run['status'] != 'generating':
-            raise Problem(409, 'generation_expired', '생성 시간이 만료되었습니다.')
-        before = current_comparison(db, row)
-        previous = before['job_analysis']
-        needs_job = (not previous.get('snapshot_id') or previous.get('previous_analysis_version')
-                     or previous.get('status') != 'success')
-        if not needs_job:
-            db.commit()
-            return
-        original_basis, work = _parts(run)
-        project_hash = digest(before['project_analysis'])
-        work['states']['comparison'] = 'running'
-        store.update_work(rid, run_id, original_basis, work)
-        db.commit()
-        from api.routes.job_skill_analysis import job_skill_analysis
-        response = job_skill_analysis(rid, (db, repo, owner), {'refresh': bool(previous.get('snapshot_id'))})
-        jobs = json.loads(response.body)
-        if jobs.get('status') != 'success' or jobs.get('refresh_error') or not jobs.get('snapshot_id'):
-            raise Problem(502, 'job_analysis_failed', '직무 분석을 완료하지 못했습니다.')
-        repo, row, store, run = _locked(db, rid, owner, run_id)
-        if run['status'] != 'generating' or _date(run['lease_until']) <= datetime.now(timezone.utc):
-            raise Problem(409, 'generation_expired', '생성 시간이 만료되었습니다.')
-        if row['input_revision'] != run['input_revision'] or digest(current_comparison(db, row)['project_analysis']) != project_hash:
-            raise Problem(409, 'revision_conflict', '분석 중 입력이 변경되었습니다.')
-        current = capture_basis(db, row)
-        # Only the job-derived fields may have changed during the prerequisite.
-        for key in ('profile', 'catalog', 'courses', 'review_status', 'course_selection_revision',
-                    'reviewed_at', 'outside_completed_courses', 'document_basis', 'project_documents'):
-            if digest(current[key]) != digest(original_basis[key]):
-                raise Problem(409, 'revision_conflict', '분석 중 입력이 변경되었습니다.')
-        _, work = _parts(run)
-        store.update_work(rid, run_id, current, work, update_hash=True)
-        db.commit()
+    """Reuse saved snapshots only; explicit job analysis owns all AI calls."""
+    return None
+
+
+def _component_status(task, value, basis):
+    if task == 'courses':
+        return 'unavailable' if basis['review_status'] == 'unavailable' else 'success'
+    if task == 'comparison':
+        jobs = value.get('job_analysis', {})
+        if not jobs.get('snapshot_id'):
+            return 'unavailable' if jobs.get('status') == 'not_started' else 'failed'
+        return ('success' if _comparison_available(value)
+                and value['project_analysis'].get('status') != 'partial' else 'partial')
+    status = value.get('status')
+    return 'failed' if status == 'error' else status
+
+
+def _unavailable(task, error):
+    code = _code(error)
+    if task == 'comparison':
+        return {'status': 'error', 'comparisons': [], 'job_analysis': {'status': 'error', 'skills': []},
+                'project_analysis': {'status': 'error'}, 'error_code': code}
+    if task == 'activities':
+        return {'status': 'error', 'activities': [], 'sources': [], 'error_code': code}
+    return []
 
 
 def _execute(task, rid, owner, basis):
@@ -200,11 +181,7 @@ def _execute(task, rid, owner, basis):
         if task == 'comparison':
             return _comparison(db, row)
         if task == 'courses':
-            if not basis['catalog']:
-                raise Problem(422, 'catalog_unavailable', '사용할 과목 목록이 없습니다.')
             ranked = rank_courses(basis['profile'], basis['courses'], basis['review_status'], basis['skills'])
-            if basis['generation_mode'] == 'limited_guidance':
-                return ranked
             originals = {course['course_id']: course for course in basis['courses']}
             return [{**course, 'source': basis['catalog'],
                      'description_text': originals[course['course_id']].get('description_text') or None}
@@ -212,62 +189,16 @@ def _execute(task, rid, owner, basis):
         if task == 'activities':
             from api.routes.activities import activities
             response = json.loads(activities(rid, (db, repo, owner)).body)
-            if not _activity_available(response):
-                raise Problem(503, 'activity_source_unavailable', '검증 가능한 활동 자료를 확인하지 못했습니다.')
+            if (not isinstance(response.get('activities'), list) or not isinstance(response.get('sources'), list)
+                    or response.get('status') not in ('success', 'partial', 'error')
+                    or (response['status'] == 'success' and not _activity_available(response))):
+                raise Problem(502, 'activity_source_invalid', '활동 자료의 형식을 확인하지 못했습니다.')
             return response
-        if task == 'roadmap':
-            from api.routes.roadmaps import generate_roadmap
-            if basis['generation_mode'] == 'limited_guidance':
-                return limited_roadmap(basis)
-            try:
-                return guarded_call((db, repo, owner), 'roadmap', digest(basis),
-                                    lambda: validate_result(generate_roadmap(model_input(basis)), basis))
-            except (GeminiError, Problem) as error:
-                # An invalid model response cannot be displayed or repaired by
-                # trusting unverified text. The fallback is constructed solely
-                # from the already captured, source-verified server basis and
-                # passes validate_result() again before it can be persisted.
-                # Gemini can reject valid requests with transient HTTP 5xx,
-                # timeout, or quota errors. Never make the saved analysis depend
-                # on provider availability; the deterministic fallback uses no
-                # further AI calls. Authentication/configuration and all DB
-                # failures still surface as errors instead of being hidden.
-                if error.code not in (
-                        'gemini_invalid_response', 'gemini_call_failed',
-                        'gemini_timeout', 'gemini_rate_limited', 'ai_cooldown'):
-                    raise
-                logger.warning('roadmap_verified_fallback %s', json.dumps({
-                    'path': f'/api/roadmap-inputs/{rid}/roadmap',
-                    'cause': error.code,
-                    'detail_code': getattr(error, 'detail_code', None),
-                    'field_path': getattr(error, 'field_path', None),
-                }))
-                return verified_roadmap_fallback(basis)
         raise ValueError('unknown task')
 
 
 def _execute_reasons(rid, owner, run_id, basis, courses):
-    candidates = grouped_courses(courses, basis['profile']['catalog_id'])
-    data = reason_input(basis, candidates)
-    if not data['courses']:
-        return {'reasons': []}
-    cache_key = digest([REASONS_VERSION, rid, run_id, model_basis(), data])
-    with closing(connect()) as db:
-        try:
-            result = guarded_call((db, Repository(db), owner), 'course_reasons', cache_key,
-                                  lambda: generate_course_reasons(data), cache=True)
-        except (GeminiError, Problem) as error:
-            # The course list and roadmap have already been independently
-            # generated/validated. An optional prose request must not destroy
-            # them when the provider returns malformed output or a retry is
-            # denied by the short AI cooldown. All fallback prose is taken
-            # exclusively from saved, source-grounded catalog rankings.
-            if error.code not in ('gemini_call_failed', 'gemini_invalid_response', 'ai_cooldown'):
-                raise
-            logger.warning('roadmap_course_reasons_fallback %s',
-                           json.dumps({'run_id': run_id, 'cause': error.code}))
-            return _fallback_course_reasons(courses, basis['profile']['catalog_id'])
-        return validate_course_reasons(data, result)
+    return _fallback_course_reasons(courses, basis['profile']['catalog_id'])
 
 
 def _valid_reasons(courses, reasons, catalog_id):
@@ -286,15 +217,32 @@ def _valid_bundle(result):
     if not isinstance(result, dict):
         return False
     steps, courses = result.get('roadmap'), result.get('recommended_courses')
-    comparison, activities = result.get('skill_comparison', {}), result.get('activity_recommendations', {})
-    sources = activities.get('sources')
-    return (isinstance(steps, list) and bool(steps) and all(isinstance(step, dict) and step.get('step_id')
-                and isinstance(step.get('tasks'), list) and step['tasks']
-                and all(isinstance(task, dict) and task.get('task_id') for task in step['tasks']) for step in steps)
-            and isinstance(courses, list) and all(isinstance(course, dict) and course.get('course_id') for course in courses)
+    comparison, activities = result.get('skill_comparison'), result.get('activity_recommendations')
+    if not (isinstance(steps, list) and isinstance(courses, list)
+            and all(isinstance(c, dict) and isinstance(c.get('course_id'), str) for c in courses)
             and _valid_reasons(courses, result.get('course_reasons'), result.get('catalog_id'))
-            and _comparison_available(comparison)
-            and _activity_available(activities))
+            and isinstance(comparison, dict) and isinstance(comparison.get('comparisons'), list)
+            and isinstance(comparison.get('job_analysis'), dict)
+            and isinstance(comparison.get('project_analysis'), dict)
+            and isinstance(activities, dict) and isinstance(activities.get('activities'), list)
+            and isinstance(activities.get('sources'), list)):
+        return False
+    states = result.get('component_status')
+    if states is None:  # Legacy completed bundles remain readable/reusable.
+        return _comparison_available(comparison) and _activity_available(activities)
+    if (steps or not isinstance(states, dict) or set(states) != set(TASKS[:-1])
+            or any(state not in TERMINAL for state in states.values())
+            or result.get('status') != ('success' if all(v == 'success' for v in states.values()) else 'partial')):
+        return False
+    if states['comparison'] == 'success' and not _comparison_available(comparison):
+        return False
+    if states['comparison'] == 'unavailable' and comparison['job_analysis'].get('status') != 'not_started':
+        return False
+    if states['courses'] in ('failed', 'unavailable') and courses:
+        return False
+    activity_status = 'failed' if activities.get('status') == 'error' else activities.get('status')
+    return (states['activities'] == activity_status
+            and (activity_status != 'success' or _activity_available(activities)))
 
 
 def _finish(rid, owner, run_id):
@@ -305,30 +253,37 @@ def _finish(rid, owner, run_id):
             raise Problem(409, 'generation_expired', '생성 시간이 만료되었습니다.')
         current = capture_basis(db, row)
         results = work['results']
-        if digest(current) != run['basis_hash'] or digest(_comparison(db, row)) != digest(results['comparison']):
+        if digest(current) != run['basis_hash']:
             raise Problem(409, 'revision_conflict', '분석 중 입력이나 근거가 변경되었습니다.')
-        if capture_profile(db, row)[1] != results['activities'].get('activity_basis'):
-            raise Problem(409, 'revision_conflict', '활동 추천 근거가 변경되었습니다.')
-        if _date(results['activities']['valid_until']) <= datetime.now(timezone.utc):
-            raise Problem(409, 'activity_snapshot_expired', '활동 추천을 다시 확인해야 합니다.')
-        if results['roadmap']['recommended_courses'] != results['courses']:
-            raise Problem(500, 'course_mismatch', '수강 후보 검증에 실패했습니다.')
-        result = {**results['roadmap'], 'skill_comparison': results['comparison'],
-                  'activity_recommendations': results['activities'], 'course_reasons': results['course_reasons']['reasons'],
-                  'catalog_id': basis['profile']['catalog_id']}
-        fallback = results['course_reasons'].get('source') == 'catalog_evidence_fallback'
-        if (fallback or results['activities']['status'] == 'partial'
-                or results['comparison']['status'] == 'partial'):
-            result['status'] = 'partial'
-        if fallback:
-            result['course_reasons_source'] = 'catalog_evidence_fallback'
-            result['limitations'] = [*result.get('limitations', []),
-                'Gemini 수강 이유 생성이 실패하여 교육과정의 확인된 근거를 바탕으로 작성한 기본 설명을 제공합니다.']
-        if not _valid_bundle(result) or any(work['states'][key] != 'success' for key in TASKS[:-1]):
+        states = {key: work['states'][key] for key in TASKS[:-1]}
+        if states['comparison'] != 'failed' and digest(_comparison(db, row)) != digest(results['comparison']):
+            raise Problem(409, 'revision_conflict', '직무 비교 근거가 변경되었습니다.')
+        activity = results['activities']
+        if activity.get('activity_basis'):
+            if capture_profile(db, row)[1] != activity['activity_basis']:
+                raise Problem(409, 'revision_conflict', '활동 추천 근거가 변경되었습니다.')
+            if _date(activity['valid_until']) <= datetime.now(timezone.utc):
+                raise Problem(409, 'activity_snapshot_expired', '활동 추천을 다시 확인해야 합니다.')
+        result = {
+            'status': 'success' if all(v == 'success' for v in states.values()) else 'partial',
+            'generation_mode': 'saved_data', 'roadmap': [],
+            'career_goal': basis['profile']['career_goal'], 'target_role': basis['profile']['target_role'],
+            'preparation_summary': {'confirmed_skills': [], 'skills_to_verify': [], 'learning_candidates': []},
+            'preparation_items': [], 'evidence': basis['evidence'],
+            'recommended_courses': results['courses'], 'skill_comparison': results['comparison'],
+            'activity_recommendations': activity, 'course_reasons': results['course_reasons']['reasons'],
+            'course_reasons_source': 'catalog_evidence', 'component_status': states,
+            'component_errors': work.get('errors', {}),
+            'catalog_id': basis['profile']['catalog_id'], 'limitations': basis['limitations'],
+            **roadmap_context(basis),
+        }
+        if states['courses'] == 'failed':
+            result['course_status'] = 'failed'
+        if not _valid_bundle(result):
             raise Problem(500, 'invalid_result', '로드맵 결과를 확인하지 못했습니다.')
         store.finish(rid, run_id, result)
         db.commit()
-    # A separate connection verifies the committed result, including task rows.
+    # Verify the full committed snapshot on a separate connection before exposing it.
     with closing(connect()) as db:
         repo, row, store, run = _locked(db, rid, owner, run_id)
         current = capture_basis(db, row)
@@ -336,6 +291,7 @@ def _finish(rid, owner, run_id):
         basis, work = _parts(run)
         if (run['status'] not in ('success', 'partial') or digest(current) != run['basis_hash']
                 or not _valid_bundle(saved) or saved['run_id'] != run_id
+                or digest(decode(run['result_json'])) != digest(result)
                 or digest(saved['skill_comparison']) != digest(results['comparison'])
                 or digest(saved['activity_recommendations']) != digest(results['activities'])):
             raise Problem(500, 'storage_verification_failed', '저장된 결과를 확인하지 못했습니다.')
@@ -346,97 +302,57 @@ def _finish(rid, owner, run_id):
         db.commit()
 
 
-def run(rid, owner, run_id):
-    task = 'comparison'
+def run(rid, owner, run_id, *, propagate=False):
+    task = 'roadmap'
     pool = None
     try:
         _prepare_job(rid, owner, run_id)
         with closing(connect()) as db:
             run_row = RoadmapRepository(db).get(rid, run_id)
             basis, work = _parts(run_row)
-        pool = ThreadPoolExecutor(max_workers=4, thread_name_prefix='roadmap-task')
+        pool = ThreadPoolExecutor(max_workers=3, thread_name_prefix='roadmap-task')
         pending = {}
-        failures = []
-        results = dict(work['results'])
-        for key in TASKS:
-            if key in work['results'] and (key != 'activities' or
-                    _date(work['results'][key]['valid_until']) > datetime.now(timezone.utc)):
-                continue
+        for key in TASKS[:-1]:
             task = key
             _save(rid, owner, run_id, lambda w, k=key: w['states'].__setitem__(k, 'running'))
             pending[pool.submit(_execute, key, rid, owner, basis)] = key
         deadline = _date(run_row['lease_until'])
-        while True:
-            # Course prose uses the existing AI guard, which allows only one AI
-            # operation per owner. Rank in parallel, then explain as soon as the
-            # roadmap AI has released its lease; comparison/activity can continue.
-            if ('courses' in results and 'course_reasons' not in results and
-                    'course_reasons' not in pending.values() and
-                    (not results['courses'] or 'roadmap' not in pending.values())):
-                task = 'courses'
-                _save(rid, owner, run_id, lambda w: w['states'].__setitem__('courses', 'running'))
-                pending[pool.submit(_execute_reasons, rid, owner, run_id, basis, results['courses'])] = 'course_reasons'
-            if not pending:
-                break
+        while pending:
             seconds = (deadline - datetime.now(timezone.utc)).total_seconds()
-            if seconds <= 0:
-                task = next(iter(pending.values()))
-                if task == 'course_reasons': task = 'courses'
-                raise Problem(504, 'generation_expired', '생성 시간이 만료되었습니다.')
-            done, _ = wait(pending, timeout=seconds, return_when=FIRST_COMPLETED)
+            done, _ = wait(pending, timeout=max(0, seconds), return_when=FIRST_COMPLETED)
             if not done:
-                task = next(iter(pending.values()))
-                if task == 'course_reasons': task = 'courses'
                 raise Problem(504, 'generation_expired', '생성 시간이 만료되었습니다.')
             for future in done:
-                name = pending.pop(future)
-                task = 'courses' if name == 'course_reasons' else name
+                task = pending.pop(future)
+                error_code = None
                 try:
                     value = future.result()
-                    if name == 'course_reasons' and (not isinstance(value, dict) or
-                            not _valid_reasons(results['courses'], value.get('reasons'), basis['profile']['catalog_id'])):
-                        raise Problem(502, 'course_reasons_invalid', '수강 추천 이유를 확인하지 못했습니다.')
+                    state = _component_status(task, value, basis)
                 except Exception as error:
-                    failures.append((task, error))
+                    if getattr(error, 'code', None) in ('revision_conflict', 'generation_expired'):
+                        raise
                     _log(rid, run_id, task, error)
-                    def record_failure(w, key=task, exc=error):
-                        w['states'][key] = 'failed'
-                        w['error'] = {'task': key, 'code': _code(exc)}
-                    _save(rid, owner, run_id, record_failure)
-                    # Do not repeatedly resubmit a failed reason request in this run.
-                    if name == 'course_reasons':
-                        results['course_reasons'] = None
-                    continue
-                results[name] = value
-                def record(w, key=name, data=value):
+                    value, state, error_code = _unavailable(task, error), 'failed', _code(error)
+                    if task == 'comparison':
+                        value.update(input_revision=basis['input_revision'],
+                                     career_goal=basis['profile']['career_goal'],
+                                     target_role=basis['profile']['target_role'])
+                reasons = _execute_reasons(rid, owner, run_id, basis, value) if task == 'courses' else None
+                def record(w, key=task, data=value, status=state, code=error_code, prose=reasons):
                     w['results'][key] = data
-                    # Course explanations and the verified final save are part of
-                    # their respective task, not lazy work after the page opens.
-                    if key == 'course_reasons':
-                        w['states']['courses'] = 'success'
-                    else:
-                        w['states'][key] = 'running' if key in ('courses', 'roadmap') else 'success'
+                    w['states'][key] = status
+                    if code:
+                        w.setdefault('errors', {})[key] = code
+                    if prose is not None:
+                        w['results']['course_reasons'] = prose
                 _save(rid, owner, run_id, record)
-        if failures:
-            task, error = failures[0]
-            raise error
-        # A slow model call can outlast the activity snapshot's validity window.
-        with closing(connect()) as db:
-            _, work = _parts(RoadmapRepository(db).get(rid, run_id))
-        if _date(work['results']['activities']['valid_until']) <= datetime.now(timezone.utc):
-            task = 'activities'
-            _save(rid, owner, run_id, lambda w: w['states'].__setitem__('activities', 'running'))
-            activities = _execute('activities', rid, owner, basis)
-            def refresh_activity(w):
-                w['results']['activities'] = activities
-                w['states']['activities'] = 'success'
-            _save(rid, owner, run_id, refresh_activity)
-        task = 'roadmap'
+        task = 'roadmap'  # Compatibility key: only the final durable save.
+        _save(rid, owner, run_id, lambda w: w['states'].__setitem__('roadmap', 'running'))
         _finish(rid, owner, run_id)
     except Exception as error:
-        if getattr(error, 'code', None) == 'activity_snapshot_expired':
-            task = 'activities'
         _fail(rid, owner, run_id, task, error)
+        if propagate:
+            raise
     finally:
         if pool:
             pool.shutdown(wait=False, cancel_futures=True)

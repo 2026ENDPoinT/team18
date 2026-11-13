@@ -16,7 +16,7 @@ reviewed = [(source, k) for course in grouped for source in (course.get('_keywor
             for k in source['keywords'] if k['keyword_role'] == 'learning']
 assert len(reviewed) == 291
 assert all(k['evidence_text'].strip() and k['evidence_text'] in (source['description_text'] or '') for source, k in reviewed)
-case = RoadmapAPI('test_roadmap_persistence_cache_progress_refresh')
+case = RoadmapAPI()
 case.setUp()
 try:
     with closing(connect()) as db:
@@ -62,7 +62,7 @@ try:
         assert course_response.status_code == 200, course_response.text
         roadmap_response = case.make()
         assert roadmap_response.status_code == 201, roadmap_response.text
-        assert roadmap_response.json()['generation_mode'] == 'limited_guidance'
+        assert roadmap_response.json()['generation_mode'] == 'saved_data'
         courses = course_response.json()['courses']
         roadmap_courses = roadmap_response.json()['recommended_courses']
         signature = lambda rows: [(c['course_id'], c['recommendation_type'], c['learning_keywords']) for c in rows]

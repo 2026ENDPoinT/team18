@@ -35,7 +35,6 @@ export default function Result() {
  const wantsGeneration = useRef(searchParams.get('generate') === '1');
  const [resources, setResources] = useState({});
  const [tracking, setTracking] = useState({ phase: 'checking', tasks: {} });
- const [progressBusy, setProgressBusy] = useState(false), [progressError, setProgressError] = useState('');
  const plan = resources.plan?.data, result = resources.roadmap?.data;
  const load = useCallback(async () => {
   const ticket = ++epoch.current, collected = {};
@@ -49,7 +48,7 @@ export default function Result() {
    if (!id) throw new Error('계획이 없습니다. 기본 정보를 먼저 입력해 주세요.');
    await loadResultResources((path, options = {}) => apiRequest(path, { ...options, signal: AbortSignal.timeout(15000) }), id, receive);
   } catch (error) {
-   for (const key of ['plan', 'roadmap', 'comparison', 'courses']) receive(key, { phase: 'error', message: error.message });
+   for (const key of ['plan', 'roadmap', 'comparison', 'courses', 'activities']) receive(key, { phase: 'error', message: error.message });
   }
   return collected;
  }, []);
@@ -94,18 +93,18 @@ export default function Result() {
    if (disposed) return;
    const currentPlan = loaded.plan?.data, latest = loaded.roadmap?.data;
    if (!currentPlan || loaded.roadmap?.phase === 'error') {
-    setTracking({ phase: 'unknown', planId: currentPlan?.request_id, tasks: {} }); return;
+    setTracking({ phase: 'idle', tasks: {} }); return;
    }
    const generation = latest?.latest_generation;
    previousRunId.current = generation?.run_id || latest?.run_id || null;
    const active = generation && (generation.status === 'generating' || !generation.generation_complete && generation.status !== 'failed');
-   if (active || (!wantsGeneration.current && generation)) {
+   if (active) {
     remember(currentPlan.request_id, generation.run_id);
     setTracking({ phase: 'tracking', planId: currentPlan.request_id, runId: generation.run_id, tasks: generation.generation_tasks || {} });
    } else if (wantsGeneration.current) {
     wantsGeneration.current = false;
     await startGeneration(currentPlan, Boolean(latest?.run_id));
-   } else if (remembered(currentPlan.request_id)) {
+   } else if (remembered(currentPlan.request_id) && !latest?.generation_complete) {
     setTracking({ phase: 'tracking', planId: currentPlan.request_id, runId: remembered(currentPlan.request_id), tasks: {} });
    } else setTracking({ phase: 'idle', tasks: {} });
   })();
@@ -179,21 +178,11 @@ export default function Result() {
   e.preventDefault(); changeTab(next);
   document.getElementById(`tab-${next}`)?.focus({ preventScroll: true });
  }
- async function setTask(task) {
-  if (progressBusy || !result?.run_id) return;
-  setProgressBusy(true); setProgressError('');
-  try {
-   const data = await apiRequest(`/roadmap-inputs/${encodeURIComponent(plan.request_id)}/roadmaps/${encodeURIComponent(result.run_id)}/tasks/${encodeURIComponent(task.task_id)}`,
-    { method: 'PATCH', body: JSON.stringify({ is_completed: !task.is_completed, expected_progress_version: task.progress_version }) });
-   setResources(previous => ({ ...previous, roadmap: { phase: 'ready', data } }));
-  } catch (error) { setProgressError(error.message); }
-  finally { setProgressBusy(false); }
- }
  if (!['idle', 'complete'].includes(tracking.phase)) return <GenerationLoading state={tracking} onRetry={retry}/>;
- const hasResult = ['success', 'partial'].includes(result?.status) && !!result?.roadmap && !result.details_restricted;
+ const hasResult = ['success', 'partial'].includes(result?.status) && Array.isArray(result?.recommended_courses) && !result.details_restricted;
  const activities = result?.activity_recommendations
   ? { phase: 'ready', data: result.activity_recommendations, message: '' }
-  : { phase: 'error', data: null, message: '저장된 활동 추천이 없습니다. 로드맵을 다시 생성해 주세요.' };
+  : resources.activities || { phase: 'loading', data: null };
  const displayedResources = result?.skill_comparison
   ? { ...resources, comparison: { phase: 'ready', data: result.skill_comparison } } : resources;
  const reasons = Object.fromEntries(result?.course_reasons?.map(reason => [reason.course_id, reason.personalization_reason]) ||
@@ -201,28 +190,27 @@ export default function Result() {
  return <div className="result-page">
   <div className="result-generation-heading"><PageTitle title="로드맵 결과" helpId={`result-${selectedTab}`}/>
    <button className="primary" disabled={!plan || resources.roadmap?.phase === 'loading'} onClick={() => startGeneration(plan, hasResult)}>{hasResult ? '재분석' : '로드맵 만들기'}</button></div>
+  {resources.roadmap?.phase === 'error' && <p role="alert">저장된 결과를 불러오지 못했어요. <button onClick={load}>다시 조회</button></p>}
+  {result?.latest_generation?.status === 'failed' && <p role="alert">최근 결과 저장에 실패했습니다. 이전에 저장된 결과와 조회 가능한 정보를 표시합니다.</p>}
+  {hasResult && result.status === 'partial' && <p className="notice" role="status">일부 정보가 미분석 상태이거나 조회되지 않아 확인된 결과를 표시합니다.</p>}
   {hasResult && !result.generation_complete && <p className="notice">이전에 저장한 결과입니다. 모든 추천을 함께 저장하려면 재분석을 실행해 주세요.</p>}
-  {hasResult && result.roadmap_source === 'server_verified_evidence' && <p className="notice" role="status">AI 실행 로드맵 응답이 검증을 통과하지 못해, 저장된 직무 근거와 본인 경험 확인 상태만으로 구성한 실행 안내를 표시합니다. 확인되지 않은 경험은 학습 부족으로 판단하지 않습니다.</p>}
   <div className="result-tabs" role="tablist" aria-label="결과 구성" onKeyDown={onKeyDown}>{resultTabs.map((tab, i) => <button key={tab.key} type="button" role="tab" id={`tab-${i}`} data-index={i} aria-controls="result-panel" aria-selected={selected === i} tabIndex={selected === i ? 0 : -1} onClick={() => changeTab(i)}>{tab.label}</button>)}</div>
   <section id="result-panel" role="tabpanel" tabIndex={0} aria-labelledby={`tab-${selected}`} className={overview ? 'result-overview-panel' : 'result-panel skill-panel'}>
-   <JobSkillAnalysis active={selectedTab === 'skills'} savedComparison={result?.skill_comparison} savedRunId={result?.run_id} onResult={onSkillResult} plan={plan} onPlanChange={onPlanChange}/>
+   <JobSkillAnalysis active={selectedTab === 'skills'} savedComparison={result?.skill_comparison} savedRunId={result?.run_id} savedRequestId={result?.request_id} onResult={onSkillResult} plan={plan} onPlanChange={onPlanChange}/>
    {selectedTab === 'activities' && <ActivityRecommendations active resource={activities}/>}
    {overview && <ResultOverview resources={displayedResources} reload={load} activities={activities}/>}
-   {overview && <section className="result-roadmap-steps" aria-labelledby="execution-steps-title"><h2 id="execution-steps-title">실행 로드맵</h2>
-    {!hasResult && <p>아직 저장된 실행 로드맵이 없습니다. 로드맵을 만들어 주세요.</p>}
-    {result?.is_stale && <p className="notice">이전 입력을 기준으로 저장된 로드맵입니다. 재분석으로 최신 결과를 만들 수 있어요.</p>}
-    {hasResult && <ol className="execution-steps">{result.roadmap.map(step => <li className="skill-card" key={step.step_id}><h3>{step.title}</h3><p>{step.purpose}</p><p>{step.reason}</p><ul>{step.tasks.map(task => <li key={task.task_id}><label><input type="checkbox" checked={!!task.is_completed} disabled={progressBusy} onChange={() => setTask(task)}/> {task.action}</label><p className="field-help">완료 기준: {task.completion_criteria} · 결과물: {task.deliverable}</p></li>)}</ul></li>)}</ol>}
-    {progressError && <p role="alert">{progressError}</p>}</section>}
+   {overview && result?.is_stale && <p className="notice">이전 입력 기준으로 저장된 결과입니다. 재분석으로 최신 결과를 만들 수 있어요.</p>}
    {selectedTab === 'courses' && <>
     {result?.course_reasons_source === 'catalog_evidence_fallback' && <p className="notice" role="status">AI 수강 추천 이유를 생성하지 못해, 확인된 교육과정 내용을 바탕으로 작성한 기본 추천 근거를 표시합니다. 실제 개설과 수강 가능 여부는 별도로 확인해 주세요.</p>}
     {resources.roadmap?.phase === 'loading' && <p role="status">저장된 결과를 불러오고 있습니다…</p>}
     {resources.roadmap?.phase === 'error' && <p role="alert">{resources.roadmap.message}</p>}
     {result?.is_stale && <p className="notice" role="status">이 수강 후보는 이전 입력·분석 기준으로 저장된 결과입니다.</p>}
     {result?.details_restricted && <p className="notice">문서 삭제·재추출 등으로 근거가 변경되어 저장된 수강 후보의 상세 내용을 확인할 수 없습니다.</p>}
-    {hasResult && resources.courses?.phase === 'ready' ? <CourseCandidates result={result} selectedCourses={resources.courses.data?.selected_courses} courseReasons={{ phase: 'ready', reasons }}/> : !result?.details_restricted && <p>아직 표시할 수강 후보가 없습니다. 로드맵을 만들어 주세요.</p>}
+    {resources.courses?.phase === 'error' && <p className="notice" role="status">현재 이수 선택을 조회하지 못해 저장 당시의 수강 후보를 표시합니다.</p>}
+    {hasResult ? <CourseCandidates result={result} selectedCourses={resources.courses.data?.selected_courses} courseReasons={{ phase: 'ready', reasons }}/> : !result?.details_restricted && <p>아직 표시할 수강 후보가 없습니다. 로드맵을 만들어 주세요.</p>}
    </>}
   </section>
   {!overview && <nav className="result-pagination" aria-label="로드맵 결과 순서 이동"><span className="field-help">{selected + 1} / {resultTabs.length} · {resultTabs[selected].label}</span>
-   <div>{selected > 0 && <button type="button" onClick={() => changeTab(selected - 1, true)}>← 이전: {resultTabs[selected - 1].label}</button>}{nextTab ? <button type="button" className="primary" onClick={() => changeTab(selected + 1, true)}>다음: {nextTab.label} →</button> : <button type="button" className="primary" onClick={() => changeTab(0, true)}>결과 확인 완료 · 실행 로드맵 →</button>}</div></nav>}
+   <div>{selected > 0 && <button type="button" onClick={() => changeTab(selected - 1, true)}>← 이전: {resultTabs[selected - 1].label}</button>}{nextTab ? <button type="button" className="primary" onClick={() => changeTab(selected + 1, true)}>다음: {nextTab.label} →</button> : <button type="button" className="primary" onClick={() => changeTab(0, true)}>결과 확인 완료 · 결과 요약 →</button>}</div></nav>}
  </div>;
 }

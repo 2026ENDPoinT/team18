@@ -42,6 +42,7 @@ test('a rejected roadmap remains an error while saved profile and comparison loa
  assert.equal(resources.plan.phase, 'ready');
  assert.equal(resources.roadmap.phase, 'error');
  assert.equal(resources.comparison.phase, 'ready');
+ assert.equal(resources.activities.phase, 'ready');
  assert.equal(resources.courses.phase, 'ready');
  assert.ok(calls.some(c => c.path.endsWith('page_size=1')));
  assert.ok(calls.every(c => !c.options));

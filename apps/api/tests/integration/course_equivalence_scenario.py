@@ -96,10 +96,11 @@ class CourseEquivalenceAPI(RoadmapAPI):
             self.assertTrue({c['course_id'] for c in data['eligible_courses']} <= expected)
             with patch('roadmap_scenario.DB_COURSE', chosen):
                 return fake_roadmap(data)
-        with patch('api.routes.roadmaps.generate_roadmap', side_effect=provider) as ai:
+        with patch('services.gemini_roadmap.generate_roadmap', side_effect=provider) as ai:
             response = self.make()
         self.assertEqual(response.status_code, 201, response.text)
-        self.assertEqual(ai.call_count, 1)
+        ai.assert_not_called()
+        self.assertTrue({c['course_id'] for c in response.json()['recommended_courses']} <= expected)
         return response.json()
 
     def test_all_16_pairs_search_filters_and_52_items_across_pages(self):
@@ -235,10 +236,16 @@ class CourseEquivalenceAPI(RoadmapAPI):
     def check_legacy_result(self, both):
         with patch('course_groups.GROUPS_BY_CATALOG', {}):
             self.jobs()
-            with patch('api.routes.roadmaps.generate_roadmap', side_effect=fake_roadmap):
-                response = self.make()
-            self.assertEqual(response.status_code, 201, response.text)
-            old = response.json()
+            from services.roadmap_generation import capture_basis, model_input, validate_result
+            from repositories.roadmaps import RoadmapRepository, run_payload
+            with closing(connect()) as db:
+                basis = capture_basis(db, db.execute('SELECT * FROM roadmap_inputs WHERE request_id=?', (self.rid,)).fetchone())
+                store = RoadmapRepository(db)
+                run = store.create(self.rid, basis)
+                raw = validate_result(fake_roadmap(model_input(basis)), basis)
+                saved_run = store.finish(self.rid, run['run_id'], raw)
+                db.commit()
+                old = run_payload(store, saved_run, basis)
             # Emulate a saved pre-ranking run; new generation now owns its list.
             with closing(connect()) as db:
                 saved = json.loads(db.execute('SELECT result_json FROM roadmap_runs WHERE run_id=?', (old['run_id'],)).fetchone()['result_json'])
@@ -254,7 +261,7 @@ class CourseEquivalenceAPI(RoadmapAPI):
                 db.commit()
         with closing(connect()) as db:
             original = dict(db.execute('SELECT result_json,basis_json FROM roadmap_runs WHERE run_id=?', (old['run_id'],)).fetchone())
-        with patch('api.routes.roadmaps.generate_roadmap') as ai:
+        with patch('services.gemini_roadmap.generate_roadmap') as ai:
             for path in ('/roadmap', '/roadmaps/' + old['run_id']):
                 result = self.client.get(self.base + path)
                 self.assertEqual(result.status_code, 200, result.text)
@@ -307,13 +314,12 @@ class CourseEquivalenceAPI(RoadmapAPI):
                 'reason': '후보', 'personalization_reason': '후보', 'course_role': 'foundation',
                 'recommendation_confidence': 'limited'}]
             return raw
-        with patch('api.routes.roadmaps.generate_roadmap', side_effect=invalid_provider):
+        with patch('services.gemini_roadmap.generate_roadmap', side_effect=invalid_provider):
             response = self.make()
-        self.assertEqual(response.status_code, 502, response.text)
-        self.assertEqual(response.json()['detail_code'], 'course_completed')
-        with closing(connect()) as db:
-            run = db.execute('SELECT result_json FROM roadmap_runs WHERE request_id=?', (self.rid,)).fetchone()
-            self.assertIsNone(run['result_json'])
+        self.assertEqual(response.status_code, 201, response.text)
+        self.assertTrue({ENGLISH, KOREAN}.isdisjoint(c['course_id'] for c in response.json()['recommended_courses']))
+        self.assertEqual(response.json()['roadmap'], [])
+
 
 
 if __name__ == '__main__':

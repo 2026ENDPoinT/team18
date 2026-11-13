@@ -70,9 +70,34 @@ def test_course_fallback_uses_only_existing_verified_reason():
     courses = [{'course_id': 'course-1', 'course_name': '데이터베이스',
                 'personalization_reason': '원문으로 검증된 데이터베이스 관련 설명'}]
     fallback = _fallback_course_reasons(courses, 'synthetic-catalog')
-    assert fallback['source'] == 'catalog_evidence_fallback'
+    assert fallback['source'] == 'catalog_evidence'
     assert fallback['reasons'] == [{
         'course_id': 'course-1',
         'personalization_reason': courses[0]['personalization_reason'],
         'evidence_ids': [],
     }]
+
+
+def test_missing_reason_reports_insufficient_evidence():
+    result = _fallback_course_reasons([{'course_id': 'c', 'course_name': 'SQL'}], None)
+    assert '근거가 부족' in result['reasons'][0]['personalization_reason']
+    assert result['reasons'][0]['evidence_ids'] == []
+
+
+def test_partial_bundle_requires_honest_terminal_states_and_intact_reasons():
+    from copy import deepcopy
+    result = {
+        'status': 'partial', 'roadmap': [], 'recommended_courses': [{'course_id': 'c'}],
+        'course_reasons': [{'course_id': 'c', 'personalization_reason': '저장된 교육과정 근거'}],
+        'component_status': {'comparison': 'unavailable', 'courses': 'success', 'activities': 'failed'},
+        'skill_comparison': {'comparisons': [], 'job_analysis': {'status': 'not_started'}, 'project_analysis': {}},
+        'activity_recommendations': {'status': 'error', 'activities': [], 'sources': []},
+    }
+    assert _valid_bundle(result)
+    for key, value in [('status', 'success'), ('course_reasons', []),
+                       ('recommended_courses', [{'course_name': 'missing ID'}]), ('roadmap', [{}])]:
+        assert not _valid_bundle({**result, key: value})
+    for key, value in [('comparison', 'success'), ('activities', 'success'), ('courses', 'running')]:
+        changed = deepcopy(result)
+        changed['component_status'][key] = value
+        assert not _valid_bundle(changed)

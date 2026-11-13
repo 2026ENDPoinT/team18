@@ -19,5 +19,6 @@ export async function loadResultResources(apiRequest, id, receive) {
    : receive('courses', { phase: 'error', message: '이수 정보를 확인하지 못했어요.' })),
   read('roadmap', `${base}/roadmap`),
   read('comparison', `${base}/skill-comparison`),
+  read('activities', `${base}/activities`),
  ]);
 }

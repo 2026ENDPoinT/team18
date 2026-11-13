@@ -5,7 +5,7 @@ from repositories.plans import connect
 from repositories.courses import CourseRepository
 from api.domain import now
 
-case = RoadmapAPI('test_roadmap_persistence_cache_progress_refresh')
+case = RoadmapAPI()
 case.setUp()
 try:
     with closing(connect()) as db:
@@ -25,7 +25,7 @@ try:
     no_jobs = case.make()
     assert no_jobs.status_code == 201, no_jobs.text
     assert [c['course_id'] for c in no_jobs.json()['recommended_courses']] == [c['course_id'] for c in chosen]
-    assert no_jobs.json()['generation_mode'] == 'limited_guidance'
+    assert no_jobs.json()['generation_mode'] == 'saved_data'
     old = no_jobs.json()['run_id']
     case.jobs()
     def short_provider(data):
@@ -36,7 +36,7 @@ try:
                     'personalization_reason':'모델 설명', 'course_role':'foundation', 'recommendation_confidence':'supported'}
                    for c in reversed(data['eligible_courses'][:3])]
         return result.model_copy(update={'recommended_courses': courses})
-    with patch('api.routes.roadmaps.generate_roadmap', side_effect=short_provider):
+    with patch('services.gemini_roadmap.generate_roadmap', side_effect=short_provider):
         generated = case.make()
     assert generated.status_code == 201, generated.text
     result = generated.json()
@@ -48,12 +48,12 @@ try:
                                 'changes': {'career_goal': 'SQL 학습 희망과 심화'}})
     assert changed.status_code == 200, changed.text
     with patch('services.roadmap_generation.RULES_VERSION', 'personalized-roadmap-v7-normalized-course-goals'), \
-         patch('api.routes.roadmaps.generate_roadmap', side_effect=short_provider):
+         patch('services.gemini_roadmap.generate_roadmap', side_effect=short_provider):
         previous = case.make()
     assert previous.status_code == 201, previous.text
     previous_id = previous.json()['run_id']
     assert case.client.get(case.base + '/roadmaps/' + previous_id).json()['run_id'] == previous_id
-    with patch('api.routes.roadmaps.generate_roadmap', side_effect=short_provider):
+    with patch('services.gemini_roadmap.generate_roadmap', side_effect=short_provider):
         upgraded = case.make()
     assert upgraded.status_code == 201 and upgraded.json()['run_id'] != previous_id, upgraded.text
     restored = case.client.get(case.base + '/roadmaps/' + previous_id)
