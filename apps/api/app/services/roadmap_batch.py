@@ -227,9 +227,14 @@ def _execute(task, rid, owner, basis):
                 # trusting unverified text. The fallback is constructed solely
                 # from the already captured, source-verified server basis and
                 # passes validate_result() again before it can be persisted.
-                # A cooldown can happen on an immediate UI retry after an
-                # unsuccessful model attempt; do not spend another AI call.
-                if error.code not in ('gemini_invalid_response', 'ai_cooldown'):
+                # Gemini can reject valid requests with transient HTTP 5xx,
+                # timeout, or quota errors. Never make the saved analysis depend
+                # on provider availability; the deterministic fallback uses no
+                # further AI calls. Authentication/configuration and all DB
+                # failures still surface as errors instead of being hidden.
+                if error.code not in (
+                        'gemini_invalid_response', 'gemini_call_failed',
+                        'gemini_timeout', 'gemini_rate_limited', 'ai_cooldown'):
                     raise
                 logger.warning('roadmap_verified_fallback %s', json.dumps({
                     'path': f'/api/roadmap-inputs/{rid}/roadmap',
