@@ -213,6 +213,7 @@ export default function Result() {
     {hasResult && <ol className="execution-steps">{result.roadmap.map(step => <li className="skill-card" key={step.step_id}><h3>{step.title}</h3><p>{step.purpose}</p><p>{step.reason}</p><ul>{step.tasks.map(task => <li key={task.task_id}><label><input type="checkbox" checked={!!task.is_completed} disabled={progressBusy} onChange={() => setTask(task)}/> {task.action}</label><p className="field-help">완료 기준: {task.completion_criteria} · 결과물: {task.deliverable}</p></li>)}</ul></li>)}</ol>}
     {progressError && <p role="alert">{progressError}</p>}</section>}
    {selectedTab === 'courses' && <>
+    {result?.course_reasons_source === 'catalog_evidence_fallback' && <p className="notice" role="status">AI 수강 추천 이유를 생성하지 못해, 확인된 교육과정 내용을 바탕으로 작성한 기본 추천 근거를 표시합니다. 실제 개설과 수강 가능 여부는 별도로 확인해 주세요.</p>}
     {resources.roadmap?.phase === 'loading' && <p role="status">저장된 결과를 불러오고 있습니다…</p>}
     {resources.roadmap?.phase === 'error' && <p role="alert">{resources.roadmap.message}</p>}
     {result?.is_stale && <p className="notice" role="status">이 수강 후보는 이전 입력·분석 기준으로 저장된 결과입니다.</p>}
