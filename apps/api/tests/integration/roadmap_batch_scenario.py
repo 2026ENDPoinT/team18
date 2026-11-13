@@ -129,6 +129,47 @@ class BatchAPI(RoadmapAPI):
         self.assertEqual(self.model.call_count, 1)
         self.assertEqual(self.reasons.call_count, 2)
 
+    def test_batch_invalid_roadmap_uses_verified_evidence_fallback(self):
+        self.jobs()
+        from services.roadmap_validation import RoadmapValidationError
+        self.model.side_effect = RoadmapValidationError('skill_not_allowed', ('roadmap', 0, 'evidence_refs'))
+        run_id = self.start_batch()['run_id']
+        result = self.terminal(run_id)
+        self.assertTrue(result['generation_complete'], result)
+        self.assertEqual(result['status'], 'partial')
+        self.assertEqual(result['roadmap_source'], 'server_verified_evidence')
+        self.assertEqual(result['generation_mode'], 'verified_evidence_fallback')
+        self.assertEqual(result['generation_tasks']['roadmap'], 'success')
+        self.assertEqual(len(result['recommended_courses']), len(result['course_reasons']))
+        self.assertTrue(result['roadmap'])
+        self.assertEqual(self.model.call_count, 1)
+        for step in result['roadmap']:
+            self.assertEqual(len(step['skill_targets']), 1)
+            self.assertEqual(step['skill_targets'][0]['action_type'], 'verify_experience')
+            self.assertTrue(all(task['task_type'] == 'verify_experience'
+                                and '경험' in task['action'] and '확인' in task['action']
+                                for task in step['tasks']))
+            self.assertFalse(step['related_course_ids'])
+            self.assertEqual(step['recommendation_kind'], 'guidance')
+
+    def test_batch_cooldown_uses_fallback_without_spending_another_roadmap_call(self):
+        self.jobs()
+        self.model.side_effect = Problem(429, 'ai_cooldown', 'synthetic cooldown')
+        result = self.terminal(self.start_batch()['run_id'])
+        self.assertTrue(result['generation_complete'], result)
+        self.assertEqual(result['status'], 'partial')
+        self.assertEqual(result['roadmap_source'], 'server_verified_evidence')
+        self.assertTrue(result['roadmap'])
+        self.assertEqual(self.model.call_count, 1)
+
+    def test_batch_unrelated_roadmap_provider_error_still_fails(self):
+        self.jobs()
+        self.model.side_effect = GeminiError('gemini_auth_failed', 'synthetic authentication error')
+        result = self.terminal(self.start_batch()['run_id'])
+        self.assertEqual(result['status'], 'failed')
+        self.assertEqual(result['generation_tasks']['roadmap'], 'failed')
+        self.assertNotIn('roadmap', result)
+
     def test_batch_gemini_call_failed_uses_verified_course_explanations(self):
         self.jobs()
         self.reasons.side_effect = GeminiError('gemini_call_failed', 'synthetic provider failure')
