@@ -14,6 +14,9 @@ input[type=checkbox],input[type=radio]{accent-color:#536de7}
 .stepup-logo{display:grid;place-items:center;width:38px;height:38px;color:#5b73e9;flex-shrink:0}
 .global-nav{display:flex;align-self:stretch;gap:26px;align-items:stretch}.global-nav a{display:flex;align-items:center;border-bottom:3px solid transparent;color:#687891;text-decoration:none;padding:18px 0 15px;white-space:nowrap}.global-nav a.active{border-color:#3e64f1;color:#315ce5;font-weight:700}
 .account-link{margin-left:auto;color:#687891;font-size:12px;white-space:nowrap;text-decoration:none}
+.account-action{margin-left:auto;position:relative}
+button.account-link{border:0;background:transparent;padding:8px 0;min-height:44px;font-weight:400}
+.account-error{position:absolute;right:0;top:100%;width:min(280px,calc(100vw - 28px));margin:4px 0 0;padding:12px;background:#fff;border:1px solid #e3eaf4;border-radius:8px;color:#ad3838;font-size:12px;box-shadow:0 4px 12px #344b8010}
 .stepup-app{--sidebar-width:238px;display:grid;grid-template-columns:var(--sidebar-width) minmax(0,1fr);flex:1}
 .stepup-side{background:#fff;border-right:1px solid #e8edf3;padding:28px 17px;display:flex;flex-direction:column;min-width:0}
 .side-toolbar{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:14px}

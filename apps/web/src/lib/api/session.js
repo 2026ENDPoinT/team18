@@ -9,6 +9,12 @@ export function clearSelectedPlan() {
   sessionStorage.removeItem(OWNER_KEY);
 }
 
+export async function signOutSession() {
+  const { error } = await authClient().auth.signOut({ scope: 'local' });
+  if (error) throw error;
+  clearSelectedPlan();
+}
+
 async function currentUserId() {
   const { data, error } = await authClient().auth.getSession();
   if (error || !data.session?.user?.id) {

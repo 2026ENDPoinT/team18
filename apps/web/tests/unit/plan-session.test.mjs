@@ -6,19 +6,36 @@ import vm from 'node:vm';
 async function setup() {
  const storage = new Map();
  const sessionStorage = { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) };
- let user = 'user-a', latest = { found: false, request: null }, calls = [];
+ let user = 'user-a', latest = { found: false, request: null }, calls = [], signOutError = null;
+ const signOutCalls = [];
  const context = vm.createContext({ sessionStorage });
  const session = new vm.SourceTextModule(await readFile(new URL('../../src/lib/api/session.js', import.meta.url), 'utf8'), { context });
  const auth = new vm.SyntheticModule(['authClient'], function () {
-  this.setExport('authClient', () => ({ auth: { getSession: async () => ({ data: { session: user ? { user: { id: user } } : null }, error: null }) } }));
+  this.setExport('authClient', () => ({ auth: {
+   getSession: async () => ({ data: { session: user ? { user: { id: user } } : null }, error: null }),
+   signOut: async options => { signOutCalls.push(options); if (!signOutError) user = null; return { error: signOutError }; },
+  } }));
  }, { context });
  const client = new vm.SyntheticModule(['apiRequest'], function () {
   this.setExport('apiRequest', async (path, options) => { calls.push([path, options]); if (latest instanceof Error) throw latest; return latest; });
  }, { context });
  await session.link(specifier => specifier === './auth' ? auth : client);
  await session.evaluate();
- return { ...session.namespace, storage, calls, setUser: value => { user = value; }, setLatest: value => { latest = value; } };
+ return { ...session.namespace, storage, calls, signOutCalls, setSignOutError: value => { signOutError = value; }, setUser: value => { user = value; }, setLatest: value => { latest = value; } };
 }
+
+test('logout ends the current session and clears its selected plan; a failed logout preserves both for retry', async () => {
+ const s = await setup();
+ await s.selectPlan('saved-plan', 'user-a');
+ s.setSignOutError(new Error('offline'));
+ await assert.rejects(s.signOutSession(), /offline/);
+ assert.equal(await s.resolvePlanId(), 'saved-plan');
+ s.setSignOutError(null);
+ await s.signOutSession();
+ assert.equal(s.storage.size, 0);
+ await assert.rejects(s.resolvePlanId(), /다시 로그인/);
+ assert.ok(s.signOutCalls.every(options => options.scope === 'local'), 'other device sessions are retained');
+});
 
 test('selected plan remains selected even when another plan is the latest', async () => {
  const s = await setup();

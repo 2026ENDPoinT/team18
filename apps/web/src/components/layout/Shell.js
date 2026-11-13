@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import PageHelp from '../help/PageHelp';
 import { helpForPath } from '../help/examples.mjs';
+import AccountAction from './AccountAction';
 
 export function Logo() {
  return <span className="stepup-logo" aria-hidden="true"><svg viewBox="0 0 48 48" width="35" height="35"><path fill="currentColor" d="M3 36a2 2 0 0 1 2-2h10v10H3v-8Zm13-7a2 2 0 0 1 2-2h10v17H16V29Zm13-8a2 2 0 0 1 2-2h10v25H29V21Z"/><path d="M31 17V3.5a1 1 0 0 1 1.5-.87l10.5 5.8a1 1 0 0 1 0 1.75L32 16" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg></span>;
@@ -31,7 +32,7 @@ export function Shell({ children }) {
  const current = pathname.startsWith('/input/') ? 'input' : pathname === '/result' ? 'result' : 'home';
  return <>
   <a className="skip-link" href="#main-content">본문으로 이동</a>
-  <header className="global-bar"><Link href="/" className="global-brand"><Logo/>스텝업</Link><nav className="global-nav" aria-label="진행 메뉴">{[['home','/','시작'],['input','/input/basic','입력·검토'],['result','/result','내 로드맵']].map(([id,href,label])=><Link key={id} href={href} className={current===id?'active':''} aria-current={current===id?'page':undefined}>{label}</Link>)}</nav><Link href="/" className="account-link">계정 · 로그인</Link></header>
+  <header className="global-bar"><Link href="/" className="global-brand"><Logo/>스텝업</Link><nav className="global-nav" aria-label="진행 메뉴">{[['home','/','시작'],['input','/input/basic','입력·검토'],['result','/result','내 로드맵']].map(([id,href,label])=><Link key={id} href={href} className={current===id?'active':''} aria-current={current===id?'page':undefined}>{label}</Link>)}</nav><AccountAction/></header>
   <div className={home?'home-shell':'stepup-app'} data-sidebar-collapsed={sidebarCollapsed}>
    {!home&&<aside className="stepup-side">
     <div className="side-toolbar"><div className="nav-heading">역량 체크하기</div><button type="button" className="sidebar-toggle" onClick={toggleSidebar} aria-expanded={!sidebarCollapsed} aria-controls="primary-sidebar-nav" aria-label={sidebarCollapsed?'메뉴 펼치기':'메뉴 접기'} title={sidebarCollapsed?'메뉴 펼치기':'메뉴 접기'}>

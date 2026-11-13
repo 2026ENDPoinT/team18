@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { apiRequest } from '../lib/api/client';
 import { loadResumeResources, resumeDestination } from '../features/roadmap/resumePlan.mjs';
 import { authClient } from '../lib/api/auth';
-import { clearSelectedPlan, selectPlan, readResume, resolvePlanId } from '../lib/api/session';
+import { clearSelectedPlan, signOutSession, selectPlan, readResume, resolvePlanId } from '../lib/api/session';
 
 export default function Home() {
  const router = useRouter();
@@ -109,9 +109,7 @@ export default function Home() {
   if (user?.is_anonymous && !window.confirm('게스트 세션을 종료하면 이 데이터를 자동으로 복원할 수 없습니다. 로그아웃할까요?')) return;
   lock.current = true; setBusy(true);
   try {
-   const { error } = await authClient().auth.signOut();
-   if (error) throw error;
-   clearSelectedPlan(); setMessage('로그아웃했습니다.');
+   await signOutSession(); setMessage('로그아웃했습니다.');
   } catch (e) { setMessage('로그아웃하지 못했습니다. 다시 시도해 주세요.'); }
   finally { setBusy(false); lock.current = false; }
  }

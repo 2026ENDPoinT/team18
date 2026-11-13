@@ -44,7 +44,7 @@ try {
  await page.goto(origin);
  await page.getByRole('button', { name: '이어서 작성', exact: true }).waitFor();
  page.once('dialog', dialog => dialog.accept());
- await page.getByRole('button', { name: '로그아웃', exact: true }).click();
+ await page.locator('.home-actions').getByRole('button', { name: '로그아웃', exact: true }).click();
  await page.getByRole('button', { name: 'Google로 계속하기', exact: true }).waitFor();
  assert.ok(authCalls.includes('/auth/v1/signup'), 'Anonymous login calls original auth provider');
  assert.ok(authCalls.includes('/auth/v1/logout'), 'Logout calls original auth provider');
