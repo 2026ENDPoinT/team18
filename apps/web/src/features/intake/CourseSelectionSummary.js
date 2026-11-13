@@ -1,43 +1,29 @@
 'use client';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { apiRequest } from '../../lib/api/client';
-import { resolvePlanId } from '../../lib/api/session';
+import './courses.css';
+import { courseYear, termSections } from './courseCatalog.mjs';
 
-export function SelectedCoursesSummary({ data }) {
- return <>
-  <p><strong>{data.selection_summary.count}개 과목</strong></p>
-  <p>알려진 학점 합계 <strong>{data.selection_summary.known_credits}</strong>학점<br/>학점 미확인 과목 {data.selection_summary.unknown_credits_count}개</p>
-  <p className="field-help">현재 목록의 선택 합계이며 공식 총 취득학점이 아닙니다.</p>
-  <ul>{data.selected_courses.length ? data.selected_courses.map(c => <li key={c.course_id}>{c.course_name} ({c.course_code || '코드 없음'})</li>) : <li>선택한 이수 과목 없음</li>}</ul>
- </>;
+function SelectedYearTable({ year, courses }) {
+ const title = year ? `${year}학년` : '학년 미지정';
+ return <section className="course-year" aria-label={`${title} 이수 선택`} data-selected-year={year || 'unknown'}>
+  <header className="course-year-heading"><h3>{title}</h3><span>선택 {courses.length}과목</span></header>
+  {courses.length ? <table className="course-year-table course-selected-table" aria-label={`${title} 선택 과목`}>
+   {termSections(courses).filter(section => section.courses.length).map(section => <tbody key={section.title}>
+    <tr className="course-term"><th scope="colgroup">{section.title}<span>{section.courses.length}과목</span></th></tr>
+    {section.courses.map(course => <tr key={course.course_id} data-selected-course-id={course.course_id}><td>
+     <strong className="course-name">{course.course_name}</strong>
+    </td></tr>)}
+   </tbody>)}
+  </table> : <p className="course-year-empty">선택한 과목이 없습니다.</p>}
+ </section>;
 }
 
-export default function CourseSelectionSummary() {
- const [data, setData] = useState(null), [message, setMessage] = useState('이수 선택을 불러오는 중입니다.');
- const [reload, setReload] = useState(0);
- useEffect(() => {
-  let active = true;
-  setData(null); setMessage('이수 선택을 불러오는 중입니다.');
-  (async () => {
-   try {
-    const id = await resolvePlanId();
-    if (!id) throw new Error('계획이 없습니다. 기본 정보를 먼저 입력해 주세요.');
-    const plan = await apiRequest(`/roadmap-inputs/${encodeURIComponent(id)}`);
-    if (!plan.input.catalog_id) throw new Error('현재 선택한 과목 목록이 없습니다.');
-    const query = new URLSearchParams({ catalog_id: plan.input.catalog_id, page_size: '1' });
-    // The summary always covers the whole catalog, independent of page size.
-    const result = await apiRequest(`/roadmap-inputs/${encodeURIComponent(id)}/courses?${query}`);
-    if (await resolvePlanId() !== id) throw new Error('선택한 계획이 변경되었습니다. 다시 불러와 주세요.');
-    if (active) { setData(result); setMessage(''); }
-   } catch (error) { if (active) setMessage(error.message); }
-  })();
-  return () => { active = false; };
- }, [reload]);
- return <section className="wire-box" aria-label="이수 과목 확인">
-  <h3>이수 과목 확인</h3>
-  {data && <SelectedCoursesSummary data={data}/>}
-  {message && <p role="status">{message}</p>}
-  <div className="doc-actions"><Link href="/input/courses">이수 선택 수정</Link><button onClick={() => setReload(n => n + 1)}>이수 선택 새로고침</button></div>
- </section>;
+export function SelectedCoursesSummary({ data, byYear = false }) {
+ const selected = data.selected_courses;
+ return <>
+  <p><strong>{data.selection_summary.count}개 과목</strong></p>
+  {byYear ? <>
+   <div className="course-year-grid">{[1, 2, 3, 4].map(year => <SelectedYearTable key={year} year={year} courses={selected.filter(course => courseYear(course) === year)}/>)}</div>
+   {selected.some(course => courseYear(course) === null) && <div className="course-unassigned"><SelectedYearTable year={null} courses={selected.filter(course => courseYear(course) === null)}/></div>}
+  </> : <ul>{selected.length ? selected.map(course => <li key={course.course_id}>{course.course_name}</li>) : <li>선택한 이수 과목 없음</li>}</ul>}
+ </>;
 }

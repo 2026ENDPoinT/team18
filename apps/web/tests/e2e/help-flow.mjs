@@ -1,6 +1,7 @@
 // Real Next/API/SQLite with help_ui_server.py. Only external services and failure injection are fixtures.
 // CAPTURE_HELP=1 writes the ten actual application screenshots into public/help.
 import assert from 'node:assert/strict';
+import { confirmCourseSelection, openCourseConfirmation } from './course-confirmation.mjs';
 import { mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -33,7 +34,12 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
  async function image(id) {
   if(!capture||viewport.width!==1440)return;
   await clean(); await page.addStyleTag({content:'nextjs-portal{display:none}'});
-  await page.evaluate(()=>document.fonts.ready); await page.locator('#main-content').screenshot({path:assets+id+'.png',animations:'disabled'});
+  await page.evaluate(()=>document.fonts.ready);
+  if(id==='courses'){
+   const dialog=await openCourseConfirmation(page);
+   await page.screenshot({path:assets+id+'.png',animations:'disabled'});
+   await dialog.getByRole('button',{name:'선택 수정',exact:true}).click();
+  } else await page.locator('#main-content').screenshot({path:assets+id+'.png',animations:'disabled'});
  }
  async function help(id, method='escape') {
   if(capture)return; // Capture first; the validation pass then loads the committed assets.
@@ -71,8 +77,8 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
   for(const name of ['프로그래밍 기초','자료구조']){await page.getByRole('switch',{name:new RegExp('^'+name+' ')}).click();await page.locator('.course-save-status').filter({hasText:'이수 선택이 저장되었습니다.'}).waitFor();}
   const beforeCourses=await get('/courses?catalog_id='+(await get()).input.catalog_id+'&page_size=1');await help('courses');assert.equal((await get('/courses?catalog_id='+(await get()).input.catalog_id+'&page_size=1')).selection_summary.count,2);assert.equal(beforeCourses.selection_summary.known_credits,6);await image('courses');
   await page.route('**/course-selection-review',route=>route.fulfill({status:503,json:{message:'이수 선택을 저장하지 못했습니다. 다시 시도해 주세요.'}}),{times:1});
-  await button('이수 선택 확인').click();await page.getByRole('alert').filter({hasText:'이수 선택을 저장하지 못했습니다.'}).waitFor();assert.ok(page.url().endsWith('/input/courses'));await help('courses');await clean();
-  await button('이수 선택 확인').click();await page.waitForURL('**/input/review');await readyReview();
+  await confirmCourseSelection(page);await page.getByRole('alert').filter({hasText:'이수 선택을 저장하지 못했습니다.'}).waitFor();assert.ok(page.url().endsWith('/input/courses'));await button('선택 수정').click();await help('courses');await clean();
+  await confirmCourseSelection(page);await page.waitForURL('**/input/review');await readyReview();
   await button('프로젝트 경험 분석 실행').click();await poll(()=>page.locator('.skill-card').count().then(n=>n===4),'partial analysis cards');await readyReview();await clean();
   await experience('React').getByRole('button',{name:'맞아요',exact:true}).click();await readyReview();
   await experience('SQL').getByRole('button',{name:'잘 모르겠어요',exact:true}).click();await readyReview();
@@ -126,7 +132,7 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
   await button('현재 입력으로 다시 분석').click();await page.getByRole('alert').filter({hasText:'다시 생성해 주세요.'}).waitFor();await clean();assert.ok(!(await page.locator('body').innerText()).includes('internal-run-id'));await help('result-roadmap');await page.unroute('**/roadmap');
   if(!capture){await page.route('**/help/basic.png',route=>route.fulfill({status:404,body:''}),{times:1});await go('/input/basic');await button('기본 정보 예시 보기').click();await page.getByRole('dialog').getByRole('alert').waitFor();await button('이미지 다시 불러오기').click();await poll(()=>page.getByRole('dialog').locator('img').evaluate(el=>el.complete&&el.naturalWidth>0),'image retry');await page.keyboard.press('Escape');}
   // New plan: skip a document and confirm zero courses, then read activities without analysis.
-  await go('/');await button('처음부터 작성하기').click();await page.waitForURL('**/input/basic');await page.locator('[name=career_goal]').fill(goal);await page.locator('[name=university_id]').selectOption({index:1});await page.locator('[name=department_id]').selectOption({index:1});await page.getByText('학과 과목 목록이 자동으로 연결되었습니다.',{exact:true}).waitFor();await button('저장 후 다음: 프로젝트 문서').click();await page.waitForURL('**/input/documents');await button('문서 없이 계속').click();await page.waitForURL('**/input/courses');await poll(()=>button('이수 선택 확인').isEnabled(),'zero courses ready');await help('courses');await button('이수 선택 확인').click();await page.waitForURL('**/input/review');await page.getByText('현재 분석 가능한 문서가 없습니다. 경험이 없다는 의미는 아닙니다. 문서 상태를 확인해 주세요.',{exact:true}).waitFor();await clean();await help('review');
+  await go('/');await button('처음부터 작성하기').click();await page.waitForURL('**/input/basic');await page.locator('[name=career_goal]').fill(goal);await page.locator('[name=university_id]').selectOption({index:1});await page.locator('[name=department_id]').selectOption({index:1});await page.getByText('학과 과목 목록이 자동으로 연결되었습니다.',{exact:true}).waitFor();await button('저장 후 다음: 프로젝트 문서').click();await page.waitForURL('**/input/documents');await button('문서 없이 계속').click();await page.waitForURL('**/input/courses');await poll(()=>button('이수 선택 확인').isEnabled(),'zero courses ready');await help('courses');await confirmCourseSelection(page);await page.waitForURL('**/input/review');await page.getByText('현재 분석 가능한 문서가 없습니다. 경험이 없다는 의미는 아닙니다. 문서 상태를 확인해 주세요.',{exact:true}).waitFor();await clean();await help('review');
   assert.equal((await get('/documents')).documents.length,0);assert.notEqual((await get()).request_id,initialId);assert.equal((await get()).review_status,'confirmed');
   await go('/result?tab=courses');await page.getByText('아직 표시할 로드맵 결과가 없습니다. 분석 근거를 확인한 후 로드맵을 생성해 주세요.',{exact:true}).waitFor();await clean();await help('result-courses');await go('/result?tab=activities');await page.locator('.activity-recommendations .skill-card').first().waitFor();await help('result-activities');await clean();
   await page.route('**/api/roadmap-inputs/*/documents',route=>route.fulfill({status:503,json:{error:'feature_unavailable',message:'PostgreSQL 문서 기능은 아직 연결되지 않았습니다.'}}),{times:1});

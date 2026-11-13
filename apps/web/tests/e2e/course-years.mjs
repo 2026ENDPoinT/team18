@@ -1,6 +1,7 @@
 // Real Next + disposable SQLite API and the repository's actual catalog snapshot.
 // Run course_groups_ui_server.py with Next :15101 → API :18082.
 import assert from 'node:assert/strict';
+import { confirmCourseSelection, openCourseConfirmation } from './course-confirmation.mjs';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
@@ -19,7 +20,7 @@ const page=await context.newPage(), errors=[], pages=[], reviews=[];
 page.on('pageerror',error=>errors.push(error.message));
 page.on('request',request=>{if(request.url().endsWith('/course-selection-review'))reviews.push(request.postDataJSON());});
 const button=name=>page.getByRole('button',{name,exact:true});
-const search=page.getByRole('textbox',{name:'과목명·코드 검색'});
+const search=page.getByRole('textbox',{name:'과목 검색'});
 const row=id=>page.locator(`[data-course-id="${id}"]`);
 const base=origin+'/api/roadmap-inputs/'+fixture.request_id;
 const plan=()=>context.request.get(base).then(r=>r.json());
@@ -50,14 +51,13 @@ try {
  const counts=await page.locator('.course-year-grid>.course-year').evaluateAll(elements=>elements.map(el=>({year:Number(el.dataset.year),count:el.querySelectorAll('[data-course-id]').length,heading:el.querySelector('header').innerText})));
  assert.equal(counts.reduce((n,item)=>n+item.count,0),initial.total);
  const boxes=await page.locator('.course-year-grid>.course-year').evaluateAll(elements=>elements.map(el=>({x:el.getBoundingClientRect().x,y:el.getBoundingClientRect().y,width:el.getBoundingClientRect().width})));
- assert.equal(new Set(boxes.map(b=>b.y)).size,1);assert.equal(new Set(boxes.map(b=>b.width)).size,1);
+ assert.equal(new Set(boxes.map(b=>b.y)).size,1);assert.ok(Math.max(...boxes.map(b=>b.width))-Math.min(...boxes.map(b=>b.width))<1);
  assert.ok(boxes.every((b,i)=>!i||b.x>boxes[i-1].x));
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth===innerWidth));
  assert.equal(await page.locator('main aside').count(),0);
  assert.equal(await page.getByRole('combobox',{name:'학년 필터'}).count(),0);
  assert.equal(await button('다음 페이지').count(),0);
  await screenshot('courses-desktop-1440');
- if(process.env.CAPTURE_HELP==='1')await page.screenshot({path:fileURLToPath(new URL('../../public/help/courses.png',import.meta.url)),animations:'disabled'});
  // Every term is sorted, including the courses beyond the former first page.
  for(const body of await page.locator('.course-year-table tbody').all()){
   const names=await body.locator('.course-name').allTextContents();
@@ -70,7 +70,8 @@ try {
   assert.equal(await page.locator('.course-year-grid>.course-year').count(),4);
   assert.equal(await page.locator('.course-confirm-summary strong').innerText(),`선택 ${initial.selection_summary.count}과목 · ${initial.selection_summary.known_credits}학점`);
  }
- await row(db.course_id).locator('summary').click();assert.ok(await row(db.course_id).innerText().then(t=>t.includes(db.course_code)));
+ assert.equal(await page.locator('.course-code').count(),0);
+ assert.equal(await row(db.course_id).getByRole('switch').getAttribute('aria-label'),`${db.course_name} 이미 이수함`);
  await reset();
  // Hold the first PATCH while toggling all four years, including on→off→on.
  let release, started;const held=new Promise(r=>release=r), signal=new Promise(r=>started=r);
@@ -86,6 +87,18 @@ try {
  release();await saved();
  const selected=await all();assert.equal(selected.selection_summary.count,initial.selection_summary.count+4);
  for(const course of chosen)assert.ok(selected.selected_courses.some(c=>c.course_id===course.course_id));
+ // The preview includes hidden selections, leaves the review unsaved, and restores keyboard focus.
+ const dialog=await openCourseConfirmation(page);
+ assert.equal(new URL(page.url()).pathname,'/input/courses');assert.equal(reviews.length,0);
+ assert.equal(await dialog.locator('[data-selected-course-id]').count(),selected.selection_summary.count);
+ assert.deepEqual(await dialog.getByRole('heading',{level:3}).allTextContents(),['1학년','2학년','3학년','4학년']);
+ assert.equal(await dialog.getByRole('heading',{level:2}).evaluate(el=>el===document.activeElement),true);
+ await page.keyboard.press('Shift+Tab');assert.equal(await button('확인하고 역량 탐색').evaluate(el=>el===document.activeElement),true);
+ await page.keyboard.press('Tab');assert.equal(await button('이수 과목 확인 닫기').evaluate(el=>el===document.activeElement),true);
+ await page.keyboard.press('Escape');await dialog.waitFor({state:'detached'});
+ assert.equal(await button('이수 선택 확인').evaluate(el=>el===document.activeElement),true);
+ assert.equal(await search.inputValue(),'no-matching-course');assert.equal((await all()).selection_summary.count,selected.selection_summary.count);
+ await openCourseConfirmation(page);await button('선택 수정').click();await dialog.waitFor({state:'detached'});assert.equal(reviews.length,0);
  await page.reload();await ready();
  for(const course of chosen)assert.equal(await row(course.course_id).getByRole('switch').getAttribute('aria-checked'),'true');
  await page.getByRole('combobox',{name:'전공 구분 필터'}).selectOption(chosen[0].category);
@@ -129,7 +142,14 @@ try {
  await page.route('**/course-selections',async route=>{confirmStarted();await confirmHeld;await route.continue();},{times:1});
  await row(chosen[0].course_id).getByRole('switch').click();await confirmSignal;
  await button('이수 선택 확인').evaluate(el=>{el.click();el.click();});await delay(150);assert.equal(reviews.length,0);
- confirmRelease();await page.waitForURL('**/input/review');assert.equal(reviews.length,1);assert.equal(reviews[0].reported_missing_courses,true);
+ await page.getByRole('dialog',{name:'이수 과목 확인',exact:true}).waitFor();
+ assert.ok(await button('확인하고 역량 탐색').isDisabled());
+ confirmRelease();await saved();
+ let submitRelease, submitStarted;const submitHeld=new Promise(r=>submitRelease=r), submitSignal=new Promise(r=>submitStarted=r);
+ await page.route('**/course-selection-review',async route=>{submitStarted();await submitHeld;await route.continue();},{times:1});
+ await button('확인하고 역량 탐색').evaluate(el=>{el.click();el.click();});await submitSignal;
+ assert.ok(await button('선택 수정').isDisabled());await page.keyboard.press('Escape');assert.ok(await dialog.isVisible());assert.equal(reviews.length,1);
+ submitRelease();await page.waitForURL('**/input/review');assert.equal(reviews.length,1);assert.equal(reviews[0].reported_missing_courses,true);
  assert.equal((await plan()).review_status,'partial');
  await page.goto(origin+'/input/courses');await ready();
  await page.getByRole('button',{name:/선택 목록·누락 신고/}).click();assert.ok(await page.getByRole('checkbox',{name:'목록에 없는 이수 과목이 있어요'}).isChecked());
@@ -137,7 +157,7 @@ try {
  // Existing 409 protection remains intact after loading a full catalog.
  const fresh=await all(), external=fresh.courses.find(c=>!c.is_completed);
  assert.equal((await context.request.patch(base+'/course-selections',{headers:{Origin:origin},data:{catalog_id:catalog,expected_selection_revision:fresh.selection_revision,changes:[{course_id:external.course_id,is_completed:true}]}})).status(),200);
- await button('이수 선택 확인').click();await page.getByRole('alert').waitFor();assert.ok(await button('이수 선택 확인').isDisabled());
+ await confirmCourseSelection(page);await page.getByRole('alert').waitFor();assert.ok(await button('확인하고 역량 탐색').isDisabled());
  await button('최신 상태 불러오기').click();await ready();assert.equal(await row(external.course_id).getByRole('switch').getAttribute('aria-checked'),'true');
  // Missing metadata fixture covers fallback locations without changing the catalog or production data.
  await page.unroute('**/courses?*');
@@ -154,6 +174,28 @@ try {
  await button('이수 과목 예시 보기').click();
  await poll(()=>page.getByRole('dialog').locator('img').evaluate(el=>el.complete&&el.naturalWidth>=1000),'updated help image');
  await page.keyboard.press('Escape');
+ // A long confirmation is usable at all breakpoints, including the very last row.
+ await page.unroute('**/courses?*');
+ const beforeAll=await all();
+ assert.equal((await context.request.patch(base+'/course-selections',{headers:{Origin:origin},data:{catalog_id:catalog,expected_selection_revision:beforeAll.selection_revision,changes:beforeAll.courses.filter(c=>!c.is_completed).map(c=>({course_id:c.course_id,is_completed:true}))}})).status(),200);
+ await page.reload();await ready();await openCourseConfirmation(page);
+ for(const viewport of [{width:1440,height:900},{width:1024,height:900},{width:390,height:844}]){
+  await page.setViewportSize(viewport);
+  const scroller=dialog.locator('.course-review-dialog-body');await scroller.evaluate(el=>el.scrollTo(0,0));
+  assert.equal(await dialog.locator('[data-selected-course-id]').count(),initial.total);
+  assert.equal(await dialog.locator('.course-year-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length),viewport.width===1440?4:viewport.width===1024?2:1);
+  assert.equal(await dialog.locator('.course-year-grid').evaluate(el=>getComputedStyle(el).zoom),'0.9');
+  assert.ok(await dialog.evaluate(el=>el.scrollWidth<=el.clientWidth),'no dialog horizontal overflow');
+  assert.ok(await button('확인하고 역량 탐색').evaluate(el=>{const r=el.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;}),'final action visible');
+  const dialogText=await dialog.innerText();
+  for(const course of initial.courses)for(const code of course.course_code?.split(' / ') || [])assert.ok(!dialogText.includes(code),'no visible course code');
+  await screenshot(`course-confirmation-${viewport.width}`);
+  if(process.env.CAPTURE_HELP==='1'&&viewport.width===1440)await page.screenshot({path:fileURLToPath(new URL('../../public/help/courses.png',import.meta.url)),animations:'disabled'});
+  const last=dialog.locator('[data-selected-course-id]').last();await last.scrollIntoViewIfNeeded();
+  assert.ok(await last.evaluate(el=>{const r=el.getBoundingClientRect(),footer=document.querySelector('.course-review-dialog-footer').getBoundingClientRect();return r.bottom<=footer.top&&el.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),'last selected row unobscured');
+  if(viewport.width===390)await screenshot('course-confirmation-mobile-last-row');
+ }
+ await button('선택 수정').click();await page.setViewportSize({width:1440,height:900});
  // Historical roadmap evidence must still use the same grouped course after this UI change.
  await page.goto(origin+'/result?tab=courses');
  await page.locator('.skill-card h3').filter({hasText:'데이터베이스 (Database)'}).waitFor();
@@ -162,7 +204,7 @@ try {
  await page.getByText('관련 수강 후보: 데이터베이스 (Database)',{exact:true}).first().waitFor();
  assert.equal((await (await context.request.get(origin+'/api/course-groups-qa')).json()).ai_calls,0);
  assert.deepEqual(errors,[]);
- const report={viewports:['1440×900: 4 columns','1024×900: 2 columns','390×844: 1 column'],catalog,raw_source_rows:JSON.parse(readFileSync(new URL('../../../api/tests/fixtures/seoultech_cse_2026_catalog.json',import.meta.url))).courses.length,api_total:initial.total,year_counts:counts,forced_pages:[1,2,3],checks:['all courses beyond page 1','bilingual codes and canonical IDs','queued cross-year toggles and reversal','hidden selection credits','refresh restoration','save failure retry','confirmation waits and duplicate protection','missing report restoration','409 refresh','missing year/term fallback','last checkbox hit testing','help image']};
+ const report={viewports:['1440×900: 4 columns','1024×900: 2 columns','390×844: 1 column'],catalog,raw_source_rows:JSON.parse(readFileSync(new URL('../../../api/tests/fixtures/seoultech_cse_2026_catalog.json',import.meta.url))).courses.length,api_total:initial.total,year_counts:counts,forced_pages:[1,2,3],checks:['all courses beyond page 1','bilingual codes and canonical IDs','queued cross-year toggles and reversal','hidden selection credits','refresh restoration','save failure retry','confirmation waits and duplicate protection','missing report restoration','409 refresh','missing year/term fallback','last checkbox hit testing','help image','modal previews hidden selections','cancel and focus restoration','long modal 4/2/1 columns at 90%','final modal row and actions unobscured','no navigation or POST before final confirmation']};
  writeFileSync(artifacts+'/verification.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
 } catch(error){await screenshot('failure');console.error(await page.locator('body').innerText());throw error;}
 finally{await browser.close();}

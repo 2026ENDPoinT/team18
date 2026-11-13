@@ -15,6 +15,8 @@ const tabs = resultTabs.map(tab => tab.label);
 export default function Result() {
  const router = useRouter(), searchParams = useSearchParams();
  const selected = Math.max(0, resultTabs.findIndex(tab => tab.key === searchParams.get('tab')));
+ const selectedTab = resultTabs[selected].key, nextTab = resultTabs[selected + 1];
+ const tabNavigation = useRef(false);
  const [plan, setPlan] = useState(null);
  const [result, setResult] = useState(null), [history, setHistory] = useState([]);
  const [phase, setPhase] = useState('loading'), [message, setMessage] = useState('');
@@ -55,7 +57,14 @@ export default function Result() {
   setResult(previous=>previous?.run_id?{...previous,is_stale:true,current_input_revision:input.input_revision}:previous);
  },[]);
  const onSkillResult = useCallback(data => { setSkillResult(data); if (data && !generating.current) load(); }, [load]);
- function changeTab(index) { router.push(resultHref(resultTabs[index].key), { scroll: false }); if (phase !== 'generating' && !saving) load(); }
+ function changeTab(index, fromFooter = false) { tabNavigation.current = fromFooter; router.push(resultHref(resultTabs[index].key), { scroll: false }); if (phase !== 'generating' && !saving) load(); }
+ useEffect(() => {
+  if (!tabNavigation.current) return;
+  tabNavigation.current = false;
+  const tab = document.getElementById(`tab-${selected}`);
+  tab?.focus({ preventScroll: true });
+  tab?.scrollIntoView({ block: 'start', inline: 'nearest' });
+ }, [selected]);
  function onKeyDown(e) {
   let next;
   if (e.key === 'ArrowRight') next = (selected + 1) % tabs.length;
@@ -91,17 +100,17 @@ export default function Result() {
  }
  const usable = result?.roadmap && !result.details_restricted;
  const busy = phase === 'generating' || phase === 'loading' || saving;
- const displayed = selected === 4 ? activityResult : selected === 1 ? skillResult : result;
+ const displayed = selectedTab === 'activities' ? activityResult : selectedTab === 'skills' ? skillResult : result;
  const displayedGoal = plan?.input?.career_goal || displayed?.career_goal;
  return <>
   <div className="result-head"><Heading number="06" title="로드맵 결과" helpId={`result-${resultTabs[selected].key}`} description="입력 기준에 따른 결과 화면입니다."/><Link href="/input/basic" className="button">입력 수정</Link></div>
   <div className="result-summary result-goal"><div><span>진로 목표</span><strong>{displayedGoal || '입력 확인 중'}</strong></div></div>
   <div className="result-tabs" role="tablist" aria-label="결과 구성" onKeyDown={onKeyDown}>{tabs.map((tab, i) => <button key={tab} role="tab" id={`tab-${i}`} aria-controls="result-panel" aria-selected={selected === i} tabIndex={selected === i ? 0 : -1} onClick={() => changeTab(i)}>{tab}</button>)}</div>
   <section id="result-panel" role="tabpanel" aria-labelledby={`tab-${selected}`} className="empty-state skill-panel">
-   <JobSkillAnalysis active={selected === 1} onResult={onSkillResult} plan={plan} onPlanChange={onPlanChange}/>
-   <ActivityRecommendations active={selected === 4} inputRevision={plan?.input_revision} onResult={setActivityResult}/>
-   {selected !== 1 && selected !== 4 && <>
-    {usable && (selected === 0 || selected === 2) && <NextTask result={result} saving={busy} onToggle={toggle}/>}
+   <JobSkillAnalysis active={selectedTab === 'skills'} onResult={onSkillResult} plan={plan} onPlanChange={onPlanChange}/>
+   <ActivityRecommendations active={selectedTab === 'activities'} inputRevision={plan?.input_revision} onResult={setActivityResult}/>
+   {selectedTab !== 'skills' && selectedTab !== 'activities' && <>
+    {usable && (selectedTab === 'overview' || selectedTab === 'roadmap') && <NextTask result={result} saving={busy} onToggle={toggle}/>}
     <div className="doc-actions roadmap-controls"><button className="primary" onClick={() => generate(false)} disabled={busy || pending || !plan}>{result?.limited_guidance_available ? '제한 안내 로드맵 생성' : '로드맵 생성'}</button>
      {history.some(r => ['success', 'partial'].includes(r.status)) && <button onClick={() => generate(true)} disabled={busy || pending || !plan}>현재 입력으로 다시 분석</button>}
      <button onClick={() => load()} disabled={busy}>저장 결과 새로고침</button>
@@ -109,7 +118,7 @@ export default function Result() {
     {phase === 'loading' && <p role="status">저장된 결과를 불러오고 있습니다…</p>}
     {phase === 'generating' && <p role="status">확인된 경험과 과목 정보를 바탕으로 로드맵을 생성하고 있습니다…</p>}
     {message && <p role="alert">{message}</p>}
-    {(result?.limited_guidance_available || result?.status === 'needs_job_analysis') && <div className="notice">검증된 직무 분석이 없어 진로 목표·교육과정 기준의 수강 후보와 제한 안내를 제공합니다. 기술별 준비 상태는 판단하지 않습니다. <button onClick={() => changeTab(1)}>직무 역량 비교에서 분석하기</button></div>}
+    {(result?.limited_guidance_available || result?.status === 'needs_job_analysis') && <div className="notice">검증된 직무 분석이 없어 진로 목표·교육과정 기준의 수강 후보와 제한 안내를 제공합니다. 기술별 준비 상태는 판단하지 않습니다. <button onClick={() => changeTab(resultTabs.findIndex(tab => tab.key === 'skills'), true)}>직무 역량 비교에서 분석하기</button></div>}
     {pending && phase !== 'generating' && <p role="status">진행 중인 생성 요청이 있습니다. 저장 결과를 확인하고 있습니다.</p>}
     {result?.generation_expired && <p role="status">이전 생성 요청의 유효 시간이 지났습니다. 다시 생성할 수 있습니다.</p>}
     {history.length > 0 && <label className="field">결과 이력<select aria-label="결과 이력" value={selectedRun.current} disabled={busy} onChange={e => { selectedRun.current = e.target.value; load(e.target.value); }}>
@@ -118,9 +127,13 @@ export default function Result() {
     {result?.is_stale && <p className="notice" role="status">이 결과는 이전 입력·분석 기준입니다. 현재 입력으로 다시 분석하면 새 이력이 생성되며 완료 체크는 옮겨지지 않습니다.</p>}
     {result?.details_restricted && <p className="notice">문서 삭제·재추출 등으로 근거가 변경되어 과거 결과의 상세 내용과 완료 체크 접근을 제한했습니다.</p>}
     {result?.status === 'failed' && <p role="status">{roadmapErrorMessage(result)}</p>}
-    {usable ? selected === 0 ? <Preparation result={result}/> : selected === 2 ? <RoadmapSteps result={result} saving={busy} onToggle={toggle}/> : <CourseCandidates result={result}/> : !result?.details_restricted && <p>아직 표시할 로드맵 결과가 없습니다. 분석 근거를 확인한 후 로드맵을 생성해 주세요.</p>}
+    {usable ? selectedTab === 'overview' ? <Preparation result={result}/> : selectedTab === 'roadmap' ? <RoadmapSteps result={result} saving={busy} onToggle={toggle}/> : <CourseCandidates result={result}/> : !result?.details_restricted && <p>아직 표시할 로드맵 결과가 없습니다. 분석 근거를 확인한 후 로드맵을 생성해 주세요.</p>}
    </>}
   </section>
+  <nav className="result-pagination" aria-label="로드맵 결과 순서 이동">
+   <span className="field-help">{selected + 1} / {resultTabs.length} · {resultTabs[selected].label}</span>
+   <div>{selected > 0 && <button type="button" onClick={() => changeTab(selected - 1, true)}>← 이전: {resultTabs[selected - 1].label}</button>}{nextTab ? <button type="button" className="primary" onClick={() => changeTab(selected + 1, true)}>다음: {nextTab.label} →</button> : <Link className="button primary" href="/dashboard">결과 확인 완료 · 대시보드 →</Link>}</div>
+  </nav>
   <footer className="footer"><span className="field-help">완료 체크는 실행 기록이며 기술 숙련도나 취업 준비 점수가 아닙니다.</span><Link className="button" href="/input/review">경험 확인·수정</Link></footer>
  </>;
 }

@@ -1,6 +1,6 @@
 export const resultTabs = [
- { key: 'overview', label: '준비 상태' }, { key: 'skills', label: '직무 역량 비교' },
- { key: 'roadmap', label: '실행 로드맵' }, { key: 'courses', label: '수강 후보' },
+ { key: 'overview', label: '준비 상태' }, { key: 'roadmap', label: '실행 로드맵' },
+ { key: 'skills', label: '직무 역량 비교' }, { key: 'courses', label: '수강 후보' },
  { key: 'activities', label: '공모전·대외활동' },
 ];
 export const resultHref = key => `/result?tab=${key}`;

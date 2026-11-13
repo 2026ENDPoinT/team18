@@ -94,11 +94,11 @@ export function CourseCandidates({ result }) {
    {result.recommended_courses.length > 0 && result.recommended_courses.length < 5 && <p className="notice">이수 및 대체과목을 제외하면 추천 가능한 고유 과목이 {result.recommended_courses.length}개입니다.</p>}
   </>}
   <ul className="skill-list">{cards.map(course => <li className="skill-card" key={course.course_id}>
-   <h3>{course.course_name} <span className="badge">{course.recommendation_label || course.course_code || '코드 미제공'}</span></h3>
-   <div className="recommendation-reason"><p><b>공식 교육과정에서 확인한 학습 내용</b></p><p>{courseLearning(course)}</p><p><b>목표와의 연결</b> {courseReason(course)}</p></div>
+   <h3>{course.course_name}{course.recommendation_label && <> <span className="badge">{course.recommendation_label}</span></>}</h3>
+   <div className="recommendation-reason"><p><b>목표와의 연결</b> {courseReason(course)}</p></div>
    <p>{course.credits == null ? '학점 미제공' : `${course.credits}학점`}{course.recommended_year ? ` · 교육과정 권장 ${course.recommended_year}학년` : ''}{course.recommended_term ? ` ${course.recommended_term}` : ''}</p>
    {(course.keyword_evidence || []).some(item => item.keyword_role === 'prerequisite') && <p><b>수강 전 확인:</b> {(course.keyword_evidence || []).filter(item => item.keyword_role === 'prerequisite').map(item => item.keyword).join(', ')}</p>}
-   <details><summary>공식 근거와 출처 쪽수</summary><p>{course.course_evidence}{course.evidence_page_start ? ` · ${course.evidence_page_start}쪽${course.evidence_page_end && course.evidence_page_end !== course.evidence_page_start ? `–${course.evidence_page_end}쪽` : ''}` : ''}</p>{(course.keyword_evidence || []).map((item, i) => <p key={i}>{item.keyword} · {({learning:'학습', prerequisite:'사전지식', tool:'도구', example:'예시', context:'배경'})[item.keyword_role]}: {item.evidence_text}{item.evidence_page_start ? ` · ${item.evidence_page_start}쪽` : ''}</p>)}<p>{course.availability_notice}</p><Evidence refs={course.evidence_refs} result={result}/></details>
+   <details className="course-learning"><summary>과목에서 배우는 내용<span className="course-learning-arrow" aria-hidden="true">›</span></summary><p>{courseLearning(course)}</p></details>
   </li>)}</ul>
   <p className="field-help">목록 밖에서 보존한 과거 이수 선택 {result.basis.outside_completed_courses.length}개. 현재 수강 후보에는 포함하지 않습니다.</p>
  </>;

@@ -1,5 +1,6 @@
 // Next :15102 + explore_ui_server.py. Real routes, SQLite and parser; fixed external providers/auth.
 import assert from 'node:assert/strict';
+import { confirmCourseSelection } from './course-confirmation.mjs';
 import { mkdirSync } from 'node:fs';
 import { setTimeout as delay } from 'node:timers/promises';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
@@ -53,7 +54,7 @@ try {
  await card('경험·문서').click(); await textHas(page.locator('body'), 'dashboard-experience.txt');
  await go('/input/courses'); await poll(() => page.getByRole('switch').first().isEnabled(), 'courses loaded');
  for (let i = 0; i < 2; i++) { await page.getByRole('switch').nth(i).click(); await poll(() => page.getByRole('switch').nth(i).isEnabled(), 'toggle saved'); }
- await button('이수 선택 확인').click(); await page.waitForURL('**/input/review'); await reviewReady();
+ await confirmCourseSelection(page); await page.waitForURL('**/input/review'); await reviewReady();
  await button('프로젝트 경험 분석 실행').click(); await poll(() => page.locator('.skill-card').count().then(n => n === 4), 'four experiences'); await reviewReady();
  const first = page.locator('.skill-card').first(); await first.getByRole('button', { name: '수정할게요', exact: true }).click();
  await first.getByLabel('기술명', { exact: true }).fill('React Native'); await first.locator('textarea').fill('행사 신청 화면과 입력 검증을 직접 구현했어요'); await first.locator('select').selectOption('personal');
