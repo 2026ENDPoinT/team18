@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from roadmap_scenario import RoadmapAPI, fake_roadmap, fake_extraction, job_result
 from config import DB_BACKEND
-from repositories.experience_analysis import decode
+from repositories.experience_analysis import AnalysisRepository, decode
 from repositories.plans import connect
 from repositories.postgres import StorageUnavailable
 from repositories.roadmaps import RoadmapRepository
@@ -127,6 +127,37 @@ class BatchAPI(RoadmapAPI):
         self.assertEqual(done['course_reasons'][0]['course_id'], done['recommended_courses'][0]['course_id'])
         self.assertEqual(self.model.call_count, 1)
         self.assertEqual(self.reasons.call_count, 2)
+
+    def test_batch_gemini_call_failed_uses_verified_course_explanations(self):
+        self.jobs()
+        self.reasons.side_effect = GeminiError('gemini_call_failed', 'synthetic provider failure')
+        result = self.terminal(self.start_batch()['run_id'])
+        self.assertTrue(result['generation_complete'], result)
+        self.assertEqual(result['status'], 'partial')
+        self.assertEqual(result['course_reasons_source'], 'catalog_evidence_fallback')
+        self.assertEqual(len(result['course_reasons']), len(result['recommended_courses']))
+        self.assertTrue(all(reason['personalization_reason'].strip() for reason in result['course_reasons']))
+        self.assertEqual(self.model.call_count, 1)
+        self.assertEqual(self.reasons.call_count, 1)
+
+    def test_batch_keeps_verified_items_when_project_analysis_is_partial(self):
+        self.doc()
+        with patch('services.project_experience.extract_project_experiences', side_effect=fake_extraction):
+            analyzed = self.analyze()
+        self.assertTrue(analyzed['experiences'])
+        with closing(connect()) as db:
+            row = db.execute('SELECT * FROM project_experience_analyses WHERE request_id=?',
+                             (self.rid,)).fetchone()
+            result = decode(row['result_json'])
+            result.update(status='partial', errors=[{'code': 'activity_not_in_evidence'}])
+            db.execute('UPDATE project_experience_analyses SET result_json=? WHERE analysis_id=?',
+                       (AnalysisRepository(db).encode(result), row['analysis_id']))
+        self.jobs()
+        completed = self.terminal(self.start_batch()['run_id'])
+        self.assertTrue(completed['generation_complete'], completed)
+        self.assertEqual(completed['status'], 'partial')
+        self.assertEqual(completed['skill_comparison']['project_analysis']['status'], 'partial')
+        self.assertTrue(completed['skill_comparison']['project_analysis']['experiences'])
 
     def test_batch_course_reasons_wait_for_roadmap_ai_guard(self):
         self.jobs()
