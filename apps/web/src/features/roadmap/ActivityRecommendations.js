@@ -2,6 +2,7 @@
 import { activityKindLabel } from './activityLoader.mjs';
 import Link from 'next/link';
 import { resultHref } from './resultPresentation.mjs';
+import ActivitySummaryList from './ActivitySummaryList';
 
 export default function ActivityRecommendations({ active, resource, compact = false }) {
  const { phase, data, message, refresh } = resource;
@@ -11,14 +12,7 @@ export default function ActivityRecommendations({ active, resource, compact = fa
   {(phase === 'error' || data?.status === 'error') && <div><p role="alert">활동 추천을 불러오지 못했어요.</p>{refresh && <button onClick={refresh}>다시 조회</button>}</div>}
   {phase === 'ready' && data?.status !== 'error' && <>
    {failed.length > 0 && <p className="summary-note" role="status">일부 출처를 조회하지 못해 확인된 활동만 표시해요.</p>}
-   {data.activities.length === 0 ? <p role="status">현재 추천 조건에 맞는 활동이 없어요.</p> : <ul className="result-brief-list">{data.activities.slice(0, 3).map(item => {
-    const url = item.url || item.source_links?.[0]?.url;
-    const external = /^https?:\/\//.test(url || '');
-    return <li key={`${item.source}:${item.original_id || item.id}`}>
-     <a href={external ? url : resultHref('activities')} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>{item.title}{external && <span aria-hidden="true"> ↗</span>}</a>
-     <p>{activityKindLabel(item.kind)} · {item.status === 'upcoming' ? '접수 예정' : '접수 중'}</p>
-    </li>;
-   })}</ul>}
+   {data.activities.length === 0 ? <p role="status">현재 추천 조건에 맞는 활동이 없어요.</p> : <ActivitySummaryList activities={data.activities}/>}
   </>}
   <Link className="summary-link" href={resultHref('activities')}>활동 상세 보기 →</Link>
  </div>;

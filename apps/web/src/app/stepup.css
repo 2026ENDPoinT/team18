@@ -236,12 +236,16 @@ button.academic-change{flex:none;border-color:#cdd9fb;background:#fff;color:#466
 @media(min-width:701px){.result-skill-preview{contain:size}}
 .result-activity-summary{grid-area:activity}
 .result-course-summary>.summary-link:first-of-type,.result-skill-summary>.summary-link{margin-top:auto;padding-top:20px}
-.result-activity-summary>.activity-summary{display:flex;flex-direction:column;flex:1}
+.result-activity-summary>.activity-summary{display:flex;flex-direction:column;flex:1;min-height:0}
 .result-activity-summary .activity-summary>.summary-link{margin-top:auto;padding-top:20px}
+.result-activity-preview{position:relative;flex:1;min-height:0}
+.result-activity-measure{position:absolute;inset:0 0 auto;height:0;overflow:hidden;visibility:hidden;pointer-events:none}
+@media(min-width:701px){.result-activity-preview{contain:size}}
+@media(max-width:700px){.result-activity-preview{flex:0 1 auto;max-height:min(36dvh,320px)}}
 .result-card>p,.activity-summary>p{color:#687d96;font-size:13px;line-height:1.75}
 .result-brief-list{list-style:none;padding:0;margin:0}
 .result-brief-list li+li{border-top:1px solid #edf1f6;padding-top:16px;margin-top:16px}
-.result-brief-list h3,.result-brief-list a{margin:0;font-size:15px;font-weight:600;color:#273c5b;line-height:1.65;text-decoration:none}
+.result-brief-list h3,.result-brief-list a,.result-brief-list .activity-preview-title{margin:0;font-size:15px;font-weight:600;color:#273c5b;line-height:1.65;text-decoration:none}
 .result-brief-list a:hover{color:#4462de;text-decoration:underline;text-underline-offset:4px}
 .result-brief-list p{margin:6px 0 0;color:#718199;font-size:13px;line-height:1.7}
 .summary-link{display:block;width:fit-content;margin-top:20px;font-size:12px;font-weight:600;color:#536de7;text-decoration:none;line-height:1.6}
