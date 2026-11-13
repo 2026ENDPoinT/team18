@@ -55,6 +55,11 @@ def check_revision(body, row):
         raise Problem(409, 'revision_conflict', '입력이 변경되었습니다. 최신 문서 상태를 불러와 주세요.')
 
 
+def check_filename(documents, rid, filename, at, excluding_key=None):
+    if documents.has_filename(rid, filename, at, excluding_key):
+        raise Problem(409, 'duplicate_filename', f'{filename} 파일은 이미 등록되어 있거나 업로드 중이라 업로드하지 않았습니다.', filename=filename)
+
+
 async def upload_data(request: Request):
     try:
         size = int(request.headers.get('content-length', '0'))
@@ -98,9 +103,9 @@ def list_documents(rid: str, background: BackgroundTasks, ctx=Depends(document_c
     db.execute('BEGIN ISOLATION LEVEL REPEATABLE READ' if DB_BACKEND == 'postgres' else 'BEGIN'); row = plan(repo, owner, rid)
     ocr = ocr_policy(db)
     docs = []
-    for d in DocumentRepository(db).list_active(rid):
+    for position, d in enumerate(DocumentRepository(db).list_active(rid), 1):
         retry = retry_policy(d, ocr, db)
-        docs.append(summary(d) | retry | {'retry_message': OCR_MESSAGES.get(retry['retry_reason'])})
+        docs.append(summary(d) | retry | {'position': position, 'retry_message': OCR_MESSAGES.get(retry['retry_reason'])})
     db.commit()
     if DB_BACKEND == 'postgres': background.add_task(request_work)
     return respond(200, {'documents': docs, 'input_revision': row['input_revision'], 'analysis_eligible': any(d['analysis_eligible'] for d in docs), 'ocr': ocr | {'message': OCR_MESSAGES.get(ocr['reason'])}, 'upload_policy': {'max_files': MAX_DOCUMENTS, 'max_file_bytes': MAX_DOCUMENT_BYTES, 'extensions': ['pdf','docx','txt']}})
@@ -117,29 +122,40 @@ def upload(rid: str, background: BackgroundTasks, ctx=Depends(document_context),
         # The reservation survives an interrupted request or an ambiguous
         # Storage/DB response. A later worker removes only this exact key.
         repo.begin(); row = plan(repo, owner, rid, lock=True)
+        check_filename(documents, rid, filename, timestamp())
         if expected != row['input_revision']: raise Problem(409, 'revision_conflict', '입력이 변경되었습니다. 최신 문서 상태를 불러와 주세요.')
         t = timestamp()
         if documents.count_active(rid) + documents.count_uploading(rid, t) >= MAX_DOCUMENTS:
             raise Problem(422, 'file_limit', '등록 가능한 문서 개수를 초과했습니다.')
-        documents.reserve_upload(key, rid, t, later(900)); db.commit()
-        store.save(key, data, mime)
-        repo.begin(); row = plan(repo, owner, rid, lock=True)
-        reservation = documents.lock_reservation(key, rid)
-        if not reservation or reservation['expires_at'] <= datetime.now(timezone.utc):
-            raise Problem(409, 'upload_expired', '업로드 시간이 만료되었습니다. 다시 시도해 주세요.')
-        if expected != row['input_revision']:
-            raise Problem(409, 'revision_conflict', '입력이 변경되었습니다. 최신 문서 상태를 불러와 주세요.')
-        t = timestamp(); documents.create(key, rid, filename, mime, len(data), t)
-        documents.bump_input(rid, t); documents.finish_reservation(key, t)
-        result = summary(documents.get(rid, key)); db.commit()
+        registered_at = documents.registration_time(rid)
+        documents.reserve_upload(key, rid, registered_at, later(900), filename); db.commit()
+        try:
+            store.save(key, data, mime)
+            repo.begin(); row = plan(repo, owner, rid, lock=True)
+            reservation = documents.lock_reservation(key, rid)
+            if not reservation or reservation['expires_at'] <= datetime.now(timezone.utc):
+                raise Problem(409, 'upload_expired', '업로드 시간이 만료되었습니다. 다시 시도해 주세요.')
+            t = timestamp(); check_filename(documents, rid, filename, t, key)
+            # Reservation already validated ownership, revision, name and count.
+            # Concurrent OCR/other uploads may bump the revision while saving;
+            # adding this reserved document does not overwrite those changes.
+            documents.create(key, rid, filename, mime, len(data), reservation['created_at'])
+            documents.bump_input(rid, t); documents.finish_reservation(key, t)
+            result = summary(documents.get(rid, key)); db.commit()
+        except Exception:
+            db.execute('ROLLBACK')
+            documents.release_reservation(key, timestamp())
+            raise
         background.add_task(request_work)
         return respond(201, {'document': result, 'input_revision': row['input_revision'] + 1})
     try:
         db.execute('BEGIN IMMEDIATE'); row = plan(repo, owner, rid)
+        check_filename(documents, rid, filename, timestamp())
         if expected != row['input_revision']: raise Problem(409, 'revision_conflict', '입력이 변경되었습니다. 최신 문서 상태를 불러와 주세요.')
         if documents.count_active(rid) >= MAX_DOCUMENTS: raise Problem(422, 'file_limit', '등록 가능한 문서 개수를 초과했습니다.')
+        registered_at = documents.registration_time(rid)
         store.save(key, data); saved = True; t = timestamp()
-        documents.create(key, rid, filename, mime, len(data), t)
+        documents.create(key, rid, filename, mime, len(data), registered_at)
         documents.bump_input(rid, t)
         result = summary(documents.get(rid, key)); db.commit()
     except Exception:

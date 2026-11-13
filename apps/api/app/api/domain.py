@@ -12,8 +12,9 @@ def now():
 
 
 class Problem(Exception):
-    def __init__(self, status, code, message):
+    def __init__(self, status, code, message, **details):
         self.status, self.code, self.message = status, code, message
+        self.details = details
 
 
 def validate(repo, values):

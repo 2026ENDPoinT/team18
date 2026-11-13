@@ -172,6 +172,9 @@ with TestClient(app, headers=auth_headers, raise_server_exceptions=False) as cli
     assert worker.cleanup_reservation(store) and orphan not in store.files
     assert existing_keys == set(store.files)
 
+    from document_upload_postgres_cases import verify_upload_registration
+    verify_upload_registration(client, store, routes, url, root)
+
 with TestClient(app) as stranger:
     assert stranger.get(path).status_code == 401
     other_token = secrets.token_urlsafe(32)

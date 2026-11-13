@@ -1,5 +1,6 @@
 """Document metadata, extraction history, and worker jobs."""
 import json
+from datetime import datetime, timedelta, timezone
 
 class DocumentRepository:
     def __init__(self,db): self.db=db
@@ -12,15 +13,41 @@ class DocumentRepository:
         return row['n']
     def count_uploading(self, rid, at):
         return self.db.execute('SELECT count(*) AS n FROM document_upload_reservations WHERE request_id=? AND committed_at IS NULL AND expires_at>?', (rid, at)).fetchone()['n']
-    def reserve_upload(self, key, rid, at, expires):
-        cursor = self.db.execute('''INSERT INTO document_upload_reservations(storage_key,request_id,created_at,expires_at)
-          SELECT ?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM project_documents WHERE storage_key=?)''', (key, rid, at, expires, key))
+    def has_filename(self, rid, filename, at, excluding_key=None):
+        # The caller holds the plan lock (SQLite: BEGIN IMMEDIATE). Python lower
+        # matches the browser's Unicode lowercasing, unlike SQLite's ASCII lower.
+        names = [d['original_filename'] for d in self.list_active(rid)]
+        if getattr(self.db, 'backend', 'sqlite') == 'postgres':
+            rows = self.db.execute('''SELECT original_filename FROM document_upload_reservations
+                WHERE request_id=? AND committed_at IS NULL AND expires_at>?
+                AND storage_key<>?''', (rid, at, excluding_key or '')).fetchall()
+            names.extend(r['original_filename'] for r in rows if r['original_filename'] is not None)
+        return any(name.lower() == filename.lower() for name in names)
+    def registration_time(self, rid):
+        # Persist order when accepting the upload, before Storage/OCR completes.
+        # Guarantee monotonic microseconds even when the clock repeats/goes back.
+        values = [self.db.execute('SELECT max(created_at) AS at FROM project_documents WHERE request_id=?', (rid,)).fetchone()['at']]
+        if getattr(self.db, 'backend', 'sqlite') == 'postgres':
+            values.append(self.db.execute('SELECT max(created_at) AS at FROM document_upload_reservations WHERE request_id=?', (rid,)).fetchone()['at'])
+        at = datetime.now(timezone.utc)
+        for value in values:
+            if value is not None:
+                previous = datetime.fromisoformat(value) if isinstance(value, str) else value
+                at = max(at, previous + timedelta(microseconds=1))
+        return at.isoformat(timespec='microseconds')
+    def reserve_upload(self, key, rid, at, expires, filename=None):
+        cursor = self.db.execute('''INSERT INTO document_upload_reservations(storage_key,request_id,created_at,expires_at,original_filename)
+          SELECT ?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM project_documents WHERE storage_key=?)''', (key, rid, at, expires, filename, key))
         if cursor.rowcount != 1:
             raise ValueError('storage key already reserved')
     def lock_reservation(self, key, rid):
         return self.db.execute('SELECT * FROM document_upload_reservations WHERE storage_key=? AND request_id=? FOR UPDATE', (key, rid)).fetchone()
     def finish_reservation(self, key, at):
         self.db.execute('UPDATE document_upload_reservations SET committed_at=? WHERE storage_key=?', (at, key))
+    def release_reservation(self, key, at):
+        # Keep the cleanup tombstone for ambiguous/late Storage responses, but
+        # immediately free the filename and count slot for a user retry.
+        self.db.execute('UPDATE document_upload_reservations SET expires_at=? WHERE storage_key=? AND committed_at IS NULL', (at, key))
     def next_reservation_cleanup(self, at):
         return self.db.execute('''SELECT * FROM document_upload_reservations
           WHERE committed_at IS NULL AND expires_at<? AND (cleanup_lease_until IS NULL OR cleanup_lease_until<?)

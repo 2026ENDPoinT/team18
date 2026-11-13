@@ -78,7 +78,7 @@ app.include_router(health.router)
 def problem_handler(request, error):
     from services.roadmap_validation import RoadmapValidationError
     diagnostic = {**error.diagnostic, 'run_id': getattr(error, 'run_id', None)} if isinstance(error, RoadmapValidationError) else {}
-    return respond(error.status, {'error': error.code, 'message': error.message, **diagnostic})
+    return respond(error.status, {'error': error.code, 'message': error.message, **getattr(error, 'details', {}), **diagnostic})
 
 
 @app.exception_handler(StorageUnavailable)
