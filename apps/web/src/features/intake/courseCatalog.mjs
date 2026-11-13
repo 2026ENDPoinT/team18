@@ -49,9 +49,12 @@ export function filterCourses(courses, { search, category, only }) {
  return courses.filter(course => (!query || `${course.course_name} ${course.course_code || ''}`.toLocaleLowerCase().includes(query)) &&
   (!category || course.category === category) && (!only || course.is_completed));
 }
+const courseNameCollator = new Intl.Collator('ko', { numeric: true, sensitivity: 'base' });
+export function sortCoursesByName(courses) {
+ return [...courses].sort((a, b) => courseNameCollator.compare(a.course_name.trim(), b.course_name.trim()) || a.course_id.localeCompare(b.course_id));
+}
 export function termSections(courses) {
  return [1, 2, null].map(term => ({ term, title: term ? `${term}학기` : '학기 미지정',
-  courses: courses.filter(course => courseTerm(course) === term)
-   .sort((a, b) => a.course_name.localeCompare(b.course_name, 'ko') || a.course_id.localeCompare(b.course_id)),
+  courses: sortCoursesByName(courses.filter(course => courseTerm(course) === term)),
  }));
 }

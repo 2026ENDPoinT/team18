@@ -1,6 +1,6 @@
 'use client';
 import './courses.css';
-import { courseYear, termSections } from './courseCatalog.mjs';
+import { courseYear, sortCoursesByName, termSections } from './courseCatalog.mjs';
 
 function SelectedYearTable({ year, courses }) {
  const title = year ? `${year}학년` : '학년 미지정';
@@ -18,7 +18,7 @@ function SelectedYearTable({ year, courses }) {
 }
 
 export function SelectedCoursesSummary({ data, byYear = false }) {
- const selected = data.selected_courses;
+ const selected = sortCoursesByName(data.selected_courses);
  return <>
   <p><strong>{data.selection_summary.count}개 과목</strong></p>
   {byYear ? <>

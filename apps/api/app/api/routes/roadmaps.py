@@ -114,9 +114,8 @@ def generate(rid: str, ctx=Depends(owned_context), body=Depends(parse_body)):
 def latest(rid: str, ctx=Depends(owned_context)):
     current = read_basis(ctx, rid)
     store = RoadmapRepository(ctx[0])
-    run = store.reusable(rid, digest(current))
     history = store.history(rid)
-    run = run or next((r for r in history if r['status'] in ('success', 'partial')), None) or next(iter(history), None)
+    run = next((r for r in history if r['status'] in ('success', 'partial')), None) or next(iter(history), None)
     result = run_payload(store, run, current) if run else {
         'status': 'not_started', 'limited_guidance_available': current['generation_mode'] == 'limited_guidance',
         'input_revision': current['input_revision'], 'current_input_revision': current['input_revision']}

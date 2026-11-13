@@ -23,15 +23,15 @@ export default function Result() {
  const [saving, setSaving] = useState(false), [skillResult, setSkillResult] = useState(null);
  const [activityResult, setActivityResult] = useState(null);
  const toggleLock = useRef(false);
- const epoch = useRef(0), selectedRun = useRef(''), generating = useRef(false);
- const load = useCallback(async (runId = selectedRun.current) => {
+ const epoch = useRef(0), generating = useRef(false);
+ const load = useCallback(async () => {
   const ticket = ++epoch.current;
   try {
    const id = await resolvePlanId();
    if (!id) throw new Error('계획이 없습니다. 기본 정보를 먼저 입력해 주세요.');
    const base = `/roadmap-inputs/${encodeURIComponent(id)}`;
    const [input, data, runs] = await Promise.all([
-    apiRequest(base), apiRequest(runId ? `${base}/roadmaps/${encodeURIComponent(runId)}` : `${base}/roadmap`), apiRequest(`${base}/roadmaps`),
+    apiRequest(base), apiRequest(`${base}/roadmap`), apiRequest(`${base}/roadmaps`),
    ]);
    if (ticket !== epoch.current) return;
    setPlan(input); setResult(data); setHistory(runs.runs || []); setPhase('ready');
@@ -81,8 +81,8 @@ export default function Result() {
    const data = await apiRequest(`/roadmap-inputs/${plan.request_id}/roadmap`, {
     method: 'POST', body: JSON.stringify({ expected_input_revision: plan.input_revision, refresh }),
    });
-   selectedRun.current = ''; setResult(data); router.push(resultHref('roadmap'), { scroll: false });
-   await load('');
+   setResult(data); router.push(resultHref('roadmap'), { scroll: false });
+   await load();
   } catch (error) { setMessage(roadmapErrorMessage(error)); await load(); }
   finally { generating.current = false; }
  }
@@ -94,8 +94,8 @@ export default function Result() {
    const data = await apiRequest(`/roadmap-inputs/${plan.request_id}/roadmaps/${result.run_id}/tasks/${encodeURIComponent(task.task_id)}`, {
     method: 'PATCH', body: JSON.stringify({ is_completed: !task.is_completed, expected_progress_version: task.progress_version }),
    });
-   setResult(data);
-  } catch (error) { setMessage(error.message); await load(result.run_id); }
+   setResult(data); await load();
+  } catch (error) { setMessage(error.message); await load(); }
   finally { toggleLock.current = false; setSaving(false); }
  }
  const usable = result?.roadmap && !result.details_restricted;
@@ -121,10 +121,7 @@ export default function Result() {
     {(result?.limited_guidance_available || result?.status === 'needs_job_analysis') && <div className="notice">검증된 직무 분석이 없어 진로 목표·교육과정 기준의 수강 후보와 제한 안내를 제공합니다. 기술별 준비 상태는 판단하지 않습니다. <button onClick={() => changeTab(resultTabs.findIndex(tab => tab.key === 'skills'), true)}>직무 역량 비교에서 분석하기</button></div>}
     {pending && phase !== 'generating' && <p role="status">진행 중인 생성 요청이 있습니다. 저장 결과를 확인하고 있습니다.</p>}
     {result?.generation_expired && <p role="status">이전 생성 요청의 유효 시간이 지났습니다. 다시 생성할 수 있습니다.</p>}
-    {history.length > 0 && <label className="field">결과 이력<select aria-label="결과 이력" value={selectedRun.current} disabled={busy} onChange={e => { selectedRun.current = e.target.value; load(e.target.value); }}>
-     <option value="">최신 유효 결과 우선</option>{history.map(r => <option key={r.run_id} value={r.run_id}>{new Date(r.created_at).toLocaleString('ko-KR')} · {r.status === 'failed' ? '생성 실패' : r.status === 'generating' ? '생성 중' : r.is_stale ? '이전 기준' : '현재 기준'}{r.details_restricted ? ' · 상세 제한' : ''}</option>)}
-    </select></label>}
-    {result?.is_stale && <p className="notice" role="status">이 결과는 이전 입력·분석 기준입니다. 현재 입력으로 다시 분석하면 새 이력이 생성되며 완료 체크는 옮겨지지 않습니다.</p>}
+    {result?.is_stale && <p className="notice" role="status">이 결과는 이전 입력·분석 기준입니다. 현재 입력으로 다시 분석하면 최신 결과로 표시되며, 이전 완료 체크는 반영되지 않습니다.</p>}
     {result?.details_restricted && <p className="notice">문서 삭제·재추출 등으로 근거가 변경되어 과거 결과의 상세 내용과 완료 체크 접근을 제한했습니다.</p>}
     {result?.status === 'failed' && <p role="status">{roadmapErrorMessage(result)}</p>}
     {usable ? selectedTab === 'overview' ? <Preparation result={result}/> : selectedTab === 'roadmap' ? <RoadmapSteps result={result} saving={busy} onToggle={toggle}/> : <CourseCandidates result={result}/> : !result?.details_restricted && <p>아직 표시할 로드맵 결과가 없습니다. 분석 근거를 확인한 후 로드맵을 생성해 주세요.</p>}

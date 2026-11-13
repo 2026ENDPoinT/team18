@@ -9,14 +9,22 @@ import { resolvePlanId } from '../../lib/api/session';
 import CourseSelectionDialog from './CourseSelectionDialog';
 import { courseYear, filterCourses, loadCourseCatalog, termSections, withPendingSelections } from './courseCatalog.mjs';
 
-function YearTable({ year, courses, visible, disabled, toggle }) {
+function CourseGroupToggle({ label, courses, disabled, toggleMany }) {
+ const allSelected = courses.length > 0 && courses.every(course => course.is_completed);
+ const action = allSelected ? '전체 해제' : '전체 선택';
+ return <button className="course-group-toggle" type="button" aria-label={`${label} ${action}`} disabled={disabled || !courses.length} onClick={() => toggleMany(courses.map(course => course.course_id), !allSelected)}>{action}</button>;
+}
+
+function YearTable({ year, courses, visible, disabled, toggle, toggleMany }) {
  const title = year ? `${year}학년` : '학년 미지정';
+ const visibleIds = new Set(visible.map(course => course.course_id));
+ const sections = termSections(courses).map(section => ({ ...section, visible: section.courses.filter(course => visibleIds.has(course.course_id)) }));
  return <section className="course-year" aria-labelledby={`course-year-${year || 'unknown'}`} data-year={year || 'unknown'}>
-  <header className="course-year-heading"><h2 id={`course-year-${year || 'unknown'}`}>{title}</h2><span>선택 {courses.filter(c => c.is_completed).length} / 전체 {courses.length}</span></header>
+  <header className="course-year-heading"><h2 id={`course-year-${year || 'unknown'}`}>{title}</h2><div className="course-year-actions"><span>선택 {courses.filter(c => c.is_completed).length} / 전체 {courses.length}</span><CourseGroupToggle label={title} courses={courses} disabled={disabled} toggleMany={toggleMany}/></div></header>
   {visible.length ? <table className="course-year-table" aria-label={`${title} 과목`}><colgroup><col/><col className="course-check-column"/></colgroup>
-   {termSections(visible).filter(section => section.courses.length).map(section => <tbody key={section.title}>
-    <tr className="course-term"><th colSpan={2} scope="colgroup">{section.title}<span>{section.courses.length}과목</span></th></tr>
-    {section.courses.map(course => <tr key={course.course_id} className={course.is_completed ? 'is-completed' : ''} data-course-id={course.course_id} onClick={() => { if (!disabled) toggle(course.course_id, !course.is_completed); }}>
+   {sections.filter(section => section.visible.length).map(section => <tbody key={section.title}>
+    <tr className="course-term"><th colSpan={2} scope="colgroup"><div className="course-term-heading"><span>{section.title}</span><div className="course-term-actions"><span>{section.visible.length === section.courses.length ? section.courses.length : `${section.visible.length} / ${section.courses.length}`}과목</span><CourseGroupToggle label={`${title} ${section.title}`} courses={section.courses} disabled={disabled} toggleMany={toggleMany}/></div></div></th></tr>
+    {section.visible.map(course => <tr key={course.course_id} className={course.is_completed ? 'is-completed' : ''} data-course-id={course.course_id} onClick={() => { if (!disabled) toggle(course.course_id, !course.is_completed); }}>
      <td><strong className="course-name">{course.course_name}</strong>
      </td>
      <td className="course-check-cell"><button className="course-toggle" type="button" role="switch" aria-label={`${course.course_name} 이미 이수함`} aria-checked={course.is_completed} disabled={disabled} onClick={event => { event.stopPropagation(); toggle(course.course_id, !course.is_completed); }}><span className="course-checkmark" aria-hidden="true">{course.is_completed ? '✓' : ''}</span><span>{course.is_completed ? '선택됨' : '이수'}</span></button></td>
@@ -109,8 +117,13 @@ export default function Courses() {
   return operation;
  }
  function toggle(courseId, target) {
-  if (!['ready', 'saving'].includes(phase) || confirming.current || !dataRef.current) return;
-  missingDirty.current = true; pendingChanges.current.set(courseId, target); publish();
+  toggleMany([courseId], target);
+ }
+ function toggleMany(courseIds, target) {
+  if (!['ready', 'saving'].includes(phase) || confirming.current || !dataRef.current || !courseIds.length) return;
+  missingDirty.current = true;
+  for (const courseId of courseIds) pendingChanges.current.set(courseId, target);
+  publish();
   savePending();
  }
  function openReview() {
@@ -160,18 +173,18 @@ export default function Courses() {
    <section className="course-toolbar" aria-label="과목 검색 및 필터">
     <div className="filters"><input aria-label="과목 검색" placeholder="과목 검색" maxLength={100} value={search} onChange={event => setSearch(event.target.value)}/>
      <label className="check-line"><input type="checkbox" checked={only} onChange={event => setOnly(event.target.checked)}/>선택한 과목만 보기</label>
-     <button type="button" onClick={() => { setSearch(''); setOnly(false); }}>필터 초기화</button>
     </div>
     <p className="field-help" role="status">검색 결과 {visible.length}개 · 전체 {data.total}과목<span>권장 학기와 실제 개설 학기는 다를 수 있어요.</span></p>
+    <p className="field-help course-bulk-help">전체 선택·해제는 검색 조건과 관계없이 해당 학년·학기의 모든 과목에 적용됩니다.</p>
    </section>
-   <div className="course-year-grid">{[1, 2, 3, 4].map(year => <YearTable key={year} year={year} courses={data.courses.filter(course => courseYear(course) === year)} visible={visible.filter(course => courseYear(course) === year)} disabled={disabled} toggle={toggle}/>)}</div>
-   {data.courses.some(course => courseYear(course) === null) && <div className="course-unassigned"><YearTable year={null} courses={data.courses.filter(course => courseYear(course) === null)} visible={visible.filter(course => courseYear(course) === null)} disabled={disabled} toggle={toggle}/></div>}
+   <div className="course-year-grid">{[1, 2, 3, 4].map(year => <YearTable key={year} year={year} courses={data.courses.filter(course => courseYear(course) === year)} visible={visible.filter(course => courseYear(course) === year)} disabled={disabled} toggle={toggle} toggleMany={toggleMany}/>)}</div>
+   {data.courses.some(course => courseYear(course) === null) && <div className="course-unassigned"><YearTable year={null} courses={data.courses.filter(course => courseYear(course) === null)} visible={visible.filter(course => courseYear(course) === null)} disabled={disabled} toggle={toggle} toggleMany={toggleMany}/></div>}
    <div className="course-confirm-bar" aria-label="이수 선택 확인 영역">
     <div className="course-confirm-row"><div className="course-confirm-summary"><strong aria-live="polite">선택 {data.selection_summary.count}과목</strong></div><button ref={reviewTrigger} className="primary" aria-haspopup="dialog" aria-expanded={reviewOpen} disabled={!canConfirm} onClick={openReview}>이수 선택 확인</button></div>
     <p className="field-help course-save-status" role="status">{phase === 'saving' ? '선택을 저장 중입니다… 계속 체크할 수 있어요.' : phase === 'confirming' ? '선택 확인 중…' : phase === 'failed' ? '저장 상태를 확인해 주세요.' : message || '선택은 자동 저장됩니다. 0개를 선택해도 계속할 수 있어요.'}</p>
    </div>
    {reviewOpen && <CourseSelectionDialog data={data} missing={missing} phase={phase} failure={failure} message={message} trigger={reviewTrigger} canConfirm={canConfirm && phase !== 'saving'} onConfirm={confirm} onClose={closeReview} onRetrySave={savePending} onRefresh={() => { closeReview(); refresh(); }}/>}
   </>}
-  <footer className="footer"><div><Link className="button" href="/input/documents">이전</Link><div className="footer-note">이수 선택을 변경하거나 목록 기준을 바꾸면 확인 상태가 해제됩니다.</div></div>{phase === 'unavailable' && <button className="primary" onClick={continueWithoutCatalog}>수강 제안 없이 계속</button>}</footer>
+  <footer className="footer"><div><Link className="button" href="/input/documents">이전</Link></div>{phase === 'unavailable' && <button className="primary" onClick={continueWithoutCatalog}>수강 제안 없이 계속</button>}</footer>
  </div>;
 }
