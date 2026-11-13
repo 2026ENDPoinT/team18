@@ -86,7 +86,8 @@ try {
   }
   await search.fill('검색 결과가 없는 과목');
   assert.equal(await page.locator('[data-course-id]').count(),0);
-  assert.equal(await page.locator('.course-group-toggle').count(),4);
+  assert.equal(await page.locator('.course-year-heading .course-group-toggle').count(),4);
+  assert.equal(await button('2학년 1학기 전체 선택').isDisabled(),true);
   assert.equal(await page.locator('.course-group-toggle:not(:disabled)').count(),0);
   await search.fill('');
   await page.locator(`[data-course-id="${yearCourses[1].course_id}"]`).getByRole('switch').click(); await saved();

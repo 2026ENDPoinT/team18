@@ -3,7 +3,9 @@ import json
 import os
 import re
 import uuid
-from datetime import datetime, timezone
+import logging
+from contextlib import closing
+from hashlib import sha256
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from starlette.datastructures import UploadFile
 from api.dependencies import get_context, parse_body, require_origin, require_owner, respond
@@ -13,11 +15,14 @@ from config import DB_BACKEND, MAX_DOCUMENT_BYTES, MAX_DOCUMENTS
 from providers.document_storage import get_storage
 from providers.document_parser import validate_file, InvalidDocument
 from repositories.documents import DocumentRepository
+from repositories.plans import connect
 from services.document_ocr import policy as ocr_policy, retry_policy
 from providers.google_vision_ocr import MESSAGES as OCR_MESSAGES
-from worker.documents import timestamp, later, request_work
+from worker.documents import timestamp, later, request_work, UploadLease, UPLOAD_LEASE_SECONDS, unexpired
+from services.document_ocr import LeaseLost
 
 router = APIRouter(prefix='/api/roadmap-inputs/{rid:roadmap_id}/documents', tags=['documents'])
+log = logging.getLogger(__name__)
 
 
 def document_context(rid: str, ctx=Depends(get_context)):
@@ -44,7 +49,22 @@ def document(documents, rid, did):
 
 def summary(row):
     eligible = row['extraction_status'] == 'ready' or (row['extraction_status'] == 'partial' and row['partial_confirmed_at'] is not None)
-    return {k: row[k] for k in ('document_id','original_filename','mime_type','file_size_bytes','extraction_status','extraction_revision','extraction_error_code','partial_confirmed_at','created_at')} | {'analysis_eligible': eligible}
+    return {k: row[k] for k in ('document_id','original_filename','mime_type','file_size_bytes','extraction_status','extraction_revision','extraction_error_code','partial_confirmed_at','created_at')} | {'analysis_eligible': eligible, 'upload_id': row['upload_id']}
+
+
+def canonical_upload_id(value):
+    try:
+        if str(uuid.UUID(value)) != value: raise ValueError
+    except (ValueError, TypeError, AttributeError):
+        raise Problem(422, 'invalid_upload_id', '업로드 요청 ID를 확인해 주세요.') from None
+    return value
+
+
+def upload_summary(row):
+    status = ('removed' if row['removed_at'] else 'registered') if row['document_id'] else (
+        'uploading' if unexpired(row['expires_at']) and not row['committed_at'] else 'interrupted')
+    return {'upload_id': row['upload_id'], 'original_filename': row['original_filename'],
+            'status': status, 'document_id': row['document_id'], 'expires_at': row['expires_at']}
 
 
 def check_revision(body, row):
@@ -97,8 +117,11 @@ async def upload_data(request: Request):
 
 
 @router.get('')
-def list_documents(rid: str, background: BackgroundTasks, ctx=Depends(document_context)):
+def list_documents(rid: str, background: BackgroundTasks, upload_ids: str = '', ctx=Depends(document_context)):
     db, repo, owner = ctx
+    ids = upload_ids.split(',') if upload_ids else []
+    if len(ids) > 100: raise Problem(422, 'invalid_upload_id', '업로드 상태 조회 개수를 초과했습니다.')
+    ids = [canonical_upload_id(value) for value in ids]
     plan(repo, owner, rid)
     db.execute('BEGIN ISOLATION LEVEL REPEATABLE READ' if DB_BACKEND == 'postgres' else 'BEGIN'); row = plan(repo, owner, rid)
     ocr = ocr_policy(db)
@@ -106,61 +129,75 @@ def list_documents(rid: str, background: BackgroundTasks, ctx=Depends(document_c
     for position, d in enumerate(DocumentRepository(db).list_active(rid), 1):
         retry = retry_policy(d, ocr, db)
         docs.append(summary(d) | retry | {'position': position, 'retry_message': OCR_MESSAGES.get(retry['retry_reason'])})
+    uploads = [upload_summary(r) for r in DocumentRepository(db).upload_states(rid, timestamp(), ids)]
     db.commit()
     if DB_BACKEND == 'postgres': background.add_task(request_work)
-    return respond(200, {'documents': docs, 'input_revision': row['input_revision'], 'analysis_eligible': any(d['analysis_eligible'] for d in docs), 'ocr': ocr | {'message': OCR_MESSAGES.get(ocr['reason'])}, 'upload_policy': {'max_files': MAX_DOCUMENTS, 'max_file_bytes': MAX_DOCUMENT_BYTES, 'extensions': ['pdf','docx','txt']}})
+    return respond(200, {'documents': docs, 'uploads': uploads, 'input_revision': row['input_revision'], 'analysis_eligible': any(d['analysis_eligible'] for d in docs), 'ocr': ocr | {'message': OCR_MESSAGES.get(ocr['reason'])}, 'upload_policy': {'max_files': MAX_DOCUMENTS, 'max_file_bytes': MAX_DOCUMENT_BYTES, 'extensions': ['pdf','docx','txt']}})
 
 
 @router.post('', dependencies=[Depends(require_origin)], status_code=201, openapi_extra={'requestBody': {'required': True, 'content': {'multipart/form-data': {'schema': {'type': 'object', 'required': ['file', 'expected_input_revision'], 'properties': {'file': {'type': 'string', 'format': 'binary'}, 'expected_input_revision': {'type': 'integer', 'minimum': 0}}}}}}})
-def upload(rid: str, background: BackgroundTasks, ctx=Depends(document_context), file=Depends(upload_data)):
+def upload(rid: str, request: Request, background: BackgroundTasks, ctx=Depends(document_context), file=Depends(upload_data)):
     db, repo, owner = ctx
-    plan(repo, owner, rid)
     filename, data, mime, expected = file
+    upload_id = canonical_upload_id(request.headers.get('Idempotency-Key', str(uuid.uuid4())))
+    digest = sha256(data).hexdigest()
     documents = DocumentRepository(db)
-    key = str(uuid.uuid4()); store = get_storage(); saved = False
-    if DB_BACKEND == 'postgres':
-        # The reservation survives an interrupted request or an ambiguous
-        # Storage/DB response. A later worker removes only this exact key.
-        repo.begin(); row = plan(repo, owner, rid, lock=True)
-        check_filename(documents, rid, filename, timestamp())
-        if expected != row['input_revision']: raise Problem(409, 'revision_conflict', '입력이 변경되었습니다. 최신 문서 상태를 불러와 주세요.')
-        t = timestamp()
-        if documents.count_active(rid) + documents.count_uploading(rid, t) >= MAX_DOCUMENTS:
-            raise Problem(422, 'file_limit', '등록 가능한 문서 개수를 초과했습니다.')
-        registered_at = documents.registration_time(rid)
-        documents.reserve_upload(key, rid, registered_at, later(900), filename); db.commit()
-        try:
-            store.save(key, data, mime)
+    repo.begin(); row = plan(repo, owner, rid, lock=True)
+    existing = documents.upload_by_id(rid, upload_id)
+    if existing:
+        if existing['original_filename'] != filename or existing['content_sha256'] != digest:
+            raise Problem(409, 'idempotency_conflict', '같은 업로드 요청에 다른 파일을 사용할 수 없습니다.')
+        doc = documents.get(rid, existing['storage_key'])
+        if doc:
+            if doc['removed_at']: raise Problem(410, 'removed', '삭제된 문서입니다. 파일을 다시 선택해 주세요.')
+            db.commit()
+            return respond(200, {'document': summary(doc), 'input_revision': row['input_revision']})
+        if not unexpired(existing['expires_at']):
+            raise Problem(409, 'upload_expired', '업로드가 중단되었습니다. 파일을 다시 선택해 주세요.')
+        db.commit()
+        return respond(202, {'upload_id': upload_id, 'status': 'uploading'})
+    check_filename(documents, rid, filename, timestamp())
+    if expected != row['input_revision']:
+        raise Problem(409, 'revision_conflict', '입력이 변경되었습니다. 최신 문서 상태를 불러와 주세요.')
+    if documents.count_active(rid) + documents.count_uploading(rid, timestamp()) >= MAX_DOCUMENTS:
+        raise Problem(422, 'file_limit', '등록 가능한 문서 개수를 초과했습니다.')
+    key = str(uuid.uuid4()); token = str(uuid.uuid4())
+    documents.reserve_upload(key, rid, documents.registration_time(rid), later(UPLOAD_LEASE_SECONDS),
+                             filename, upload_id, digest, token)
+    db.commit()
+    try:
+        # The entire multipart body has arrived before reserving a slot. Once
+        # accepted, this synchronous server operation survives browser disconnect.
+        with UploadLease(key, token) as lease:
+            store = get_storage()
+            if DB_BACKEND == 'postgres': store.save(key, data, mime)
+            else: store.save(key, data)
+            lease.check()
             repo.begin(); row = plan(repo, owner, rid, lock=True)
             reservation = documents.lock_reservation(key, rid)
-            if not reservation or reservation['expires_at'] <= datetime.now(timezone.utc):
-                raise Problem(409, 'upload_expired', '업로드 시간이 만료되었습니다. 다시 시도해 주세요.')
+            if (not reservation or reservation['upload_lease_token'] != token
+                    or not unexpired(reservation['expires_at']) or reservation['cleanup_lease_token']):
+                raise Problem(409, 'upload_expired', '업로드가 중단되었습니다. 파일을 다시 선택해 주세요.')
             t = timestamp(); check_filename(documents, rid, filename, t, key)
-            # Reservation already validated ownership, revision, name and count.
-            # Concurrent OCR/other uploads may bump the revision while saving;
-            # adding this reserved document does not overwrite those changes.
+            # A valid lease already holds one capacity slot. OCR/other uploads may
+            # bump input_revision during Storage I/O without invalidating this add.
             documents.create(key, rid, filename, mime, len(data), reservation['created_at'])
             documents.bump_input(rid, t); documents.finish_reservation(key, t)
             result = summary(documents.get(rid, key)); db.commit()
-        except Exception:
-            db.execute('ROLLBACK')
-            documents.release_reservation(key, timestamp())
-            raise
-        background.add_task(request_work)
-        return respond(201, {'document': result, 'input_revision': row['input_revision'] + 1})
-    try:
-        db.execute('BEGIN IMMEDIATE'); row = plan(repo, owner, rid)
-        check_filename(documents, rid, filename, timestamp())
-        if expected != row['input_revision']: raise Problem(409, 'revision_conflict', '입력이 변경되었습니다. 최신 문서 상태를 불러와 주세요.')
-        if documents.count_active(rid) >= MAX_DOCUMENTS: raise Problem(422, 'file_limit', '등록 가능한 문서 개수를 초과했습니다.')
-        registered_at = documents.registration_time(rid)
-        store.save(key, data); saved = True; t = timestamp()
-        documents.create(key, rid, filename, mime, len(data), registered_at)
-        documents.bump_input(rid, t)
-        result = summary(documents.get(rid, key)); db.commit()
-    except Exception:
-        if saved: store.delete(key)
+    except Exception as error:
+        # COMMIT may have succeeded even if its response was lost. Never delete
+        # here. Release on a fresh connection with a committed-document guard;
+        # if DB is unavailable, lease expiry allows the worker to recover cleanup.
+        try: db.execute('ROLLBACK')
+        except Exception: pass
+        try:
+            with closing(connect()) as recovery:
+                DocumentRepository(recovery).release_reservation(key, timestamp(), token)
+        except Exception: log.warning('upload reservation release deferred to lease expiry')
+        if isinstance(error, LeaseLost):
+            raise Problem(409, 'upload_expired', '업로드가 중단되었습니다. 파일을 다시 선택해 주세요.') from None
         raise
+    if DB_BACKEND == 'postgres': background.add_task(request_work)
     return respond(201, {'document': result, 'input_revision': row['input_revision'] + 1})
 
 

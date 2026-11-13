@@ -72,7 +72,7 @@ try {
   const files = ['zeta.txt', 'alpha.txt', 'middle.txt'].map(name => textFile(name));
   await choose(page, files);
   await page.locator('[data-upload-status]').first().waitFor();
-  assert.equal(await page.locator('tbody tr').count(), 3);
+  assert.equal(await page.locator('[data-upload-status],[data-document-id]').count(), 3);
   await waitCount(page, 3); await numbered(page, files.map(f => f.name));
   await page.waitForFunction(() => [...document.querySelectorAll('tr[data-document-id]')].every(row => row.textContent.includes('읽기 완료')));
   await savedRows(page).first().getByRole('button', { name: '읽힌 내용', exact: true }).click();
@@ -110,7 +110,7 @@ try {
   await choose(page, [textFile('Report.txt'), textFile('REPORT.TXT', 'different size'), textFile('new.txt')]);
   await waitCount(page, 2); await numbered(page, ['Report.txt', 'new.txt']);
   assert.equal(await page.locator('[data-upload-status="duplicate"]').count(), 2);
-  for (const name of ['Report.txt', 'REPORT.TXT']) assert.ok((await page.locator('tbody').innerText()).includes(`${name} 파일은 이미 등록되어`));
+  for (const name of ['Report.txt', 'REPORT.TXT']) assert.ok((await page.locator('.documents-columns').innerText()).includes(`${name} 파일은 이미 등록되어`));
   await page.reload(); await waitCount(page, 2);
   await choose(page, [textFile('Report.txt')]);
   await page.locator('[data-upload-status="duplicate"]').waitFor();
@@ -158,8 +158,8 @@ try {
   assert.equal(await page.locator('[data-upload-status="failed"]').count(), 5);
   await choose(page, [textFile('final.txt'), textFile('one-too-many.txt')]); await waitCount(page, 10);
   assert.equal(await savedRows(page).count(), 10);
-  assert.ok((await page.locator('tbody').innerText()).includes('최대 10개'));
-  assert.ok((await page.locator('tbody').innerText()).includes('파일당 최대 10MB'));
+  assert.ok((await page.locator('.documents-columns').innerText()).includes('최대 10개'));
+  assert.ok((await page.locator('.documents-columns').innerText()).includes('파일당 최대 10MB'));
  });
  await scenario('lost success response reconciles with server without duplicate registration', async page => {
   let once = true;

@@ -18,18 +18,18 @@ try {
  await page.waitForURL('**/input/basic');
  await page.getByRole('button', { name: '저장', exact: true }).click();
  assert.equal(await page.locator('[name=career_goal]').getAttribute('aria-invalid'), 'true');
- await page.locator('[name=career_goal]').fill('스텝업 대시보드 서버 복원 검증');
+ await page.locator('[name=career_goal]').fill('스텝업 서버 복원 검증');
  page.once('dialog', dialog => dialog.dismiss());
- await page.getByRole('navigation', { name: '주 메뉴', exact: true }).getByRole('link', { name: '대시보드' }).click();
+ await page.getByRole('navigation', { name: '주 메뉴', exact: true }).getByRole('link', { name: '로드맵 결과' }).click();
  assert.equal(new URL(page.url()).pathname, '/input/basic');
- assert.equal(await page.locator('[name=career_goal]').inputValue(), '스텝업 대시보드 서버 복원 검증');
+ assert.equal(await page.locator('[name=career_goal]').inputValue(), '스텝업 서버 복원 검증');
  await page.getByRole('button', { name: '저장', exact: true }).click();
- await page.getByRole('status').filter({ hasText: '저장되었습니다.' }).waitFor();
- await page.getByRole('navigation', { name: '주 메뉴', exact: true }).getByRole('link', { name: '대시보드' }).click();
- await page.getByText('스텝업 대시보드 서버 복원 검증', { exact: true }).waitFor();
+ await page.getByRole('status').filter({ hasText: '저장됨' }).waitFor();
+ await page.getByRole('navigation', { name: '주 메뉴', exact: true }).getByRole('link', { name: '로드맵 결과' }).click();
+ await page.getByText('스텝업 서버 복원 검증', { exact: true }).waitFor();
  await page.reload();
- await page.getByText('스텝업 대시보드 서버 복원 검증', { exact: true }).waitFor();
- const paths = ['/', '/dashboard', '/input/basic', '/input/documents', '/input/courses', '/input/review', '/result'];
+ await page.getByText('스텝업 서버 복원 검증', { exact: true }).waitFor();
+ const paths = ['/', '/input/basic', '/input/documents', '/input/courses', '/input/review', '/result'];
  for (const width of [1440, 390, 320]) {
   await page.setViewportSize({ width, height: 1000 });
   for (const path of paths) {
@@ -38,7 +38,7 @@ try {
    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Overflow ${width} ${path}`);
    assert.equal(await page.title(), '스텝업 | 나만의 진로 설계');
    if (path !== '/') assert.equal(await page.locator('.side-nav [aria-current=page]').count(), 1);
-   if (width !== 320 && ['/', '/dashboard', '/input/basic'].includes(path)) await page.screenshot({ path: `/tmp/stepup-${path.replaceAll('/','')||'home'}-${width}.png`, fullPage: true });
+   if (width !== 320 && ['/', '/result', '/input/basic'].includes(path)) await page.screenshot({ path: `/tmp/stepup-${path.replaceAll('/','')||'home'}-${width}.png`, fullPage: true });
   }
  }
  await page.goto(origin);
@@ -56,5 +56,5 @@ try {
  assert.equal(request.searchParams.get('provider'), 'google');
  assert.equal(request.searchParams.get('redirect_to'), origin + '/');
  assert.deepEqual(errors, []);
- console.log('PASS: Stepup guest login/logout, Google OAuth launch, server-backed dashboard reload, active navigation, all 7 pages at 1440/390/320px, no runtime errors');
+ console.log('PASS: Stepup guest login/logout, Google OAuth launch, saved result reload, active navigation, all 6 pages at 1440/390/320px, no runtime errors');
 } finally { await context.close(); await browser.close(); }

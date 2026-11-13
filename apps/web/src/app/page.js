@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { apiRequest } from '../lib/api/client';
-import { loadDashboardResources, resumeDestination } from '../features/roadmap/dashboardData.mjs';
+import { loadResumeResources, resumeDestination } from '../features/roadmap/resumePlan.mjs';
 import { authClient } from '../lib/api/auth';
 import { clearSelectedPlan, selectPlan, readResume, resolvePlanId } from '../lib/api/session';
 
@@ -78,7 +78,7 @@ export default function Home() {
    const plan = latest.found ? latest.request : await apiRequest('/roadmap-inputs', { method: 'POST', expectedUserId: data.user.id });
    if (typeof plan.request_id !== 'string' || !plan.request_id) throw new Error('계획을 열지 못했습니다. 다시 시도해 주세요.');
    await selectPlan(plan.request_id, data.user.id);
-   const destination = latest.found ? resumeDestination(plan, await loadDashboardResources(apiRequest, plan)) : '/input/basic';
+   const destination = latest.found ? resumeDestination(plan, await loadResumeResources(apiRequest, plan)) : '/input/basic';
    router.push(destination);
   } catch (e) { setMessage(e.message || '게스트 인증에 실패했습니다.'); }
   finally { setBusy(false); lock.current = false; }
@@ -100,7 +100,7 @@ export default function Home() {
    const requestId = create ? data.request_id : data.request.request_id;
    if (typeof requestId !== 'string' || !requestId) throw new Error('계획 응답을 확인할 수 없습니다. 다시 시도해 주세요.');
    await selectPlan(requestId, userId);
-   const destination = create ? '/input/basic' : resumeDestination(data.request, await loadDashboardResources(apiRequest, data.request));
+   const destination = create ? '/input/basic' : resumeDestination(data.request, await loadResumeResources(apiRequest, data.request));
    router.push(destination);
   } catch (e) { setMessage(e.message || '계획을 열지 못했습니다. 다시 시도해 주세요.'); setBusy(false); lock.current = false; }
  }
@@ -128,7 +128,7 @@ export default function Home() {
      {phase==='found'&&<><button className="primary" disabled={busy} onClick={()=>openPlan(false)}>이어서 작성</button><button disabled={busy} onClick={()=>openPlan(true)}>처음부터 작성하기</button></>}
      <button disabled={busy} onClick={logout}>로그아웃</button>
     </>:<><button className="primary" disabled={busy} onClick={google}>Google로 계속하기</button><button disabled={busy} onClick={guest}>로그인 없이 시작하기</button></>}
-    {user&&phase==='found'&&<Link className="button saved-result-link" href="/dashboard">현재 계획·저장 결과 보기</Link>}</div>
+    {user&&phase==='found'&&<Link className="button saved-result-link" href="/result?tab=roadmap">저장 결과 보기</Link>}</div>
     {message&&<p className="notice" role="status">{message}</p>}
     <p className="home-hint">직무가 정해지지 않아도 괜찮아요. 시작한 뒤 관심 분야부터 적어 보세요.</p>
    </div>

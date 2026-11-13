@@ -49,13 +49,13 @@ ROADMAP_OCR_MAX_PAGES_PER_DOCUMENT=50
 | API 오류·timeout 또는 처리했지만 글자 없음 | 본문 없으면 `failed`, 있으면 `partial` |
 | 빈 TXT/PDF 등 읽을 글자가 없음 | `failed`, `empty_text` |
 
-기존 `POST /api/roadmap-inputs/{rid}/documents/{did}/retry-extraction`으로 `needs_ocr`를 재업로드 없이 처리한다. `expected_input_revision` 검사를 유지한다. provider 비활성/인증 미설정은 422, 월 한도 소진은 429와 이유를 반환한다. 완료 여부가 불확실하거나 이미 실패한 OCR 단위는 중복 과금 방지를 위해 재호출하지 않으며 UI에 다시 읽기 제한을 알린다. 오류 원문·인증 정보는 응답이나 로그에 싣지 않는다. 재추출은 기존 규칙대로 extraction_revision을 올리고 부분 확인을 취소하여 이전 분석 근거를 무효화한다.
+기존 `POST /api/roadmap-inputs/{rid}/documents/{did}/retry-extraction`으로 문서를 재업로드 없이 처리한다. `expected_input_revision` 검사를 유지한다. OCR이 필요한 미추출 문서는 provider 비활성/인증 미설정이면 422, 월 한도 소진이면 429와 이유를 반환한다. 일부만 읽힌 문서는 읽힌 범위 확인 여부와 관계없이 다시 처리할 수 있으며, OCR을 사용할 수 없으면 확인 가능한 본문만 다시 읽는다. 완료 여부가 불확실하거나 이미 실패한 OCR 단위는 중복 과금 방지를 위해 재호출하지 않는다. 오류 원문·인증 정보는 응답이나 로그에 싣지 않는다. 재추출은 기존 규칙대로 extraction_revision을 올리고 부분 확인을 취소하여 이전 분석 근거를 무효화한다.
 
 ## 워커와 Render 자원
 
 기존 120초 lease와 token/revision 완료 검사를 유지한다. Storage 읽기와 OCR 중에도 별도 heartbeat가 20초마다 갱신하며, 각 페이지·API 호출 전후 소유권을 확인한다. 삭제·revision 변경·token 교체·DB 연결 실패 시 새 호출을 멈춘다. 프로세스가 재시작되면 만료 작업을 다시 claim하고 저장된 페이지 결과를 사용한다. 진행 중이던 예약은 `ocr_uncertain`으로 남겨 외부 호출을 반복하지 않는다. 이미 전송된 요청을 삭제 요청이 취소할 수는 없지만 결과 게시·다음 페이지 호출은 막는다.
 
-렌더링은 최대 2배 배율/긴 변 2,000px, PNG 최대 8MiB, DOCX 원본 이미지 최대 2천만 픽셀이다. 다중 프레임 이미지는 지원하지 않는다. 이미지는 디스크에 기록하지 않고 매번 한 장만 메모리에서 준비한다. PDFium은 프로세스 내 mutex로 직렬화한다. 운영 워커는 한 프로세스당 동시 문서 작업 1개를 권장한다. Render Free의 절전·재시작 때문에 즉시 완료나 상시 백그라운드 실행은 보장하지 않는다. 후속 문서 요청이 기존 작업을 재개한다.
+렌더링은 최대 2배 배율/긴 변 2,000px, PNG 최대 8MiB, DOCX 원본 이미지 최대 2천만 픽셀이다. 다중 프레임 이미지는 지원하지 않는다. 이미지는 디스크에 기록하지 않고 매번 한 장만 메모리에서 준비한다. PDFium은 프로세스 내 mutex로 직렬화한다. PostgreSQL 문서 기능 활성화 시 lifespan 워커가 시작되고 요청 기반 보조 작업과 프로세스 내 실행 잠금을 공유한다. 재시작 뒤 DB의 만료 작업을 다시 처리한다. Render Free의 절전 중에는 즉시 완료를 보장하지 않는다. [업로드 중단 복구와 추가 마이그레이션](document-upload-recovery.md)을 먼저 적용해야 한다.
 
 의존성: `google-cloud-vision==3.16.0`, `pypdfium2==5.15.2`, `Pillow==12.0.0`. Poppler/Ghostscript/GCS는 필요 없다. Python 3.14.7에서 설치·테스트했으며 [Vision 지원 버전](https://cloud.google.com/python/docs/reference/vision/latest)과 [pypdfium2 배포 wheel](https://pypi.org/project/pypdfium2/5.15.2/)을 확인했다. [PDFium 스레드 제한](https://pypdfium2.readthedocs.io/en/stable/python_api.html#incompatibility-with-threading)에 따라 직렬화했다. Render의 실제 Linux 빌드·메모리 사용량은 배포 전 staging에서 확인해야 한다.
 

@@ -55,7 +55,7 @@ try {
  };
  await send('Page.navigate',{url:origin+'/'});
  await wait("[...document.querySelectorAll('button')].some(b=>b.textContent==='작성하기'&&!b.disabled)");
- assert.equal(await run("[...document.querySelectorAll('a')].some(a=>a.textContent==='현재 계획·저장 결과 보기')"),false);
+ assert.equal(await run("[...document.querySelectorAll('a')].some(a=>a.textContent==='저장 결과 보기')"),false);
  await click('작성하기');
  await wait("document.querySelector('textarea[name=career_goal]')");
  await set('textarea[name=career_goal]','데이터 분석 업무를 준비하는 격리 검수');

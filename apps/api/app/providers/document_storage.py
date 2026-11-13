@@ -1,4 +1,8 @@
-"""Private filesystem storage. Keys are server-generated document UUIDs only."""
+"""Private storage. Keys are server-generated document UUIDs, never filenames.
+
+Storage writes are not DB commits. The durable upload reservation owns cleanup
+of failed/ambiguous writes; callers must not delete a potentially committed key.
+"""
 import os
 from pathlib import Path
 import re

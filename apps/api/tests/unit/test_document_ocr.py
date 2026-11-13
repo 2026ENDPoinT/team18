@@ -151,7 +151,11 @@ def ledger(tmp_path,monkeypatch,request):
             admin.execute(f'CREATE TABLE "{schema}".roadmap_inputs(request_id text PRIMARY KEY, input_revision integer NOT NULL DEFAULT 0, updated_at timestamptz)')
             admin.execute("DO $$ BEGIN IF NOT EXISTS(SELECT FROM pg_roles WHERE rolname='anon') THEN CREATE ROLE anon; END IF; IF NOT EXISTS(SELECT FROM pg_roles WHERE rolname='authenticated') THEN CREATE ROLE authenticated; END IF; END $$")
             root=Path(__file__).resolve().parents[4]
-            names = ['20261108122001_phase3_documents.sql','20261110091129_document_ocr_units.sql']
+            names = ['20261108122001_phase3_documents.sql',
+                     '20261108122527_document_upload_reservations.sql',
+                     '20261113191643_document_upload_filenames.sql',
+                     '20261113193416_document_upload_recovery.sql',
+                     '20261110091129_document_ocr_units.sql']
             if not legacy: names.append('20261111021219_document_ocr_billing_period.sql')
             for name in names:
                 admin.execute((root/'supabase/migrations'/name).read_text().replace('public.',f'"{schema}".'))

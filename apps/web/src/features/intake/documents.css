@@ -4,3 +4,6 @@
 .documents-columns .document-position{text-align:center;width:48px;white-space:nowrap}
 .documents-columns th:nth-child(2),.documents-columns td:nth-child(2){width:28%;min-width:90px}
 .document-upload-message{max-width:260px;overflow-wrap:anywhere}
+.documents-columns .document-upload-queue{flex:0 0 auto}
+.documents-footer-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+@media(max-width:480px){.documents-footer-actions{width:100%}}

@@ -50,6 +50,10 @@ def retry_policy(doc, ocr_policy, db=None):
     status = doc['extraction_status']; error = doc['extraction_error_code']
     if status == 'pending':
         return {'retry_available': False, 'retry_reason': 'already_pending'}
+    if status == 'partial':
+        # Reparse the document even when some OCR is unavailable. The durable
+        # per-unit ledger still prevents repeated failed or uncertain OCR calls.
+        return {'retry_available': True, 'retry_reason': None}
     if error == 'ocr_document_limit' and db is not None:
         used = db.execute('SELECT count(*) AS n FROM document_ocr_units WHERE document_id=?',
                           (doc['document_id'],)).fetchone()['n']

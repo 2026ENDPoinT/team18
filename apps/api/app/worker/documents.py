@@ -13,10 +13,41 @@ from services.document_ocr import DocumentOCR, LeaseLost
 
 log=logging.getLogger(__name__)
 LEASE_SECONDS=120
+UPLOAD_LEASE_SECONDS=120
 _request_worker_lock = threading.Lock()
 
 def timestamp(): return datetime.now(timezone.utc).isoformat(timespec='microseconds')
 def later(seconds): return (datetime.now(timezone.utc)+timedelta(seconds=seconds)).isoformat(timespec='microseconds')
+def unexpired(value):
+    at = datetime.fromisoformat(value) if isinstance(value, str) else value
+    return at > datetime.now(timezone.utc)
+
+
+class UploadLease:
+    """A live server upload, not browser presence, keeps the reservation alive."""
+    def __init__(self, key, token):
+        self.key=key; self.token=token
+        self.stop=threading.Event(); self.lost=threading.Event()
+    def check(self):
+        if self.lost.is_set(): raise LeaseLost()
+        try:
+            with closing(connect()) as db:
+                valid=DocumentRepository(db).renew_upload(self.key, self.token, timestamp(), later(UPLOAD_LEASE_SECONDS))
+            if not valid: raise LeaseLost()
+        except Exception:
+            self.lost.set()
+            raise LeaseLost() from None
+    def _loop(self):
+        while not self.stop.wait(min(20, UPLOAD_LEASE_SECONDS / 3)):
+            try: self.check()
+            except LeaseLost: return
+    def __enter__(self):
+        self.check()
+        self.thread=threading.Thread(target=self._loop,daemon=True,name='document-upload-lease')
+        self.thread.start()
+        return self
+    def __exit__(self, *_):
+        self.stop.set(); self.thread.join(timeout=1)
 
 class ExtractionLease:
     """Renew during parsing, Storage I/O and RPCs; fail closed on lost ownership."""
@@ -92,17 +123,20 @@ def run_once(storage=None, ocr_provider=None):
 def cleanup_orphans(storage=None):
     # Only old, server-generated keys are candidates. Active or recorded files are untouched.
     storage=storage or get_storage()
+    # Supabase is cleaned by exact reservation keys, never a bucket-wide scan.
+    if not hasattr(storage, 'old_keys'): return
     cutoff=time.time()-3600
     for key in storage.old_keys(cutoff):
         try:
             with closing(connect()) as db:
-                if not DocumentRepository(db).has_storage_key(key): storage.delete(key)
+                repo=DocumentRepository(db)
+                if not repo.has_storage_key(key) and not repo.has_reservation(key): storage.delete(key)
         except OSError: log.warning('orphan cleanup failed')
 
 def cleanup_reservation(storage=None):
     """Only inspect expired keys that were reserved before an upload."""
     with closing(connect()) as db:
-        db.execute('BEGIN')
+        db.execute('BEGIN' if getattr(db, 'backend', 'sqlite') == 'postgres' else 'BEGIN IMMEDIATE')
         repo = DocumentRepository(db)
         row = repo.next_reservation_cleanup(timestamp())
         if not row:
@@ -111,9 +145,19 @@ def cleanup_reservation(storage=None):
         repo.lease_reservation_cleanup(row['storage_key'], token, later(LEASE_SECONDS))
         db.commit()
     try:
-        (storage or get_storage()).delete(row['storage_key'])
         with closing(connect()) as db:
-            DocumentRepository(db).finish_reservation_cleanup(row['storage_key'], token, later(86400))
+            db.execute('BEGIN' if getattr(db, 'backend', 'sqlite') == 'postgres' else 'BEGIN IMMEDIATE')
+            repo=DocumentRepository(db)
+            current=repo.lock_reservation(row['storage_key'],row['request_id'])
+            # Finalization also locks this reservation. Never delete a registered
+            # key, even if legacy/inconsistent reservation metadata says expired.
+            if (not current or current['cleanup_lease_token'] != token or current['committed_at']
+                    or repo.has_storage_key(row['storage_key'])):
+                db.commit(); return True
+            (storage or get_storage()).delete(row['storage_key'])
+            repo.finish_reservation_cleanup(row['storage_key'], token, later(86400))
+            repo.prune_reservation(row['storage_key'], later(-7 * 86400))
+            db.commit()
     except Exception:
         log.warning('document upload cleanup failed')
         with closing(connect()) as db:
@@ -125,21 +169,30 @@ def request_work():
     if not _request_worker_lock.acquire(blocking=False):
         return
     try:
-        cleanup_reservation()
-        run_once()
-    except Exception:
-        log.warning('document request worker failed')
+        try: cleanup_reservation()
+        except Exception: log.warning('document request cleanup failed')
+        try: run_once()
+        except Exception: log.warning('document request worker failed')
     finally:
         _request_worker_lock.release()
 
 def loop(stop):
     next_orphan_scan=0
     while not stop.is_set():
-        try:
-            if time.monotonic() >= next_orphan_scan:
-                cleanup_orphans(); next_orphan_scan=time.monotonic()+3600
-            if run_once():continue
-        except Exception:log.warning('document worker error')
+        # Cleanup failure must not starve extraction (or vice versa).
+        if time.monotonic() >= next_orphan_scan:
+            next_orphan_scan=time.monotonic()+3600
+            try: cleanup_orphans()
+            except Exception: log.warning('document orphan scan failed')
+        try: cleanup_reservation()
+        except Exception: log.warning('document reservation cleanup failed')
+        # Share the per-process gate with the request fallback so enabling the
+        # lifespan worker does not double concurrent PDF/OCR memory usage.
+        if _request_worker_lock.acquire(blocking=False):
+            try:
+                if run_once(): continue
+            except Exception: log.warning('document worker error')
+            finally: _request_worker_lock.release()
         stop.wait(1)
 
 def start_worker():

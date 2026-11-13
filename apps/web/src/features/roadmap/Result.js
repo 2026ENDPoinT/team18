@@ -120,7 +120,7 @@ export default function Result() {
   </section>
   {!overview && <nav className="result-pagination" aria-label="로드맵 결과 순서 이동">
    <span className="field-help">{selected + 1} / {resultTabs.length} · {resultTabs[selected].label}</span>
-   <div>{selected > 0 && <button type="button" onClick={() => changeTab(selected - 1, true)}>← 이전: {resultTabs[selected - 1].label}</button>}{nextTab ? <button type="button" className="primary" onClick={() => changeTab(selected + 1, true)}>다음: {nextTab.label} →</button> : <Link className="button primary" href="/dashboard">결과 확인 완료 · 대시보드 →</Link>}</div>
+   <div>{selected > 0 && <button type="button" onClick={() => changeTab(selected - 1, true)}>← 이전: {resultTabs[selected - 1].label}</button>}{nextTab ? <button type="button" className="primary" onClick={() => changeTab(selected + 1, true)}>다음: {nextTab.label} →</button> : <button type="button" className="primary" onClick={() => changeTab(0, true)}>결과 확인 완료 · 로드맵 요약 →</button>}</div>
   </nav>}
  </div>;
 }

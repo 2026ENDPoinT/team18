@@ -22,12 +22,13 @@ function CourseGroupToggle({ label, courses, disabled, toggleMany }) {
 function YearTable({ year, courses, visibleIds, disabled, toggle, toggleMany }) {
  const title = year ? `${year}학년` : '학년 미지정';
  const terms = useMemo(() => termSections(courses), [courses]);
- const sections = terms.map(section => ({ ...section, visible: section.courses.filter(course => visibleIds.has(course.course_id)) }));
- const visibleCourses = courses.filter(course => visibleIds.has(course.course_id));
+ const sections = terms.filter(section => section.courses.length).map(section => ({ ...section, visible: section.courses.filter(course => visibleIds.has(course.course_id)) }));
+ // Use exactly the rows rendered below for the year toggle, too.
+ const visibleCourses = sections.flatMap(section => section.visible);
  return <section className="course-year" aria-labelledby={`course-year-${year || 'unknown'}`} data-year={year || 'unknown'}>
   <header className="course-year-heading"><h2 id={`course-year-${year || 'unknown'}`}>{title}</h2><div className="course-year-actions"><span>선택 {courses.filter(c => c.is_completed).length} / 전체 {courses.length}</span><CourseGroupToggle label={title} courses={visibleCourses} disabled={disabled} toggleMany={toggleMany}/></div></header>
-  {sections.some(section => section.visible.length) ? <table className="course-year-table" aria-label={`${title} 과목`}><colgroup><col/><col className="course-check-column"/></colgroup>
-   {sections.filter(section => section.visible.length).map(section => <tbody key={section.title}>
+  {!!sections.length && <table className="course-year-table" aria-label={`${title} 과목`}><colgroup><col/><col className="course-check-column"/></colgroup>
+   {sections.map(section => <tbody key={section.title}>
     <tr className="course-term"><th colSpan={2} scope="colgroup"><div className="course-term-heading"><span>{section.title}</span><div className="course-term-actions"><span>{section.visible.length === section.courses.length ? section.courses.length : `${section.visible.length} / ${section.courses.length}`}과목</span><CourseGroupToggle label={`${title} ${section.title}`} courses={section.visible} disabled={disabled} toggleMany={toggleMany}/></div></div></th></tr>
     {section.visible.map(course => <tr key={course.course_id} className={course.is_completed ? 'is-completed' : ''} data-course-id={course.course_id} onClick={() => { if (!disabled) toggle(course.course_id, !course.is_completed); }}>
      <td><strong className="course-name">{course.course_name}</strong>
@@ -35,7 +36,8 @@ function YearTable({ year, courses, visibleIds, disabled, toggle, toggleMany }) 
      <td className="course-check-cell"><button className="course-toggle" type="button" role="switch" aria-label={`${course.course_name} 이미 이수함`} aria-checked={course.is_completed} disabled={disabled} onClick={event => { event.stopPropagation(); toggle(course.course_id, !course.is_completed); }}><span className="course-checkmark" aria-hidden="true">{course.is_completed && <svg width="18" height="18" viewBox="0 0 20 20" fill="none" focusable="false"><path d="m4 10 4 4 8-8" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square" strokeLinejoin="miter"/></svg>}</span></button></td>
     </tr>)}
    </tbody>)}
-  </table> : <p className="course-year-empty">{courses.length ? '검색 결과가 없습니다.' : '등록된 과목이 없습니다.'}</p>}
+  </table>}
+  {!visibleCourses.length && <p className="course-year-empty">{courses.length ? '검색 결과가 없습니다.' : '등록된 과목이 없습니다.'}</p>}
  </section>;
 }
 

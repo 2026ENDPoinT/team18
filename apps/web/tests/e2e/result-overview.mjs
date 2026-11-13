@@ -116,12 +116,12 @@ for (const viewport of [{width:1440,height:900}, {width:390,height:844}]) {
   await context.route('https://www.contestkorea.com/**',route=>route.fulfill({contentType:'text/html',body:'<h1>활동 원문 연결 검증</h1>'}));
   const original=activityCard.locator('.result-brief-list a').first(), href=await original.getAttribute('href');
   const popupPromise=page.waitForEvent('popup');await original.click();const popup=await popupPromise;await popup.waitForLoadState();assert.equal(popup.url(),href);await popup.close();
-  for(const [label,key] of tabs){
-   await go('/dashboard');const card=page.locator('.dashboard-card').filter({has:page.getByRole('heading',{name:label,exact:true})});await card.click();
-   await page.waitForURL('**/result?tab='+key);assert.equal(await tab(label).getAttribute('aria-selected'),'true');
-   if(key==='roadmap')await page.locator('.result-overview').waitFor();
-  }
-  assert.equal(writes().length,before,'tabs, refresh, dashboard, help and source link never write/generate');
+  await go('/dashboard');await page.waitForURL('**/result?tab=roadmap');await ready();
+  assert.equal(await page.getByRole('link',{name:'대시보드',exact:true}).count(),0);
+  await tab('공모전·대외활동').click();await page.waitForURL('**/result?tab=activities');
+  await button('결과 확인 완료 · 로드맵 요약 →').click();await page.waitForURL('**/result?tab=roadmap');
+  assert.equal(await tab('실행 로드맵').evaluate(el=>el===document.activeElement),true);
+  assert.equal(writes().length,before,'tabs, refresh, legacy redirect, help and source link never write/generate');
   await go('/result?tab=skills');
   const editor=page.getByRole('region',{name:'진로 정보 수정',exact:true});
   await editor.getByRole('button',{name:'수정',exact:true}).click();
@@ -155,7 +155,7 @@ for (const viewport of [{width:1440,height:900}, {width:390,height:844}]) {
   await page.route('**/activities',route=>route.fulfill({json:{...activities,activities:[{...activities.activities[0],kind:'extracurricular',status:'upcoming'}]}}));await page.reload();await activityCard.getByText('대외활동 · 접수 예정',{exact:true}).waitFor();await page.unroute('**/activities');
   await page.route('**/skill-comparison',route=>route.fulfill({status:503,json:{message:'직무 조회 실패'}}));await page.reload();await skillCard.getByRole('alert').waitFor();await activityCard.locator('.result-brief-list a').waitFor();await page.unroute('**/skill-comparison');
   await clean();assert.deepEqual(errors,[]);
-  report.push({viewport,completedCourse:'프로그래밍 기초',recommendedCourse:'데이터베이스',reason:saved.recommended_courses[0].personalization_reason,checks:'layout, four tabs, active underline, arrows/Home/End, back/reload, help, dashboard, original link, GET-only visits, independent failure/empty/loading, goal-only activities, initial generation, removed execution UI, saved-result reuse',passed:true});
+  report.push({viewport,completedCourse:'프로그래밍 기초',recommendedCourse:'데이터베이스',reason:saved.recommended_courses[0].personalization_reason,checks:'layout, four tabs, active underline, arrows/Home/End, back/reload, help, legacy redirect, original link, GET-only visits, independent failure/empty/loading, goal-only activities, initial generation, removed execution UI, saved-result reuse',passed:true});
   console.log('PASS result overview '+viewport.width+'×'+viewport.height);
  } catch(error) {await page.screenshot({path:artifacts+`failure-${viewport.width}.png`,fullPage:true});console.error(await page.locator('body').innerText());throw error;}
  finally {await context.close();}

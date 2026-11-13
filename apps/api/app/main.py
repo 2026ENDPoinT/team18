@@ -33,7 +33,7 @@ async def lifespan(application):
         elif os.environ.get('ROADMAP_AUTO_SEED_DEV', '1') == '1':
             from scripts.seed_dev import seed
             seed(only_if_empty=True)
-        if DB_BACKEND == 'sqlite':
+        if DB_BACKEND == 'sqlite' or os.environ.get('ROADMAP_POSTGRES_DOCUMENTS_ENABLED') == '1':
             worker = start_worker()
         yield
     finally:

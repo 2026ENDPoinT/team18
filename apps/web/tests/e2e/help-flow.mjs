@@ -1,5 +1,5 @@
 // Real Next/API/SQLite with help_ui_server.py. Only external services and failure injection are fixtures.
-// CAPTURE_HELP=1 writes the nine actual application screenshots into public/help.
+// CAPTURE_HELP=1 writes the eight actual application screenshots into public/help.
 import assert from 'node:assert/strict';
 import { confirmCourseSelection, openCourseConfirmation } from './course-confirmation.mjs';
 import { mkdirSync } from 'node:fs';
@@ -24,7 +24,6 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
  context.on('request',r=>{if(r.url().includes('/api/roadmap-inputs')&&r.method()!=='GET')writes.push(r);});
  const button=name=>page.getByRole('button',{name,exact:true});
  const tab=name=>page.getByRole('tab',{name,exact:true});
- const card=name=>page.locator('.dashboard-card').filter({has:page.getByRole('heading',{name,exact:true})});
  const experience=skill=>page.locator('.skill-card').filter({has:page.getByText('기술 스택: '+skill,{exact:true})});
  const go=path=>page.goto(origin+path);
  const get=(suffix='')=>page.evaluate(async suffix=>{const r=await fetch('/api/roadmap-inputs/'+sessionStorage.getItem('roadmap_request_id')+suffix);if(!r.ok)throw Error(await r.text());return r.json();},suffix);
@@ -44,6 +43,7 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
  }
  async function help(id, method='escape') {
   if(capture)return; // Capture first; the validation pass then loads the committed assets.
+  if(id==='result-courses' && await page.locator('.recommendation-reason').count()) await page.locator('.recommendation-reason[aria-busy=false]').first().waitFor();
   const name=helpExamples[id].title+' 예시 보기', trigger=button(name), before=writes.length, url=page.url();
   await trigger.click();const dialog=page.getByRole('dialog',{name:helpExamples[id].title+' 예시',exact:true});await dialog.waitFor();
   const img=dialog.getByRole('img',{name:helpExamples[id].alt,exact:true});
@@ -57,7 +57,7 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
   if(id==='basic')await page.screenshot({path:`${artifacts}/help-${viewport.width}.png`});
   if(method==='escape')await page.keyboard.press('Escape');else await dialog.getByRole('button',{name:'도움말 닫기'}).click();
   await dialog.waitFor({state:'detached'});assert.equal(await trigger.evaluate(el=>el===document.activeElement),true,'focus returns');
-  assert.equal(page.url(),url);assert.equal(writes.length,before,'help does not mutate input or analyze');
+  assert.equal(page.url(),url);assert.deepEqual(writes.slice(before).map(request=>`${request.method()} ${new URL(request.url()).pathname}`),[],'help does not mutate input or analyze');
  }
  try {
   await go('/');await button('로그인 없이 시작하기').click();await page.waitForURL('**/input/basic');
@@ -72,7 +72,9 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
   await page.locator('.activity-recommendations .skill-card').first().waitFor();assert.equal((await get('/documents')).documents.length,0);await help('result-activities');await clean();
   await go('/input/documents');await page.locator('input[type=file]').setInputFiles({name:'민서_행사신청_프로젝트.txt',mimeType:'text/plain',buffer:Buffer.from(text)});
   await poll(()=>button('다음: 이수 과목').isEnabled(),'document ready');await help('documents','close');await image('documents');await clean();
-  await button('읽힌 내용').click();await page.getByRole('dialog',{name:'읽힌 내용',exact:true}).waitFor();await clean();await page.keyboard.press('Escape');assert.equal(await button('읽힌 내용').evaluate(el=>el===document.activeElement),true);
+  await button('읽힌 내용').click();const textDialog=page.getByRole('dialog',{name:'읽힌 내용',exact:true});await textDialog.waitFor();
+  assert.ok((await textDialog.locator('.source-text').innerText()).includes('제가 React로 행사 신청 화면과 입력 검증을 구현했습니다.'));
+  assert.equal(await textDialog.getByText('읽힌 위치',{exact:true}).count(),0);await clean();await page.keyboard.press('Escape');assert.equal(await button('읽힌 내용').evaluate(el=>el===document.activeElement),true);
   await button('다음: 이수 과목').click();await page.waitForURL('**/input/courses');await poll(()=>page.getByRole('switch').first().isEnabled(),'courses loaded');
   for(const name of ['프로그래밍 기초','자료구조']){await page.getByRole('switch',{name:new RegExp('^'+name+' ')}).click();await page.locator('.course-save-status').filter({hasText:'이수 선택이 저장되었습니다.'}).waitFor();}
   const beforeCourses=await get('/courses?catalog_id='+(await get()).input.catalog_id+'&page_size=1');await help('courses');assert.equal((await get('/courses?catalog_id='+(await get()).input.catalog_id+'&page_size=1')).selection_summary.count,2);assert.equal(beforeCourses.selection_summary.known_credits,6);await image('courses');
@@ -96,20 +98,22 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
    if(key==='courses'){await page.locator('.course-candidates-list .skill-card').first().waitFor();if(capture)await page.locator('.course-learning summary').first().click();}
    await help('result-'+key);await clean();await image('result-'+key);
    await page.reload();assert.equal(await tab(name).getAttribute('aria-selected'),'true');
+   if(key==='courses')await page.locator('.recommendation-reason[aria-busy=false]').first().waitFor();
   }
-  await go('/dashboard');await poll(()=>page.locator('.dashboard-card').count().then(n=>n===8),'dashboard cards');await help('dashboard');await image('dashboard');
-  assert.ok((await card('역량 탐색').innerText()).includes('행사 신청 화면과 입력 검증을 구현했어요'));assert.ok((await card('이수 과목').innerText()).includes('선택 2과목'));
-  await card('직무 역량 비교').click();await page.waitForURL('**/result?tab=skills');const editor=page.getByRole('region',{name:'진로 정보 수정',exact:true});
+  await go('/result?tab=skills');await page.waitForURL('**/result?tab=skills');const editor=page.getByRole('region',{name:'진로 정보 수정',exact:true});
   await poll(()=>editor.getByRole('button',{name:'수정',exact:true}).isEnabled(),'career editor');await editor.getByRole('button',{name:'수정',exact:true}).click();await editor.getByRole('textbox',{name:/희망 직무/}).fill('데이터 엔지니어');
   const paidBefore=writes.filter(r=>/\/(roadmap|job-skill-analysis|project-experience-analysis)$/.test(r.url())).length;
   await help('result-skills');assert.equal(await editor.getByRole('textbox',{name:/희망 직무/}).inputValue(),'데이터 엔지니어');
   await editor.getByRole('button',{name:'저장',exact:true}).click();await editor.getByRole('status').filter({hasText:'진로 정보를 저장했습니다.'}).waitFor();
   assert.equal(writes.filter(r=>/\/(roadmap|job-skill-analysis|project-experience-analysis)$/.test(r.url())).length,paidBefore);
-  await go('/input/basic');assert.equal(await page.locator('[name=target_role]').inputValue(),'데이터 엔지니어');await go('/dashboard');await card('기본 정보').waitFor();assert.ok((await card('기본 정보').innerText()).includes('데이터 엔지니어'));
+  await go('/input/basic');assert.equal(await page.locator('[name=target_role]').inputValue(),'데이터 엔지니어');await go('/result?tab=roadmap');await page.locator('.result-basic').getByText('데이터 엔지니어',{exact:true}).waitFor();
   for(const [name,key] of [['직무 역량 비교','skills'],['실행 로드맵','roadmap'],['수강 후보','courses'],['공모전·대외활동','activities']]){
-   await card(name).focus();await page.keyboard.press('Enter');await page.waitForURL('**/result?tab='+key);assert.equal(await tab(name).getAttribute('aria-selected'),'true');await help('result-'+key);await clean();await page.reload();assert.equal(await tab(name).getAttribute('aria-selected'),'true');await page.goBack();await page.waitForURL('**/dashboard');await card(name).waitFor();
+   await tab(name).focus();await page.keyboard.press('Enter');await page.waitForURL('**/result?tab='+key);assert.equal(await tab(name).getAttribute('aria-selected'),'true');
+   if(key==='courses')await page.locator('.recommendation-reason[aria-busy=false]').first().waitFor();
+   await help('result-'+key);await clean();await page.reload();assert.equal(await tab(name).getAttribute('aria-selected'),'true');
+   if(key==='courses')await page.locator('.recommendation-reason[aria-busy=false]').first().waitFor();
   }
-  console.log(`PASS ${viewport.width}×${viewport.height}: guest → department → upload → one-button courses → four experience responses/edit → results → career edit → dashboard tabs; reload, draft/selection/tab retention, saved retry`);
+  console.log(`PASS ${viewport.width}×${viewport.height}: guest → department → upload → one-button courses → four experience responses/edit → results → career edit → result tabs; reload, draft/selection/tab retention, saved retry`);
 
   // Vary the values of metadata fields, not text-match filters. Real user evidence remains visible.
   const marker='INTERNAL_REVIEW_NOTE';
@@ -124,7 +128,7 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
    return await route.fulfill({response,json:data});
    } catch(error) { if(!/already handled|Target closed|ERR_ABORTED|closed/.test(error.message))throw error; }
   });
-  for(const key of ['roadmap','skills','courses','activities']){await go('/result?tab='+key);await page.waitForLoadState('networkidle');if(key==='skills')await poll(()=>button('직무 분석 실행').isEnabled(),'new goal empty skills');else if(key==='activities')await button('활동 추천 다시 확인').waitFor();else if(key==='roadmap')await page.locator('.result-overview').waitFor();else await page.locator('.roadmap-controls').waitFor();await help('result-'+key);await clean();}
+  for(const key of ['roadmap','skills','courses','activities']){await go('/result?tab='+key);await page.waitForLoadState('networkidle');if(key==='skills')await poll(()=>button('직무 분석 실행').isEnabled(),'new goal empty skills');else if(key==='activities')await button('활동 추천 다시 확인').waitFor();else if(key==='roadmap')await page.locator('.result-overview').waitFor();else await page.locator('.recommendation-reason[aria-busy=false]').first().waitFor();await help('result-'+key);await clean();}
   await page.unroute('**/api/roadmap-inputs/**');
   // Saved candidates have no regeneration or execution-history controls.
   await go('/result?tab=courses');await page.locator('.course-candidates-list').waitFor();
@@ -144,4 +148,4 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
  finally { await context.close(); }
 }
 await browser.close();
-console.log(capture?(process.env.HELP_CAPTURE_IDS?'SELECTED ACTUAL APP EXAMPLES CAPTURED':'ALL NINE ACTUAL APP EXAMPLES CAPTURED'):'ALL HELP AND FULL USER FLOW CHECKS PASSED');
+console.log(capture?(process.env.HELP_CAPTURE_IDS?'SELECTED ACTUAL APP EXAMPLES CAPTURED':'ALL EIGHT ACTUAL APP EXAMPLES CAPTURED'):'ALL HELP AND FULL USER FLOW CHECKS PASSED');

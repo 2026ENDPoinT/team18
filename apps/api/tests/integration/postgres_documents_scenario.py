@@ -48,6 +48,7 @@ os.environ.update(ROADMAP_DB_BACKEND='postgres', ROADMAP_DATABASE_URL=url,
 sys.path.insert(0, str(app_root / 'app'))
 sys.path.insert(0, str(app_root))
 from fastapi.testclient import TestClient
+from app import main
 from app.main import app
 from api.routes import documents as routes
 from worker import documents as worker
@@ -71,6 +72,7 @@ routes.get_storage = lambda: store
 worker.get_storage = lambda: store
 # Explicitly drive durable jobs so response assertions are deterministic.
 routes.request_work = lambda: None
+main.start_worker = lambda: None  # Explicit job control except the recovery test.
 token = secrets.token_urlsafe(32)
 owner = str(uuid.uuid4()); rid = str(uuid.uuid4())
 with psycopg.connect(url, autocommit=True) as db:
@@ -174,6 +176,9 @@ with TestClient(app, headers=auth_headers, raise_server_exceptions=False) as cli
 
     from document_upload_postgres_cases import verify_upload_registration
     verify_upload_registration(client, store, routes, url, root)
+    from document_upload_recovery_cases import verify_recovery
+    with patch.object(routes, 'request_work', lambda: None):
+        verify_recovery(client, routes, worker, store)
 
 with TestClient(app) as stranger:
     assert stranger.get(path).status_code == 401

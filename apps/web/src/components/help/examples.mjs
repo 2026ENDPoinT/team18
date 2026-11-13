@@ -3,10 +3,9 @@ export const helpExamples = {
  documents: { title: '경험·문서', alt: '민서의 행사 신청 프로젝트 파일이 등록되고 읽기 완료로 표시된 경험·문서 화면', description: '맡은 일이 담긴 문서를 올린 뒤 읽힌 내용을 확인하세요. 문서가 없어도 바로 다음 단계로 갈 수 있어요.' },
  courses: { title: '이수 과목', alt: '이수 과목 확인 팝업에서 학년별 4개 표와 선택한 과목 수를 살펴보고 확인하고 역량 탐색 버튼으로 이동하는 화면', description: '학년별 표에서 이미 이수한 과목을 체크하세요. 과목을 검색할 수 있고, 숨겨진 과목의 선택도 유지돼요. 이수 선택 확인을 누르면 학년별 선택 목록이 팝업으로 열려요. 내용을 확인한 뒤 확인하고 역량 탐색을 누르세요.' },
  review: { title: '역량 탐색', alt: '민서가 맡은 행사 신청 화면 구현, React 기술과 맞아요·수정할게요·잘 모르겠어요·이 기술 경험 없어요 버튼이 있는 경험 카드', description: '분석된 수행 내용과 기술이 내 경험에 맞는지 답해 주세요. 잘못된 내용은 직접 고칠 수 있어요.' },
- dashboard: { title: '대시보드', alt: '민서의 목표와 학과, 등록 문서, 이수 과목, 수행 경험, 직무 분석과 로드맵·추천 활동이 채워진 8개 카드', description: '현재 계획의 저장된 내용을 한눈에 확인하세요. 카드를 누르면 해당 입력 화면이나 결과 탭으로 이동해요.' },
  'result-skills': { title: '직무 역량 비교', alt: '민서의 데이터 분석가 희망 직무와 진로 정보 수정, SQL 요구 기술과 프로젝트 경험을 비교한 결과 탭', description: '채용공고의 요구 기술과 내 경험을 비교하세요. 진로 정보를 바꾸고 저장한 뒤 원할 때 분석을 다시 실행할 수 있어요.' },
  'result-roadmap': { title: '실행 로드맵', alt: '로드맵 결과 제목과 네 개의 탭 아래에 민서의 기본 정보, 이수 추천과목과 추천 이유, 관련 직무, 추천 공모전·대외활동이 배치된 실행 로드맵 요약', description: '기본 정보와 앞으로 들으면 좋을 과목, 분석된 기술 스택, 추천 활동을 한눈에 확인하세요. 각 카드에서 상세 내용을 보고, 아직 수강 추천이 없다면 수강 후보 화면에서 로드맵을 생성할 수 있어요.' },
  'result-courses': { title: '수강 후보', alt: '민서에게 추천된 데이터베이스 과목의 학습 내용, 데이터 분석 목표와 연결되는 추천 이유가 표시된 수강 후보 탭', description: '추천 과목의 목표 연결을 살펴보고, 화살표를 눌러 과목에서 배우는 내용을 확인하세요. 실제 개설 여부와 수강 조건은 학교 안내에서 확인해 주세요.' },
  'result-activities': { title: '공모전·대외활동', alt: '민서의 데이터 분석 관심 분야와 관련된 공공데이터 활동, 추천 이유, 접수 마감과 원문 링크가 표시된 활동 탭', description: '관심 분야와 연결되는 활동과 접수 기간을 확인하세요. 목표만 저장해도 문서 없이 이용할 수 있어요.' },
 };
-export const helpForPath = { '/input/basic': 'basic', '/input/documents': 'documents', '/input/courses': 'courses', '/input/review': 'review', '/dashboard': 'dashboard' };
+export const helpForPath = { '/input/basic': 'basic', '/input/documents': 'documents', '/input/courses': 'courses', '/input/review': 'review' };

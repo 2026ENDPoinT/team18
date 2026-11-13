@@ -78,7 +78,6 @@ try {
  await button('저장 후 다음 →').click(); await page.waitForURL('**/input/documents');
  await page.locator('.documents-columns').waitFor(); await measure('documents-empty',{short:true});
  await go('/input/basic','[name=career_goal]'); await measure('basic-saved',{short:true});
- await go('/dashboard','.dashboard-card'); await measure('dashboard',{reason:'8 summary cards in four rows'});
  await go('/input/courses','.course-year-grid'); await measure('courses',{short:true,reason:'Year/term headings and catalog rows'});
  await page.getByRole('textbox',{name:'과목 검색'}).fill('없는 과목');
  await page.locator('.course-year-empty').first().waitFor(); await measure('courses-filtered',{short:true});

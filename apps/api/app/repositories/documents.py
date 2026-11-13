@@ -4,56 +4,82 @@ from datetime import datetime, timedelta, timezone
 
 class DocumentRepository:
     def __init__(self,db): self.db=db
-    def list_active(self,rid): return self.db.execute('SELECT * FROM project_documents WHERE request_id=? AND removed_at IS NULL ORDER BY created_at,document_id',(rid,)).fetchall()
-    def get(self,rid,did): return self.db.execute('SELECT * FROM project_documents WHERE request_id=? AND document_id=?',(rid,did)).fetchone()
+    def list_active(self,rid): return self.db.execute('''SELECT d.*, r.upload_id FROM project_documents d
+        LEFT JOIN document_upload_reservations r ON r.storage_key=d.storage_key
+        WHERE d.request_id=? AND d.removed_at IS NULL ORDER BY d.created_at,d.document_id''',(rid,)).fetchall()
+    def get(self,rid,did): return self.db.execute('''SELECT d.*, r.upload_id FROM project_documents d
+        LEFT JOIN document_upload_reservations r ON r.storage_key=d.storage_key
+        WHERE d.request_id=? AND d.document_id=?''',(rid,did)).fetchone()
     def get_any(self,did): return self.db.execute('SELECT * FROM project_documents WHERE document_id=?',(did,)).fetchone()
     def extraction(self,did,revision): return self.db.execute('SELECT * FROM document_extractions WHERE document_id=? AND extraction_revision=?',(did,revision)).fetchone()
     def count_active(self,rid):
         row = self.db.execute('SELECT count(*) AS n FROM project_documents WHERE request_id=? AND removed_at IS NULL',(rid,)).fetchone()
         return row['n']
     def count_uploading(self, rid, at):
-        return self.db.execute('SELECT count(*) AS n FROM document_upload_reservations WHERE request_id=? AND committed_at IS NULL AND expires_at>?', (rid, at)).fetchone()['n']
+        return self.db.execute('''SELECT count(*) AS n FROM document_upload_reservations r
+          WHERE request_id=? AND committed_at IS NULL AND expires_at>?
+          AND NOT EXISTS (SELECT 1 FROM project_documents d WHERE d.storage_key=r.storage_key)''', (rid, at)).fetchone()['n']
     def has_filename(self, rid, filename, at, excluding_key=None):
         # The caller holds the plan lock (SQLite: BEGIN IMMEDIATE). Python lower
         # matches the browser's Unicode lowercasing, unlike SQLite's ASCII lower.
         names = [d['original_filename'] for d in self.list_active(rid)]
-        if getattr(self.db, 'backend', 'sqlite') == 'postgres':
-            rows = self.db.execute('''SELECT original_filename FROM document_upload_reservations
-                WHERE request_id=? AND committed_at IS NULL AND expires_at>?
-                AND storage_key<>?''', (rid, at, excluding_key or '')).fetchall()
-            names.extend(r['original_filename'] for r in rows if r['original_filename'] is not None)
+        rows = self.db.execute('''SELECT original_filename FROM document_upload_reservations
+            WHERE request_id=? AND committed_at IS NULL AND expires_at>?
+            AND storage_key<>?''', (rid, at, excluding_key or '')).fetchall()
+        names.extend(r['original_filename'] for r in rows if r['original_filename'] is not None)
         return any(name.lower() == filename.lower() for name in names)
     def registration_time(self, rid):
         # Persist order when accepting the upload, before Storage/OCR completes.
         # Guarantee monotonic microseconds even when the clock repeats/goes back.
         values = [self.db.execute('SELECT max(created_at) AS at FROM project_documents WHERE request_id=?', (rid,)).fetchone()['at']]
-        if getattr(self.db, 'backend', 'sqlite') == 'postgres':
-            values.append(self.db.execute('SELECT max(created_at) AS at FROM document_upload_reservations WHERE request_id=?', (rid,)).fetchone()['at'])
+        values.append(self.db.execute('SELECT max(created_at) AS at FROM document_upload_reservations WHERE request_id=?', (rid,)).fetchone()['at'])
         at = datetime.now(timezone.utc)
         for value in values:
             if value is not None:
                 previous = datetime.fromisoformat(value) if isinstance(value, str) else value
                 at = max(at, previous + timedelta(microseconds=1))
         return at.isoformat(timespec='microseconds')
-    def reserve_upload(self, key, rid, at, expires, filename=None):
-        cursor = self.db.execute('''INSERT INTO document_upload_reservations(storage_key,request_id,created_at,expires_at,original_filename)
-          SELECT ?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM project_documents WHERE storage_key=?)''', (key, rid, at, expires, filename, key))
+    def reserve_upload(self, key, rid, at, expires, filename=None, upload_id=None, digest=None, token=None):
+        cursor = self.db.execute('''INSERT INTO document_upload_reservations
+          (storage_key,request_id,created_at,expires_at,original_filename,upload_id,content_sha256,upload_lease_token)
+          SELECT ?,?,?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM project_documents WHERE storage_key=?)''',
+          (key, rid, at, expires, filename, upload_id, digest, token, key))
         if cursor.rowcount != 1:
             raise ValueError('storage key already reserved')
     def lock_reservation(self, key, rid):
-        return self.db.execute('SELECT * FROM document_upload_reservations WHERE storage_key=? AND request_id=? FOR UPDATE', (key, rid)).fetchone()
+        suffix = ' FOR UPDATE' if getattr(self.db, 'backend', 'sqlite') == 'postgres' else ''
+        return self.db.execute('SELECT * FROM document_upload_reservations WHERE storage_key=? AND request_id=?' + suffix, (key, rid)).fetchone()
+    def upload_by_id(self, rid, upload_id):
+        return self.db.execute('SELECT * FROM document_upload_reservations WHERE request_id=? AND upload_id=?', (rid, upload_id)).fetchone()
+    def upload_states(self, rid, at, upload_ids=()):
+        # Active reservations in other tabs are included in name/count checks.
+        # Terminal history is fetched only for the bounded queue IDs supplied.
+        ids = ','.join('?' for _ in upload_ids)
+        return self.db.execute('''SELECT r.*, d.document_id, d.removed_at FROM document_upload_reservations r
+          LEFT JOIN project_documents d ON d.storage_key=r.storage_key
+          WHERE r.request_id=? AND ((r.committed_at IS NULL AND r.expires_at>?)'''
+          + (f' OR r.upload_id IN ({ids})' if ids else '') + ') ORDER BY r.created_at',
+          (rid, at, *upload_ids)).fetchall()
+    def renew_upload(self, key, token, at, until):
+        return self.db.execute('''UPDATE document_upload_reservations SET expires_at=?
+          WHERE storage_key=? AND upload_lease_token=? AND committed_at IS NULL
+          AND expires_at>? AND cleanup_lease_token IS NULL''', (until, key, token, at)).rowcount == 1
     def finish_reservation(self, key, at):
-        self.db.execute('UPDATE document_upload_reservations SET committed_at=? WHERE storage_key=?', (at, key))
-    def release_reservation(self, key, at):
+        self.db.execute('UPDATE document_upload_reservations SET committed_at=?,upload_lease_token=NULL WHERE storage_key=?', (at, key))
+    def release_reservation(self, key, at, token):
         # Keep the cleanup tombstone for ambiguous/late Storage responses, but
         # immediately free the filename and count slot for a user retry.
-        self.db.execute('UPDATE document_upload_reservations SET expires_at=? WHERE storage_key=? AND committed_at IS NULL', (at, key))
+        self.db.execute('''UPDATE document_upload_reservations SET expires_at=?,upload_lease_token=NULL
+          WHERE storage_key=? AND committed_at IS NULL AND upload_lease_token=?
+          AND NOT EXISTS (SELECT 1 FROM project_documents WHERE storage_key=?)''', (at, key, token, key))
     def next_reservation_cleanup(self, at):
-        return self.db.execute('''SELECT * FROM document_upload_reservations
-          WHERE committed_at IS NULL AND expires_at<? AND (cleanup_lease_until IS NULL OR cleanup_lease_until<?)
-          ORDER BY expires_at LIMIT 1 FOR UPDATE SKIP LOCKED''', (at, at)).fetchone()
+        suffix = ' FOR UPDATE SKIP LOCKED' if getattr(self.db, 'backend', 'sqlite') == 'postgres' else ''
+        return self.db.execute('''SELECT * FROM document_upload_reservations r
+          WHERE committed_at IS NULL AND expires_at<=? AND (cleanup_lease_until IS NULL OR cleanup_lease_until<?)
+          AND NOT EXISTS (SELECT 1 FROM project_documents d WHERE d.storage_key=r.storage_key)
+          ORDER BY expires_at LIMIT 1''' + suffix, (at, at)).fetchone()
     def lease_reservation_cleanup(self, key, token, until):
-        self.db.execute('''UPDATE document_upload_reservations SET cleanup_lease_token=?,
+        self.db.execute('''UPDATE document_upload_reservations SET upload_lease_token=NULL,cleanup_lease_token=?,
           cleanup_lease_until=?, cleanup_attempts=cleanup_attempts+1 WHERE storage_key=?''', (token, until, key))
     def finish_reservation_cleanup(self, key, token, next_check):
         # Keep a tombstone: an upload whose network response timed out could
@@ -65,6 +91,14 @@ class DocumentRepository:
         self.db.execute('''UPDATE document_upload_reservations SET cleanup_lease_token=NULL,
           cleanup_lease_until=?, cleanup_error_code='storage_cleanup_failed'
           WHERE storage_key=? AND cleanup_lease_token=?''', (until, key, token))
+    def prune_reservation(self, key, cutoff):
+        # After a successful final Storage delete, expire old failed tombstones.
+        # Committed IDs remain for idempotency, including deleted documents.
+        self.db.execute('''DELETE FROM document_upload_reservations WHERE storage_key=?
+          AND committed_at IS NULL AND expires_at<? AND cleanup_error_code IS NULL
+          AND NOT EXISTS (SELECT 1 FROM project_documents WHERE storage_key=?)''', (key, cutoff, key))
+    def has_reservation(self, key):
+        return bool(self.db.execute('SELECT 1 FROM document_upload_reservations WHERE storage_key=?', (key,)).fetchone())
     def create(self,key,rid,filename,mime,size,at):
         self.db.execute("INSERT INTO project_documents(document_id,request_id,original_filename,mime_type,file_size_bytes,storage_key,extraction_status,extraction_revision,created_at) VALUES(?,?,?,?,?,?,'pending',1,?)",(key,rid,filename,mime,size,key,at))
         self.create_extraction(key,1,at)

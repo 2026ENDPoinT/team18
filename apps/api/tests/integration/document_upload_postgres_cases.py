@@ -83,3 +83,19 @@ def verify_upload_registration(client, store, routes, url, root):
         for role in ('anon', 'authenticated'):
             assert not db.execute("SELECT has_table_privilege(%s, 'public.document_upload_reservations', 'select,insert,update,delete')", (role,)).fetchone()[0]
         db.rollback()
+
+    # Rehearse the recovery migration against populated pre-migration tables.
+    # Roll back the rehearsal; no registered document/extraction may be changed.
+    with psycopg.connect(url) as db:
+        before = db.execute('SELECT count(*) FROM project_documents').fetchone()[0]
+        extractions = db.execute('SELECT count(*) FROM document_extractions').fetchone()[0]
+        db.execute('ALTER TABLE document_upload_reservations DROP COLUMN upload_id, DROP COLUMN content_sha256, DROP COLUMN upload_lease_token')
+        db.execute("INSERT INTO document_upload_reservations(storage_key,request_id,created_at,expires_at) VALUES ('recovery-legacy',%s,now(),now())", (rid,))
+        db.execute((root / 'supabase/migrations/20261113193416_document_upload_recovery.sql').read_text())
+        assert db.execute("SELECT upload_id,content_sha256,upload_lease_token FROM document_upload_reservations WHERE storage_key='recovery-legacy'").fetchone() == (None, None, None)
+        assert db.execute('SELECT count(*) FROM project_documents').fetchone()[0] == before
+        assert db.execute('SELECT count(*) FROM document_extractions').fetchone()[0] == extractions
+        assert db.execute("SELECT relrowsecurity FROM pg_class WHERE oid='public.document_upload_reservations'::regclass").fetchone()[0]
+        for role in ('anon', 'authenticated'):
+            assert not db.execute("SELECT has_table_privilege(%s, 'public.document_upload_reservations', 'select,insert,update,delete')", (role,)).fetchone()[0]
+        db.rollback()

@@ -1,8 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { recommendedCourseCards } from '../../src/features/roadmap/coursePresentation.mjs';
-import { analyzedSkills } from '../../src/features/roadmap/resultPresentation.mjs';
+import { analyzedSkills, courseLearning } from '../../src/features/roadmap/resultPresentation.mjs';
 import { loadResultResources } from '../../src/features/roadmap/resultData.mjs';
+
+test('course descriptions never infer learning from a title or prerequisite alone', () => {
+ assert.equal(courseLearning({ course_name:'SQL', course_evidence:'SQL', keyword_evidence:[{ keyword_role:'prerequisite', evidence_text:'Python 사전 지식' }] }), '공식 학습 내용이 제공되지 않았습니다.');
+ assert.equal(courseLearning({ keyword_evidence:[{ keyword_role:'learning', evidence_text:'관계형 질의 학습' }] }), '관계형 질의 학습');
+});
 
 test('recommendations preserve rank/reason, exclude completed reviewed identities and never deduplicate by title', () => {
  const result = { recommended_courses: [

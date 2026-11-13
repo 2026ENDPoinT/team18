@@ -16,6 +16,9 @@ if (!['http:', 'https:'].includes(parsedOrigin.protocol) || parsedOrigin.usernam
 }
 const config = {
   experimental: { middlewareClientMaxBodySize: Number(process.env.ROADMAP_PROXY_MAX_BODY_BYTES || 11534336) },
+  async redirects() {
+    return [{ source: '/dashboard', destination: '/result?tab=roadmap', permanent: false }];
+  },
   async rewrites() {
     return [{ source: '/api/:path*', destination: `${parsedOrigin.origin}/api/:path*` }];
   },
