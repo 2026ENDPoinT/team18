@@ -202,6 +202,7 @@ export default function Result() {
   <div className="result-generation-heading"><PageTitle title="로드맵 결과" helpId={`result-${selectedTab}`}/>
    <button className="primary" disabled={!plan || resources.roadmap?.phase === 'loading'} onClick={() => startGeneration(plan, hasResult)}>{hasResult ? '재분석' : '로드맵 만들기'}</button></div>
   {hasResult && !result.generation_complete && <p className="notice">이전에 저장한 결과입니다. 모든 추천을 함께 저장하려면 재분석을 실행해 주세요.</p>}
+  {hasResult && result.roadmap_source === 'server_verified_evidence' && <p className="notice" role="status">AI 실행 로드맵 응답이 검증을 통과하지 못해, 저장된 직무 근거와 본인 경험 확인 상태만으로 구성한 실행 안내를 표시합니다. 확인되지 않은 경험은 학습 부족으로 판단하지 않습니다.</p>}
   <div className="result-tabs" role="tablist" aria-label="결과 구성" onKeyDown={onKeyDown}>{resultTabs.map((tab, i) => <button key={tab.key} type="button" role="tab" id={`tab-${i}`} data-index={i} aria-controls="result-panel" aria-selected={selected === i} tabIndex={selected === i ? 0 : -1} onClick={() => changeTab(i)}>{tab.label}</button>)}</div>
   <section id="result-panel" role="tabpanel" tabIndex={0} aria-labelledby={`tab-${selected}`} className={overview ? 'result-overview-panel' : 'result-panel skill-panel'}>
    <JobSkillAnalysis active={selectedTab === 'skills'} savedComparison={result?.skill_comparison} savedRunId={result?.run_id} onResult={onSkillResult} plan={plan} onPlanChange={onPlanChange}/>
