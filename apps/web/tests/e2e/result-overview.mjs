@@ -24,9 +24,9 @@ for (const viewport of [{width:1440,height:900}, {width:390,height:844}]) {
  const writes = () => requests.filter(r => r.method !== 'GET' && !r.path.endsWith('/course-reasons'));
  const api = suffix => page.evaluate(async suffix => { const r=await fetch('/api/roadmap-inputs/'+sessionStorage.getItem('roadmap_request_id')+suffix); if(!r.ok)throw Error(await r.text());return r.json(); },suffix);
  const courseCard = page.locator('.result-course-summary');
- const roleCard = page.locator('.result-role-summary');
+ const skillCard = page.locator('.result-skill-summary');
  const activityCard = page.locator('.result-activity-summary');
- const ready = async () => { await courseCard.getByRole('heading', {name:'데이터베이스',exact:true}).waitFor(); await activityCard.locator('.result-brief-list a').first().waitFor(); await roleCard.locator('.result-brief-list h3').waitFor(); };
+ const ready = async () => { await courseCard.getByRole('heading', {name:'데이터베이스',exact:true}).waitFor(); await activityCard.locator('.result-brief-list a').first().waitFor(); await skillCard.getByRole('list',{name:'분석된 기술 스택'}).getByRole('heading').waitFor(); };
  const clean = async () => assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no page horizontal overflow');
  try {
   await go('/'); await button('로그인 없이 시작하기').click(); await page.waitForURL('**/input/basic');
@@ -36,7 +36,7 @@ for (const viewport of [{width:1440,height:900}, {width:390,height:844}]) {
   await page.getByRole('button',{name:/^저장 후 다음/}).click(); await page.waitForURL('**/input/documents');
   await go('/result'); await courseCard.getByText('아직 수강 추천이 없어요.', {exact:true}).waitFor();
   await activityCard.locator('.result-brief-list a').waitFor();
-  assert.equal(await roleCard.getByText('아직 직무 분석이 없어요.', {exact:true}).count(),1);
+  assert.equal(await skillCard.getByText('아직 기술 스택 분석이 없어요.', {exact:true}).count(),1);
   const goalOnly = writes().length;
   await page.reload(); await courseCard.getByText('아직 수강 추천이 없어요.', {exact:true}).waitFor();
   assert.equal(writes().length,goalOnly, 'entry and refresh do not generate');
@@ -62,11 +62,24 @@ for (const viewport of [{width:1440,height:900}, {width:390,height:844}]) {
   assert.equal(await courseCard.getByText('프로그래밍 기초',{exact:true}).count(),0);
   assert.ok(!(await courseCard.innerText()).includes(saved.recommended_courses[0].personalization_reason));
   assert.equal(await courseCard.locator('input[type=checkbox]').count(),0);
-  assert.deepEqual(await roleCard.locator('.result-brief-list h3').allTextContents(),[comparison.job_analysis.canonical_role]);
+  assert.deepEqual(await skillCard.getByRole('list',{name:'분석된 기술 스택'}).getByRole('heading').allTextContents(),comparison.job_analysis.skills.map(skill=>skill.name));
   assert.equal(await page.locator('.side-nav').getByRole('link',{name:'이수 과목',exact:true}).count(),1);
   assert.equal(await page.locator('.next-task').count(),0);
-  const boxes = await Promise.all(['.result-basic','.result-course-summary','.result-role-summary','.result-activity-summary'].map(s=>page.locator(s).boundingBox()));
-  if(viewport.width===1440){assert.equal(boxes[1].y,boxes[2].y);assert.equal(boxes[1].y,boxes[3].y);assert.ok(Math.abs(boxes[0].width-(boxes[3].x+boxes[3].width-boxes[1].x))<1);}
+  const boxes = await Promise.all(['.result-basic','.result-course-summary','.result-skill-summary','.result-activity-summary'].map(s=>page.locator(s).boundingBox()));
+  if(viewport.width===1440){
+   for(const [width,height] of [[1920,1080],[1640,911],[1440,900],[1366,768]]){
+    await page.setViewportSize({width,height});
+    const [basic,courses,role,activity]=await Promise.all(['.result-basic','.result-course-summary','.result-skill-summary','.result-activity-summary'].map(s=>page.locator(s).boundingBox()));
+    assert.equal(basic.x,courses.x);assert.equal(basic.width,courses.width);
+    assert.ok(courses.y>=basic.y+basic.height);
+    for(const card of [role,activity]){
+     assert.equal(card.y,basic.y);
+     assert.ok(Math.abs(card.y+card.height-(courses.y+courses.height))<1);
+    }
+    await clean();
+   }
+   await page.setViewportSize(viewport);
+  }
   else for(let i=1;i<boxes.length;i++)assert.ok(boxes[i].y>=boxes[i-1].y+boxes[i-1].height);
   await clean(); await page.addStyleTag({content:'nextjs-portal{display:none}'}); await page.evaluate(()=>document.fonts.ready);
   await page.screenshot({path:artifacts+`result-${viewport.width}.png`,animations:'disabled'});
@@ -140,7 +153,7 @@ for (const viewport of [{width:1440,height:900}, {width:390,height:844}]) {
   await page.route('**/activities',route=>route.fulfill({status:503,json:{message:'활동 조회 실패'}}));await page.reload();await activityCard.getByRole('alert').waitFor();await page.unroute('**/activities');
   await page.route('**/activities',route=>route.fulfill({json:{status:'success',activities:[],sources:[]}}));await page.reload();await activityCard.getByText('현재 추천 조건에 맞는 활동이 없어요.',{exact:true}).waitFor();await page.unroute('**/activities');
   await page.route('**/activities',route=>route.fulfill({json:{...activities,activities:[{...activities.activities[0],kind:'extracurricular',status:'upcoming'}]}}));await page.reload();await activityCard.getByText('대외활동 · 접수 예정',{exact:true}).waitFor();await page.unroute('**/activities');
-  await page.route('**/skill-comparison',route=>route.fulfill({status:503,json:{message:'직무 조회 실패'}}));await page.reload();await roleCard.getByRole('alert').waitFor();await activityCard.locator('.result-brief-list a').waitFor();await page.unroute('**/skill-comparison');
+  await page.route('**/skill-comparison',route=>route.fulfill({status:503,json:{message:'직무 조회 실패'}}));await page.reload();await skillCard.getByRole('alert').waitFor();await activityCard.locator('.result-brief-list a').waitFor();await page.unroute('**/skill-comparison');
   await clean();assert.deepEqual(errors,[]);
   report.push({viewport,completedCourse:'프로그래밍 기초',recommendedCourse:'데이터베이스',reason:saved.recommended_courses[0].personalization_reason,checks:'layout, four tabs, active underline, arrows/Home/End, back/reload, help, dashboard, original link, GET-only visits, independent failure/empty/loading, goal-only activities, initial generation, removed execution UI, saved-result reuse',passed:true});
   console.log('PASS result overview '+viewport.width+'×'+viewport.height);

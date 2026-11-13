@@ -1,7 +1,8 @@
 'use client';
 import Link from 'next/link';
 import ActivityRecommendations from './ActivityRecommendations';
-import { relatedRoles, resultHref } from './resultPresentation.mjs';
+import SkillStackPreview from './SkillStackPreview';
+import { analyzedSkills, resultHref } from './resultPresentation.mjs';
 import { recommendedCourseCards } from './coursePresentation.mjs';
 
 function ResourceMessage({ resource, loading, error, retry }) {
@@ -15,7 +16,7 @@ export default function ResultOverview({ resources, reload, activities }) {
  const plan = profile?.data, input = plan?.input, result = roadmap?.data;
  const ready = profile?.phase === 'ready', courseReady = roadmap?.phase === 'ready' && selection?.phase === 'ready';
  const courses = recommendedCourseCards(result, selection?.data?.selected_courses);
- const roles = relatedRoles(comparison?.data);
+ const skills = analyzedSkills(comparison?.data);
  const hasRun = Boolean(result?.roadmap) && !result.details_restricted;
  return <div className="result-overview">
   <section className="result-card result-basic" aria-labelledby="result-basic-title">
@@ -35,19 +36,19 @@ export default function ResultOverview({ resources, reload, activities }) {
      : !hasRun ? <p role="status">{result?.generation_pending || result?.status === 'generating' ? '요청한 로드맵을 생성하고 있어요.' : '아직 수강 추천이 없어요.'}</p>
      : <>
       {result.is_stale && <p className="summary-note" role="status">이전 입력 기준의 추천이에요. 현재 이수한 과목은 제외했어요.</p>}
-      {courses.length ? <ul className="result-brief-list">{courses.slice(0, 3).map(course => <li key={course.course_id} data-recommended-course={course.course_id}><h3>{course.course_name}</h3></li>)}</ul>
+      {courses.length ? <ul className="result-brief-list">{courses.map(course => <li key={course.course_id} data-recommended-course={course.course_id}><h3>{course.course_name}</h3></li>)}</ul>
        : <p role="status">{result.course_status === 'catalog_unavailable' ? '추천에 사용할 과목 목록이 없어요.' : result.course_status === 'evidence_unavailable' ? '수강 추천에 필요한 직무 근거가 없어요.' : '현재 조건에 맞는 추천 과목이 없어요.'}</p>}
      </>}
     <Link className="summary-link" href={resultHref('courses')}>{hasRun ? `전체 ${courses.length}과목·추천 근거 보기 →` : '로드맵 생성하러 가기 →'}</Link>
     {hasRun && !courses.length && <Link className="summary-link" href="/input/courses">과목 목록·이수 선택 확인 →</Link>}
    </>}
   </section>
-  <section className="result-card result-role-summary" aria-labelledby="result-role-title">
-   <h2 id="result-role-title">관련 직무</h2>
-   <ResourceMessage resource={comparison} loading="관련 직무를 불러오는 중이에요…" error="관련 직무를 불러오지 못했어요." retry={reload}/>
+  <section className="result-card result-skill-summary" aria-labelledby="result-skill-title">
+   <h2 id="result-skill-title">기술 스택 분석</h2>
+   <ResourceMessage resource={comparison} loading="기술 스택 분석을 불러오는 중이에요…" error="기술 스택 분석을 불러오지 못했어요." retry={reload}/>
    {comparison?.phase === 'ready' && <>
-    {roles.length ? <ul className="result-brief-list">{roles.map(role => <li key={role}><h3>{role}</h3></li>)}</ul> : <p role={comparison.data?.job_analysis?.status === 'error' ? 'alert' : 'status'}>{comparison.data?.job_analysis?.status === 'error' ? '직무 분석을 완료하지 못했어요.' : comparison.data?.job_analysis?.status === 'not_started' ? '아직 직무 분석이 없어요.' : '확인된 관련 직무가 없어요.'}</p>}
-    <Link className="summary-link" href={resultHref('skills')}>{roles.length ? '직무 역량 비교 보기 →' : '직무 분석하러 가기 →'}</Link>
+    {skills.length ? <SkillStackPreview skills={skills}/> : <p role={comparison.data?.job_analysis?.status === 'error' ? 'alert' : 'status'}>{comparison.data?.job_analysis?.status === 'error' ? '기술 스택 분석을 완료하지 못했어요.' : comparison.data?.job_analysis?.status === 'not_started' ? '아직 기술 스택 분석이 없어요.' : '분석에서 확인된 기술 스택이 없어요.'}</p>}
+    <Link className="summary-link" href={resultHref('skills')}>{skills.length ? `전체 ${skills.length}개 기술·분석 근거 보기 →` : '기술 스택 분석하러 가기 →'}</Link>
    </>}
   </section>
   <section className="result-card result-activity-summary" aria-labelledby="result-activity-title">

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { recommendedCourseCards } from '../../src/features/roadmap/coursePresentation.mjs';
-import { relatedRoles } from '../../src/features/roadmap/resultPresentation.mjs';
+import { analyzedSkills } from '../../src/features/roadmap/resultPresentation.mjs';
 import { loadResultResources } from '../../src/features/roadmap/resultData.mjs';
 
 test('recommendations preserve rank/reason, exclude completed reviewed identities and never deduplicate by title', () => {
@@ -16,11 +16,13 @@ test('recommendations preserve rank/reason, exclude completed reviewed identitie
  assert.equal(cards[0].personalization_reason, '목표에 필요한 SQL 조회를 연습해요.');
 });
 
-test('only a saved analyzed role is a related job, never skills or search keywords', () => {
+test('skill overview uses saved analysis skills, never the role or search keywords', () => {
  const job = { snapshot_id: 'saved', canonical_role: '데이터 분석가', target_role: '데이터 분석가', skills: [{ name: 'SQL' }, { name: 'React' }], keyword_details: [{ keyword: 'data' }] };
- assert.deepEqual(relatedRoles({ job_analysis: job }), ['데이터 분석가']);
- assert.deepEqual(relatedRoles({ job_analysis: { ...job, canonical_role: '', target_role: '' } }), []);
- assert.deepEqual(relatedRoles({ job_analysis: { status: 'not_started', target_role: 'SQL' } }), []);
+ assert.deepEqual(analyzedSkills({ job_analysis: job }), job.skills);
+ assert.deepEqual(analyzedSkills({ job_analysis: { ...job, skills: [] } }), []);
+ assert.deepEqual(analyzedSkills({ job_analysis: { ...job, snapshot_id: null } }), []);
+ assert.deepEqual(analyzedSkills({ job_analysis: { status: 'not_started', target_role: 'SQL' } }), []);
+ assert.deepEqual(analyzedSkills({ job_analysis: { ...job, skills: [{name:''},{},...job.skills], analysis_version:'job-skills-v2' }, comparisons:[{skill_name:'React'},{skill_name:'SQL'}] }).map(skill=>skill.name), ['React','SQL']);
 });
 
 test('a rejected roadmap remains an error while saved profile and comparison load with GET only', async () => {

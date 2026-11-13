@@ -1,5 +1,5 @@
 /* One page scroll, with stable year columns even when filters have no matches. */
-.service-content:has(.course-page) { max-width:none; padding-bottom:150px; }
+.service-content:has(.course-page) { max-width:none; }
 .course-toolbar { margin:0 0 18px; }
 .course-toolbar .filters { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
 .course-toolbar .filters>input { flex:1; min-width:150px; }
@@ -48,8 +48,8 @@
 .course-checkmark { display:grid; place-items:center; width:24px; height:24px; border:1.5px solid #bcc9dd; border-radius:0; background:#fff; color:#fff; }
 .course-toggle[aria-checked=true] .course-checkmark { background:var(--dark); border-color:var(--dark); }
 .course-page .course-toggle:focus-visible { outline-offset:-2px; }
-.course-year-empty { min-height:100px; padding:18px 14px; margin:0; color:#7b8aa1; font-size:12px; }
-.course-page .course-confirm-bar { position:fixed; bottom:16px; left:calc(var(--sidebar-width,238px) + 42px); right:42px; z-index:5; padding:12px 18px; border:1px solid #dce5f5; border-radius:12px; background:#fff; box-shadow:0 4px 24px #263b5820; }
+.course-year-empty { padding:18px 14px; margin:0; color:#7b8aa1; font-size:12px; }
+.course-page .course-confirm-bar { position:sticky; bottom:16px; margin-top:18px; z-index:5; padding:12px 18px; border:1px solid #dce5f5; border-radius:12px; background:#fff; box-shadow:0 4px 24px #263b5820; }
 .course-confirm-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .course-confirm-summary { display:grid; gap:4px; min-width:0; }
 .course-confirm-summary>strong { font-size:16px; color:#273c5b; }
@@ -60,8 +60,6 @@
  .course-toolbar .filters { flex-wrap:wrap; }
  .course-toolbar .filters>input { flex:1 1 60%; }
 }
-@media (max-width:1100px) { .course-page .course-confirm-bar { left:calc(var(--sidebar-width,210px) + 24px); right:24px; } }
-@media (max-width:900px) { .course-page .course-confirm-bar { left:24px; } }
 @media (max-width:700px) {
  .course-year-grid { grid-template-columns:minmax(0,1fr); gap:18px; }
  .course-toolbar .filters { gap:10px; }
@@ -71,7 +69,7 @@
  .course-year-heading>span { font-size:12px; }
  .course-year-table td { padding-left:16px; }
  .course-check-column { width:62px; }
- .course-page .course-confirm-bar { bottom:0; left:0; right:0; border-radius:14px 14px 0 0; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); }
+ .course-page .course-confirm-bar { bottom:0; border-radius:14px 14px 0 0; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); }
  .course-confirm-summary { display:grid; gap:2px; }
  .course-confirm-summary>strong { font-size:14px; }
  .course-confirm-row>.primary { font-size:13px; padding:10px 12px; }
@@ -101,4 +99,13 @@
  .course-review-dialog-body { padding-right:4px; }
  .course-review-dialog-footer>div { justify-content:space-between; }
  .course-review-dialog-footer button { font-size:12px; padding:10px 12px; }
+}
+
+@media(max-height:800px){
+ .course-toolbar{margin-bottom:8px}
+ .course-toolbar .filters{margin-bottom:6px}
+ .course-year-heading{padding-block:10px}
+ .course-year-table td{padding-block:8px}
+ .course-year-table .course-check-cell{padding-block:7px}
+ .course-page .course-confirm-bar{margin-top:10px;padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
 }

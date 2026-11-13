@@ -6,15 +6,19 @@ const browser = await chromium.launch({ executablePath: process.env.P5_BROWSER |
 const context = await browser.newContext({ viewport: { width: 1440, height: 700 } });
 const input = { catalog_id: 'test-catalog', career_goal: '데이터 분석을 배우고 싶어요.', target_role: '데이터 분석가' };
 const plan = { request_id: 'focus-plan', input_revision: 1, activity_basis: 'goal-only', input };
-const courses = ['데이터베이스', '선형대수학 (Linear Algebra)', '프로그래밍 기초', '자료구조'].map((course_name, i) => ({
+const courses = ['데이터베이스', '선형대수학 (Linear Algebra)', '프로그래밍 기초', '자료구조', '데이터마이닝'].map((course_name, i) => ({
  course_id: `course-${i}`, course_name, credits: 3, recommended_year: 2, recommended_term: '1학기',
  personalization_reason: '데이터 분석 목표에 연결되는 학습 내용입니다.',
  keyword_evidence: [{ keyword: 'SQL', keyword_role: 'learning', evidence_text: '데이터를 조회하고 정리하는 방법을 학습합니다.' }],
 }));
 const roadmap = { run_id: 'focus-run', status: 'success', input_revision: 1, roadmap: [], recommended_courses: courses,
  course_status: 'success', basis: { catalog: null, review_status: 'confirmed', outside_completed_courses: [] } };
+const analysisSkills = ['SQL','Python','긴 이름과 줄바꿈이 필요한 데이터 처리 및 분석 기술','JavaScript','TypeScript','React','Node.js','Docker','Kubernetes','Git','Linux','PostgreSQL','MongoDB','Redis','AWS','Azure','Power BI','Tableau','Excel','Apache Spark'].map(name=>({
+ name,category:'other',mentioned_job_count:1,mention_frequency:1,required_job_count:1,preferred_job_count:0,
+ mentioned_only_job_count:0,unknown_job_count:0,direct_job_count:1,related_job_count:0,seniority_distribution:{unknown:1},evidence:[],
+}));
 const comparison = { ...input, input_revision: 1, comparisons: [],
- job_analysis: { status: 'success', snapshot_id: 'snapshot', canonical_role: input.target_role } };
+ job_analysis: { status: 'success', snapshot_id: 'snapshot', canonical_role: input.target_role, skills:analysisSkills.slice(0,1) } };
 const activities = { ...plan, status: 'success', sources: [],
  evaluated_at: new Date().toISOString(), valid_until: new Date(Date.now() + 300000).toISOString(),
  activities: [1, 2, 3].map(id => ({ id, title: `데이터 분석 공모전 ${id}`, source: 'contestkorea', source_label: '콘테스트코리아',
@@ -46,7 +50,7 @@ const tab = label => page.getByRole('tab', { name: label, exact: true });
 const ready = async key => {
  if (key === 'roadmap') {
   await page.locator('.result-course-summary h3').first().waitFor();
-  await page.locator('.result-role-summary h3').waitFor();
+  await page.getByRole('list',{name:'분석된 기술 스택'}).getByRole('heading').first().waitFor();
   await page.locator('.activity-summary[aria-busy=false] .result-brief-list a').first().waitFor();
  } else if (key === 'skills') await page.locator('.job-skills[aria-busy=false] .skill-summary').waitFor();
  else if (key === 'courses') await page.locator('.recommendation-reason').filter({ hasText: courses[0].personalization_reason }).first().waitFor();
@@ -70,6 +74,36 @@ const returnToWindow = async () => {
 try {
  await page.goto(origin + '/result');
  await ready('roadmap');
+ const viewports = [{width:1920,height:1080},{width:1640,height:911},{width:1440,height:900},{width:1366,height:768},{width:390,height:844}];
+ const cardHeights = new Map();
+ const settle = () => page.evaluate(async()=>{await document.fonts.ready;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));});
+ for(const viewport of viewports){
+  await page.setViewportSize(viewport);await settle();
+  cardHeights.set(viewport.width,(await page.locator('.result-skill-summary').boundingBox()).height);
+ }
+ comparison.job_analysis.skills = analysisSkills;
+ requests.length = 0;
+ await page.reload();await ready('roadmap');
+ for(const viewport of [...viewports,...viewports.slice(0,1)]){
+  await page.setViewportSize(viewport);await settle();
+  const displayed=await page.getByRole('list',{name:'분석된 기술 스택'}).getByRole('heading').allTextContents();
+  assert.deepEqual(displayed,analysisSkills.slice(0,displayed.length).map(skill=>skill.name));
+  assert.ok(displayed.length>0);
+  if(viewport.width>700){
+   assert.ok(displayed.length<analysisSkills.length,'many skills do not force the card taller');
+   assert.ok(Math.abs((await page.locator('.result-skill-summary').boundingBox()).height-cardHeights.get(viewport.width))<1);
+   assert.ok(await page.locator('.result-skill-preview').evaluate(el=>{
+    const rows=el.querySelector('ul').children,measure=el.querySelector('.result-skill-measure');
+    return rows[rows.length-1].getBoundingClientRect().bottom<=el.getBoundingClientRect().bottom+1 &&
+     measure.children[rows.length].getBoundingClientRect().bottom-measure.getBoundingClientRect().top>el.clientHeight;
+   }),'show as many complete rows as fit');
+  } else assert.equal(displayed.length,analysisSkills.length,'mobile cards grow naturally with all skills');
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  assert.equal(await page.locator('.result-skill-summary .summary-link').getAttribute('href'),'/result?tab=skills');
+ }
+ assert.ok(requests.every(request=>request.method==='GET'),'preview never triggers analysis');
+ await page.setViewportSize({width:1440,height:700});await settle();
+ console.log('PASS: saved skills fit the card on four desktop sizes, resize back from mobile, all skills remain available');
  await page.clock.install();
  for (const [label, key] of [['실행 로드맵', 'roadmap'], ['직무 역량 비교', 'skills'], ['수강 후보', 'courses'], ['공모전·대외활동', 'activities']]) {
   if (key !== 'roadmap') { await tab(label).click(); await ready(key); }

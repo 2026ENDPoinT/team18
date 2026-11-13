@@ -20,7 +20,7 @@ node --experimental-vm-modules --test apps/web/tests/unit/*.test.mjs
 
 For a production build, set `ROADMAP_API_ORIGIN` to the intended HTTPS API origin; production configuration deliberately rejects an unset or HTTP origin. The isolated build check used `https://api.example.test` and test Supabase configuration without calling those hosts.
 
-The capture pass writes the images. The second pass loads all nine images from the application and exercises native dialog dismissal, focus containment/return, zoom, preserved drafts/selections/tabs, image-error recovery, input save retries, full desktop/mobile workflows, goal-only activities, document skip and zero selected courses. It also injects changed metadata into saved/partial responses to check that removed rendering areas stay absent. Both passes use 1440×900 and 390×844.
+The capture pass writes the images. The second pass loads all nine images from the application and exercises native dialog dismissal, focus containment/return, images fitted to the dialog without zoom controls, preserved drafts/selections/tabs, image-error recovery, input save retries, full desktop/mobile workflows, goal-only activities, document skip and zero selected courses. It also injects changed metadata into saved/partial responses to check that removed rendering areas stay absent. Both passes use 1440×900 and 390×844.
 
 `p5-flow.mjs` is a compatibility entry for the maintained `intake-flow.mjs`; the earlier unauthenticated P5 contract is retired.
 
@@ -47,8 +47,9 @@ With the same fixture API and Next server running, check the current desktop flo
 PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs P5_BROWSER=/path/to/chromium node apps/web/tests/e2e/ui-polish.mjs
 ```
 
-This uses a 1280×720 desktop viewport. It checks required-field feedback, whole-row
-toggling, year/semester selection, search-hidden selections, reversals while saving,
+This uses a 1280×720 desktop viewport, plus 390×844 for filtered bulk selection.
+It checks required-field feedback, whole-row
+toggling, year/semester selection limited to visible search results, reversals while saving,
 reload persistence, dialog focus restoration, ordered result navigation, and reuse
 of the saved result without fetching result history or starting another analysis.
 

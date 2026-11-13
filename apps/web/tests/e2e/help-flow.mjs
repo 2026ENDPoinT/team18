@@ -51,10 +51,9 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
   assert.ok((await img.getAttribute('src')).startsWith('/help/'+id+'.png'));
   assert.equal(await dialog.getByRole('button',{name:'도움말 닫기'}).evaluate(el=>el===document.activeElement),true);
   await page.keyboard.press('Shift+Tab');assert.equal(await dialog.evaluate(el=>el.contains(document.activeElement)),true,'focus stays in dialog');
-  await dialog.getByRole('button',{name:'이미지 확대',exact:true}).click();
-  assert.ok(await dialog.locator('.help-image-view').evaluate(el=>el.scrollWidth>el.clientWidth),'zoom permits horizontal reading');
-  await dialog.locator('.help-image-view').focus();await page.keyboard.press('ArrowRight');
-  await dialog.getByRole('button',{name:'이미지 맞춤',exact:true}).click();
+  assert.equal(await dialog.getByRole('button',{name:/이미지 확대|이미지 맞춤/}).count(),0);
+  assert.ok(!(await dialog.innerText()).includes('확대한 이미지는'));
+  assert.ok(await dialog.locator('.help-image-view').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'image fits the dialog width');
   if(id==='basic')await page.screenshot({path:`${artifacts}/help-${viewport.width}.png`});
   if(method==='escape')await page.keyboard.press('Escape');else await dialog.getByRole('button',{name:'도움말 닫기'}).click();
   await dialog.waitFor({state:'detached'});assert.equal(await trigger.evaluate(el=>el===document.activeElement),true,'focus returns');

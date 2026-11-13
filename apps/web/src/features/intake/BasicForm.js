@@ -209,6 +209,5 @@ export default function BasicForm() {
     {status === 'conflict' && <button type="button" onClick={reload}>최신 내용 불러오기</button>}
    </div>}
   </form>
-  <div className="basic-activity-shortcut"><button type="button" className="basic-activity-link" onClick={() => save('/result?tab=activities')} disabled={saveDisabled}>저장 후 공모전·대외활동 보기 →</button></div>
  </div>;
 }

@@ -62,7 +62,7 @@ export function dashboardCards(plan, resources) {
  const run = data('roadmap'), usable = run?.roadmap && !run.details_restricted;
  const roadmap = make('roadmap', '실행 로드맵', resultHref('roadmap'), usable ? [
   `저장된 수강 후보 ${coursePresentation(run.recommended_courses || []).cards.length}개`,
-  '기본 정보와 추천 과목·관련 직무·활동을 함께 확인하세요.',
+  '기본 정보와 추천 과목·기술 스택·활동을 함께 확인하세요.',
  ] : [run?.details_restricted ? '근거가 변경되어 상세 접근이 제한된 결과입니다.' : '저장된 로드맵이 없습니다. 수강 후보 화면에서 생성해 주세요.'], '로드맵 요약 보기');
  const candidate = usable && coursePresentation(run.recommended_courses || []).cards[0];
  const recommendations = make('recommendedCourses', '수강 후보', resultHref('courses'), candidate ? [candidate.course_name, courseReason(candidate)] : [usable ? '현재 근거로 추천된 과목이 없습니다. 과목 목록과 이수 선택을 확인해 주세요.' : '로드맵을 생성하면 실제 추천 과목을 확인할 수 있어요.'], '수강 후보와 학습 내용 확인');

@@ -1,3 +1,5 @@
+import { orderedSkills } from './jobSkillAnalysis.mjs';
+
 export const resultTabs = [
  { key: 'roadmap', label: '실행 로드맵' },
  { key: 'skills', label: '직무 역량 비교' }, { key: 'courses', label: '수강 후보' },
@@ -5,13 +7,11 @@ export const resultTabs = [
 ];
 export const resultHref = key => `/result?tab=${key}`;
 
-// Only the analyzed role field is a job name. Search keywords and skill names
-// cannot be substituted, including before an analysis has been saved.
-export function relatedRoles(comparison) {
+// Reuse the saved analysis and the detail view's ordering, without generating data.
+export function analyzedSkills(comparison) {
  const job = comparison?.job_analysis;
  if (!job?.snapshot_id) return [];
- const role = (job.canonical_role || job.target_role || '').trim();
- return role ? [role] : [];
+ return orderedSkills({ ...job, comparison }).filter(skill => typeof skill.name === 'string' && skill.name.trim());
 }
 
 export function courseLearning(course) {

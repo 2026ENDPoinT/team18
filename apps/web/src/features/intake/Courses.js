@@ -23,11 +23,12 @@ function YearTable({ year, courses, visibleIds, disabled, toggle, toggleMany }) 
  const title = year ? `${year}학년` : '학년 미지정';
  const terms = useMemo(() => termSections(courses), [courses]);
  const sections = terms.map(section => ({ ...section, visible: section.courses.filter(course => visibleIds.has(course.course_id)) }));
+ const visibleCourses = courses.filter(course => visibleIds.has(course.course_id));
  return <section className="course-year" aria-labelledby={`course-year-${year || 'unknown'}`} data-year={year || 'unknown'}>
-  <header className="course-year-heading"><h2 id={`course-year-${year || 'unknown'}`}>{title}</h2><div className="course-year-actions"><span>선택 {courses.filter(c => c.is_completed).length} / 전체 {courses.length}</span><CourseGroupToggle label={title} courses={courses} disabled={disabled} toggleMany={toggleMany}/></div></header>
+  <header className="course-year-heading"><h2 id={`course-year-${year || 'unknown'}`}>{title}</h2><div className="course-year-actions"><span>선택 {courses.filter(c => c.is_completed).length} / 전체 {courses.length}</span><CourseGroupToggle label={title} courses={visibleCourses} disabled={disabled} toggleMany={toggleMany}/></div></header>
   {sections.some(section => section.visible.length) ? <table className="course-year-table" aria-label={`${title} 과목`}><colgroup><col/><col className="course-check-column"/></colgroup>
    {sections.filter(section => section.visible.length).map(section => <tbody key={section.title}>
-    <tr className="course-term"><th colSpan={2} scope="colgroup"><div className="course-term-heading"><span>{section.title}</span><div className="course-term-actions"><span>{section.visible.length === section.courses.length ? section.courses.length : `${section.visible.length} / ${section.courses.length}`}과목</span><CourseGroupToggle label={`${title} ${section.title}`} courses={section.courses} disabled={disabled} toggleMany={toggleMany}/></div></div></th></tr>
+    <tr className="course-term"><th colSpan={2} scope="colgroup"><div className="course-term-heading"><span>{section.title}</span><div className="course-term-actions"><span>{section.visible.length === section.courses.length ? section.courses.length : `${section.visible.length} / ${section.courses.length}`}과목</span><CourseGroupToggle label={`${title} ${section.title}`} courses={section.visible} disabled={disabled} toggleMany={toggleMany}/></div></div></th></tr>
     {section.visible.map(course => <tr key={course.course_id} className={course.is_completed ? 'is-completed' : ''} data-course-id={course.course_id} onClick={() => { if (!disabled) toggle(course.course_id, !course.is_completed); }}>
      <td><strong className="course-name">{course.course_name}</strong>
      </td>
@@ -172,7 +173,7 @@ export default function Courses() {
  const years = useMemo(() => courseYears(data?.courses || []), [data?.courses]);
  const visible = useMemo(() => data ? filterCourses(data.courses, { search, only }) : [], [data?.courses, search, only]);
  const visibleIds = useMemo(() => new Set(visible.map(course => course.course_id)), [visible]);
- return <div className="course-page"><Stepper current={2} blockForward/><Heading number="04" title="이수 과목" description="학년별 과목을 한눈에 보며 이미 이수한 과목을 체크하세요. 수강 중인 과목은 포함하지 않습니다."/>
+ return <div className="course-page"><Stepper current={2} blockForward/><Heading number="04" title="이수 과목" description="학년별 과목을 한눈에 보며 이미 이수한 과목을 체크하세요. 수강 중인 과목은 포함하지 않습니다. 권장 학기와 실제 개설 학기는 다를 수 있어요."/>
   {phase === 'loading' && <div className="notice" role="status">전체 과목 목록을 불러오는 중입니다.</div>}
   {phase === 'empty' && <div className="empty-state"><strong>계획이 없습니다.</strong><p>시작 화면에서 계획을 만들어 주세요.</p><Link className="button" href="/">시작 화면</Link></div>}
   {phase === 'unavailable' && <div className="empty-state"><strong>현재 학교·학과의 과목 목록을 사용할 수 없습니다.</strong><p>이 상태를 이수 과목 0개로 해석하지 않습니다. 기본 정보에서 학교·학과를 확인하거나 과목 목록 없이 계속 진행할 수 있습니다.</p><Link className="button" href="/input/basic">기본 정보 확인</Link></div>}
@@ -182,8 +183,8 @@ export default function Courses() {
     <div className="filters"><input aria-label="과목 검색" placeholder="과목 검색" maxLength={100} value={search} onChange={event => setSearch(event.target.value)}/>
      <label className="check-line"><input type="checkbox" checked={only} onChange={event => setOnly(event.target.checked)}/>선택한 과목만 보기</label>
     </div>
-    <p className="field-help" role="status">검색 결과 {visible.length}개 · 전체 {data.total}과목<span>권장 학기와 실제 개설 학기는 다를 수 있어요.</span></p>
-    <p className="field-help course-bulk-help">전체 선택·해제는 검색 조건과 관계없이 해당 학년·학기의 모든 과목에 적용됩니다.</p>
+    <p className="field-help" role="status">검색 결과 {visible.length}개 · 전체 {data.total}과목</p>
+    <p className="field-help course-bulk-help">전체 선택·해제는 현재 검색·필터 결과에 표시된 해당 학년·학기의 과목에만 적용됩니다.</p>
    </section>
    <div className="course-year-grid">{years.map(group => <YearTable key={group.year || 'unknown'} {...group} visibleIds={visibleIds} disabled={disabled} toggle={toggle} toggleMany={toggleMany}/>)}</div>
    <div className="course-confirm-bar" aria-label="이수 선택 확인 영역">

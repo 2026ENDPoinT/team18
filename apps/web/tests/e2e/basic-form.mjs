@@ -71,7 +71,7 @@ try {
    assert.equal(await status.textContent(), '저장 중');
    assert.ok(page.url().endsWith('/input/basic'));
    assert.ok(await field('career_goal').isDisabled()); assert.ok(await button('저장').isDisabled());
-   assert.ok(await button('저장 후 공모전·대외활동 보기 →').isDisabled());
+   assert.ok(await button('저장 후 다음 →').isDisabled());
    release(); await page.waitForURL('**/input/documents'); await page.unroute(/\/api\/roadmap-inputs\/[^/]+$/);
    assert.equal((await get()).input.catalog_id, '30000000-0000-4000-8000-000000000001');
    await go('/input/basic'); await expanded(false); await saved();
@@ -135,22 +135,18 @@ try {
    // Empty/whitespace validation applies to all save destinations.
    await field('career_goal').fill('   ');
    const count = writes.length;
-   for (const action of ['저장', '저장 후 다음 →', '저장 후 공모전·대외활동 보기 →']) {
+   for (const action of ['저장', '저장 후 다음 →']) {
     await button(action).click(); assert.ok(await field('career_goal').evaluate(el => el === document.activeElement));
     assert.ok(await page.locator('#career-goal-error').isVisible());
    }
    assert.equal(writes.length, count);
    await field('career_goal').fill(goal); await field('target_role').fill('');
    await page.route(/\/api\/roadmap-inputs\/[^/]+$/, route => route.request().method() === 'PATCH' ? route.fulfill({ status: 503, json: { message: '저장하지 못했습니다.' } }) : route.continue(), { times: 1 });
-   await button('저장 후 공모전·대외활동 보기 →').click(); await page.getByRole('alert').filter({ hasText: '저장하지 못했습니다.' }).waitFor();
+   await button('저장 후 다음 →').click(); await page.getByRole('alert').filter({ hasText: '저장하지 못했습니다.' }).waitFor();
    assert.ok(page.url().endsWith('/input/basic')); assert.equal(await field('career_goal').inputValue(), goal);
    assert.equal(await status.textContent(), '변경사항 있음'); assert.ok(await button('저장').isEnabled());
-   await button('저장 후 공모전·대외활동 보기 →').click(); await page.waitForURL('**/result?tab=activities');
-   await page.getByRole('tab', { name: '공모전·대외활동', exact: true }).waitFor();
-   assert.equal((await get()).input.career_goal, goal); assert.equal((await get()).input.university_id, null);
-   await page.locator('.activity-recommendations .skill-card').first().waitFor();
-   await go('/input/basic'); await expanded(true); await ready();
    await button('저장 후 다음 →').click(); await page.waitForURL('**/input/documents');
+   assert.equal((await get()).input.career_goal, goal); assert.equal((await get()).input.university_id, null);
 
    // Real revision conflict retains the draft until explicit reload.
    await go('/input/basic'); await ready(); await field('career_goal').fill(goal + ' 충돌 중 작성값');
@@ -162,7 +158,7 @@ try {
    await button('최신 내용 불러오기').click(); await ready();
    assert.equal(await field('target_role').inputValue(), '다른 화면의 직무');
    assert.deepEqual(errors, []); await layout();
-   const entry = { viewport, checks: ['first visit expanded', 'department collapses without save', 'edit preserves draft', 'auto catalog and school reset', 'saved catalog restore', 'stale catalog ignored', 'catalog failure retry', 'save pending navigation lock', 'refresh restore', 'no school save and both destinations', 'all required goal errors and focus', '503 draft retention and retry', '409 draft retention', 'help image and focus', 'responsive alignment'], patches: writes.length };
+   const entry = { viewport, checks: ['first visit expanded', 'department collapses without save', 'edit preserves draft', 'auto catalog and school reset', 'saved catalog restore', 'stale catalog ignored', 'catalog failure retry', 'save pending navigation lock', 'refresh restore', 'no school save and next navigation', 'all required goal errors and focus', '503 draft retention and retry', '409 draft retention', 'help image and focus', 'responsive alignment'], patches: writes.length };
    report.push(entry); console.log('PASS', JSON.stringify(entry));
   } catch (e) {
    await page.screenshot({ path: artifacts + `failure-${viewport.width}.png`, fullPage: true });

@@ -5,7 +5,7 @@ import { helpExamples } from './examples.mjs';
 
 function ExampleDialog({ example, imageId, trigger, close }) {
  const dialog = useRef(null), closeButton = useRef(null), titleId = useId();
- const [zoom, setZoom] = useState(false), [phase, setPhase] = useState('loading'), [retry, setRetry] = useState(0);
+ const [phase, setPhase] = useState('loading'), [retry, setRetry] = useState(0);
  useEffect(() => {
   const element = dialog.current, originalOverflow = document.body.style.overflow;
   element.showModal(); document.body.style.overflow = 'hidden'; closeButton.current.focus();
@@ -22,10 +22,9 @@ function ExampleDialog({ example, imageId, trigger, close }) {
   <div className="help-dialog-content">
    <div className="help-dialog-heading"><h2 id={titleId}>{example.title} 예시</h2><button ref={closeButton} type="button" onClick={close} aria-label="도움말 닫기">닫기</button></div>
    <p>{example.description}</p><p className="field-help">가상 학생 ‘민서’의 예시입니다. 학교·문서·추천 내용은 사용 방법을 보여주기 위한 가상 자료예요.</p>
-   <div className="help-tools"><button type="button" aria-pressed={zoom} onClick={() => setZoom(value => !value)}>{zoom ? '이미지 맞춤' : '이미지 확대'}</button><span className="field-help">확대한 이미지는 좌우·위아래로 움직여 볼 수 있어요.</span></div>
    {phase === 'loading' && <p role="status">예시 이미지를 불러오는 중입니다…</p>}
    {phase === 'error' && <p role="alert">이미지를 불러오지 못했습니다. <button type="button" onClick={() => { setPhase('loading'); setRetry(value => value + 1); }}>이미지 다시 불러오기</button></p>}
-   <div className={`help-image-view${zoom ? ' is-enlarged' : ''}`} tabIndex={0} role="region" aria-label="예시 이미지 둘러보기">
+   <div className="help-image-view" tabIndex={0} role="region" aria-label="예시 이미지 둘러보기">
     <img key={retry} src={`/help/${imageId}.png${retry ? `?retry=${retry}` : ''}`} alt={example.alt} onLoad={() => setPhase('ready')} onError={() => setPhase('error')}/>
    </div>
   </div>

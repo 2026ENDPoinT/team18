@@ -56,9 +56,56 @@ try {
  await button('2학년 전체 해제').click(); await button('2학년 전체 선택').click();
  release(); await saved();
  let selected = await get(query);
- assert.equal(selected.selection_summary.count,yearCourses.length,'bulk selection includes search-hidden courses');
+ assert.deepEqual(selected.selected_courses.map(course=>course.course_id),[yearCourses[0].course_id],'bulk selection only changes visible search results');
  await search.fill(''); await page.reload(); await page.locator('[data-course-id]').first().waitFor();
- assert.equal(await page.locator('[data-year="2"]').getByRole('switch',{checked:true}).count(),yearCourses.length);
+ assert.equal(await page.locator('[data-year="2"]').getByRole('switch',{checked:true}).count(),1);
+ // Put both real fixture courses in one semester to exercise hidden siblings.
+ // Only catalog presentation is substituted; selection writes still use real SQLite.
+ const coursePattern = '**/api/roadmap-inputs/*/courses?*';
+ await page.route(coursePattern, async route => {
+  const response = await route.fetch(), data = await response.json();
+  await route.fulfill({response,json:{...data,courses:data.courses.map(course=>course.recommended_year===2?{...course,recommended_term:'1'}:course)}});
+ });
+ await page.reload(); await page.locator('[data-course-id]').first().waitFor();
+ const assertSelection = async ids => assert.deepEqual((await get(query)).selected_courses.map(course=>course.course_id).sort(),[...ids].sort());
+ for (const viewport of [{width:1280,height:720},{width:390,height:844}]) {
+  await page.setViewportSize(viewport);
+  for (const group of ['2학년','2학년 1학기']) {
+   await search.fill(''); await button('2학년 전체 선택').click(); await saved();
+   await search.fill(yearCourses[0].course_name);
+   await button(`${group} 전체 해제`).click(); await saved();
+   await assertSelection([yearCourses[1].course_id]); // Hidden selected course stays selected.
+   await button(`${group} 전체 선택`).click(); await saved();
+   await assertSelection(yearCourses.map(course=>course.course_id));
+   await search.fill(''); await button('2학년 전체 해제').click(); await saved();
+   await search.fill(yearCourses[0].course_name);
+   await button(`${group} 전체 선택`).click(); await saved();
+   await assertSelection([yearCourses[0].course_id]); // Hidden unselected course stays unselected.
+   assert.equal(await button(`${group} 전체 해제`).getAttribute('data-selection'),'all');
+   await button(`${group} 전체 해제`).click(); await saved(); await assertSelection([]);
+  }
+  await search.fill('검색 결과가 없는 과목');
+  assert.equal(await page.locator('[data-course-id]').count(),0);
+  assert.equal(await page.locator('.course-group-toggle').count(),4);
+  assert.equal(await page.locator('.course-group-toggle:not(:disabled)').count(),0);
+  await search.fill('');
+  await page.locator(`[data-course-id="${yearCourses[1].course_id}"]`).getByRole('switch').click(); await saved();
+  await search.fill(yearCourses[0].course_name);
+  const only = page.getByRole('checkbox',{name:'선택한 과목만 보기'});
+  await only.check();
+  assert.equal(await page.locator('[data-course-id]').count(),0);
+  assert.equal(await button('2학년 전체 선택').isDisabled(),true);
+  await assertSelection([yearCourses[1].course_id]);
+  await search.fill(yearCourses[1].course_name);
+  await button('2학년 1학기 전체 해제').click(); await saved();
+  assert.equal(await page.locator('[data-course-id]').count(),0);
+  await assertSelection([]);
+  await only.uncheck(); await search.fill('');
+ }
+ await page.unroute(coursePattern);
+ await page.setViewportSize({width:1280,height:720});
+ await page.reload(); await page.locator('[data-course-id]').first().waitFor();
+ await button('2학년 전체 선택').click(); await saved();
  await button('2학년 1학기 전체 해제').click(); await saved();
  assert.equal((await get(query)).selected_courses.filter(course=>course.recommended_year===2&&String(course.recommended_term)==='1').length,0);
  await button('2학년 전체 선택').click(); await saved();
@@ -86,5 +133,5 @@ try {
  assert.equal(requests.filter(request=>request.method==='POST'&&request.path.endsWith('/roadmap')).length,1,'tab navigation does not regenerate');
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no desktop horizontal overflow');
  assert.deepEqual(errors,[]);
- console.log('PASS: desktop required-field feedback, row/bulk selection persistence and reversals, confirmation focus, result navigation/request reuse');
+ console.log('PASS: required-field feedback, desktop/mobile filtered year/semester selection, hidden selections preserved, save reversals/reload, confirmation focus, result navigation/request reuse');
 } finally { await context.close(); await browser.close(); }
