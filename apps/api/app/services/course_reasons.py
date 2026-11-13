@@ -1,5 +1,8 @@
 """Gemini-written explanations for a fixed, saved set of course candidates."""
 from typing import Annotated
+import logging
+
+logger = logging.getLogger(__name__)
 from pydantic import Field, StringConstraints, ValidationError
 
 from services.gemini import GeminiError
@@ -88,10 +91,12 @@ def validate_course_reasons(data, result):
     try:
         result = result if isinstance(result, CourseReasons) else CourseReasons.model_validate(result)
     except (ValidationError, TypeError, ValueError):
+        logger.warning('course_reasons_invalid stage=schema')
         raise GeminiError('gemini_invalid_response', '추천 이유의 과목 정보를 확인하지 못했습니다. 다시 시도해 주세요.') from None
     expected = {c['course_id']: c for c in data['courses']}
     supplied = {r.course_id: r for r in result.reasons}
     if set(supplied) != set(expected) or len(supplied) != len(result.reasons):
+        logger.warning('course_reasons_invalid stage=course_ids')
         raise GeminiError('gemini_invalid_response', '추천 이유의 과목 정보를 확인하지 못했습니다. 다시 시도해 주세요.')
     for cid, reason in supplied.items():
         allowed = {e['id'] for e in expected[cid]['evidence']}
@@ -100,5 +105,6 @@ def validate_course_reasons(data, result):
                 or (allowed and not refs)
                 or (not allowed and not all(term in reason.personalization_reason for term in ('과목명', '확인')))
                 or any(term in reason.personalization_reason for term in ('최우선', '반드시', '역량 부족', '필수 역량', '필수 기술', '미흡'))):
+            logger.warning('course_reasons_invalid stage=evidence_rules')
             raise GeminiError('gemini_invalid_response', '추천 이유의 학습 근거를 확인하지 못했습니다. 다시 시도해 주세요.')
     return {'reasons': [supplied[c['course_id']].model_dump() for c in data['courses']]}

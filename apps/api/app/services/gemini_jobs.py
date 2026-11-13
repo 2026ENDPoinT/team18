@@ -104,7 +104,12 @@ def _generate(schema, instruction, data, *, max_attempts=MAX_ATTEMPTS, response_
                     return response_parser(response.text)
                 try:
                     return schema.model_validate_json(response.text)
-                except (ValidationError, ValueError, TypeError):
+                except (ValidationError, ValueError, TypeError) as error:
+                    # Do not log the model response or exception message; those
+                    # could contain student/project inputs. Record only schema
+                    # and exception type for root-cause classification.
+                    logger.warning('gemini_response_invalid schema=%s stage=parse type=%s',
+                                   schema.__name__, type(error).__name__)
                     raise GeminiError('gemini_invalid_response', 'Gemini 응답 형식이 유효하지 않습니다.') from None
             except GeminiError:
                 raise

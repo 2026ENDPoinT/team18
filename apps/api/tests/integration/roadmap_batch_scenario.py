@@ -14,6 +14,7 @@ from repositories.plans import connect
 from repositories.postgres import StorageUnavailable
 from repositories.roadmaps import RoadmapRepository
 from services import roadmap_batch
+from api.domain import Problem
 from services.gemini import GeminiError
 
 for name in ('GUEST_HOURLY_UNITS', 'GUEST_DAILY_UNITS', 'USER_HOURLY_UNITS', 'USER_DAILY_UNITS', 'GLOBAL_DAILY_UNITS'):
@@ -139,6 +140,45 @@ class BatchAPI(RoadmapAPI):
         self.assertTrue(all(reason['personalization_reason'].strip() for reason in result['course_reasons']))
         self.assertEqual(self.model.call_count, 1)
         self.assertEqual(self.reasons.call_count, 1)
+
+    def test_batch_invalid_gemini_reason_falls_back_without_losing_roadmap(self):
+        self.jobs()
+        self.reasons.side_effect = GeminiError('gemini_invalid_response', 'synthetic invalid JSON')
+        result = self.terminal(self.start_batch()['run_id'])
+        self.assertTrue(result['generation_complete'], result)
+        self.assertEqual(result['status'], 'partial')
+        self.assertEqual(result['course_reasons_source'], 'catalog_evidence_fallback')
+        self.assertEqual(len(result['course_reasons']), len(result['recommended_courses']))
+        self.assertTrue(result['roadmap'])
+        self.assertEqual(self.model.call_count, 1)
+        self.assertEqual(self.reasons.call_count, 1)
+
+    def test_batch_ai_cooldown_falls_back_without_another_gemini_call(self):
+        self.jobs()
+        self.reasons.side_effect = Problem(429, 'ai_cooldown', 'synthetic cooldown')
+        result = self.terminal(self.start_batch()['run_id'])
+        self.assertTrue(result['generation_complete'], result)
+        self.assertEqual(result['status'], 'partial')
+        self.assertEqual(result['course_reasons_source'], 'catalog_evidence_fallback')
+        self.assertEqual(len(result['course_reasons']), len(result['recommended_courses']))
+        self.assertEqual(self.model.call_count, 1)
+        self.assertEqual(self.reasons.call_count, 1)
+
+    def test_batch_invalid_course_evidence_is_rejected_then_falls_back(self):
+        self.jobs()
+        def invalid_evidence(data):
+            from services.course_reasons import validate_course_reasons
+            return validate_course_reasons(data, {'reasons': [
+                {'course_id': course['course_id'],
+                 'personalization_reason': '근거를 연결하는 설명',
+                 'evidence_ids': ['wrong-evidence-id']}
+                for course in data['courses']
+            ]})
+        self.reasons.side_effect = invalid_evidence
+        result = self.terminal(self.start_batch()['run_id'])
+        self.assertTrue(result['generation_complete'], result)
+        self.assertEqual(result['course_reasons_source'], 'catalog_evidence_fallback')
+        self.assertTrue(result['roadmap'])
 
     def test_batch_keeps_verified_items_when_project_analysis_is_partial(self):
         self.doc()
