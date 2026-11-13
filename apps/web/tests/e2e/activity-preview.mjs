@@ -36,7 +36,7 @@ try {
  await context.addInitScript(install);
  const page = await context.newPage(), errors=[];
  page.on('pageerror',error=>errors.push(error.message));
- await page.goto(`${origin}/result?tab=readiness`);
+ await page.goto(`${origin}/result?tab=roadmap`);
  const preview = page.locator('.result-activity-preview');
  const visible = preview.locator(':scope > ul:not(.result-activity-measure) > li');
  const measurement = preview.locator('.result-activity-measure > li');
@@ -95,7 +95,7 @@ try {
  await page.getByRole('link',{name:'활동 상세 보기 →'}).click();
  await page.waitForURL('**/result?tab=activities');
  assert.equal(await page.locator('.activity-recommendations .skill-card').count(),12);
- await page.goto(`${origin}/result?tab=readiness`);
+ await page.goto(`${origin}/result?tab=roadmap`);
  const many = await verify(1440,900);
  await page.evaluate(()=>sessionStorage.setItem('activity-count','1'));
  await page.reload(); await preview.waitFor();

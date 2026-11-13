@@ -30,7 +30,7 @@ export default function Result() {
  const router = useRouter(), searchParams = useSearchParams();
  const selected = Math.max(0, resultTabs.findIndex(tab => tab.key === searchParams.get('tab')));
  const selectedTab = resultTabs[selected].key, nextTab = resultTabs[selected + 1];
- const overview = selectedTab === 'readiness';
+ const overview = selectedTab === 'roadmap';
  const tabNavigation = useRef(false), generationLock = useRef(false), epoch = useRef(0), previousRunId = useRef(null);
  const wantsGeneration = useRef(searchParams.get('generate') === '1');
  const [resources, setResources] = useState({});
@@ -59,7 +59,7 @@ export default function Result() {
   generationLock.current = true;
   const previous = previousRunId.current;
   setTracking({ phase: 'starting', planId: currentPlan.request_id, tasks: {} });
-  router.replace(resultHref('readiness'), { scroll: false });
+  router.replace(resultHref('roadmap'), { scroll: false });
   const base = `/roadmap-inputs/${encodeURIComponent(currentPlan.request_id)}`;
   try {
    const data = await apiRequest(`${base}/roadmap`, { method: 'POST', signal: AbortSignal.timeout(20000),
@@ -82,6 +82,10 @@ export default function Result() {
    } catch { setTracking({ phase: 'unknown', planId: currentPlan.request_id, tasks: {}, detail: error.message }); }
   } finally { generationLock.current = false; }
  }, [router]);
+
+ useEffect(() => {
+  if (searchParams.get('tab') === 'readiness') router.replace(resultHref('roadmap'), { scroll: false });
+ }, [router, searchParams]);
 
  useEffect(() => {
   let disposed = false;
@@ -203,11 +207,11 @@ export default function Result() {
    <JobSkillAnalysis active={selectedTab === 'skills'} savedComparison={result?.skill_comparison} savedRunId={result?.run_id} onResult={onSkillResult} plan={plan} onPlanChange={onPlanChange}/>
    {selectedTab === 'activities' && <ActivityRecommendations active resource={activities}/>}
    {overview && <ResultOverview resources={displayedResources} reload={load} activities={activities}/>}
-   {selectedTab === 'roadmap' && <div><h2>실행 로드맵</h2>
+   {overview && <section className="result-roadmap-steps" aria-labelledby="execution-steps-title"><h2 id="execution-steps-title">실행 로드맵</h2>
     {!hasResult && <p>아직 저장된 실행 로드맵이 없습니다. 로드맵을 만들어 주세요.</p>}
     {result?.is_stale && <p className="notice">이전 입력을 기준으로 저장된 로드맵입니다. 재분석으로 최신 결과를 만들 수 있어요.</p>}
     {hasResult && <ol className="execution-steps">{result.roadmap.map(step => <li className="skill-card" key={step.step_id}><h3>{step.title}</h3><p>{step.purpose}</p><p>{step.reason}</p><ul>{step.tasks.map(task => <li key={task.task_id}><label><input type="checkbox" checked={!!task.is_completed} disabled={progressBusy} onChange={() => setTask(task)}/> {task.action}</label><p className="field-help">완료 기준: {task.completion_criteria} · 결과물: {task.deliverable}</p></li>)}</ul></li>)}</ol>}
-    {progressError && <p role="alert">{progressError}</p>}</div>}
+    {progressError && <p role="alert">{progressError}</p>}</section>}
    {selectedTab === 'courses' && <>
     {resources.roadmap?.phase === 'loading' && <p role="status">저장된 결과를 불러오고 있습니다…</p>}
     {resources.roadmap?.phase === 'error' && <p role="alert">{resources.roadmap.message}</p>}
@@ -217,6 +221,6 @@ export default function Result() {
    </>}
   </section>
   {!overview && <nav className="result-pagination" aria-label="로드맵 결과 순서 이동"><span className="field-help">{selected + 1} / {resultTabs.length} · {resultTabs[selected].label}</span>
-   <div>{selected > 0 && <button type="button" onClick={() => changeTab(selected - 1, true)}>← 이전: {resultTabs[selected - 1].label}</button>}{nextTab ? <button type="button" className="primary" onClick={() => changeTab(selected + 1, true)}>다음: {nextTab.label} →</button> : <button type="button" className="primary" onClick={() => changeTab(0, true)}>결과 확인 완료 · 준비 상태 →</button>}</div></nav>}
+   <div>{selected > 0 && <button type="button" onClick={() => changeTab(selected - 1, true)}>← 이전: {resultTabs[selected - 1].label}</button>}{nextTab ? <button type="button" className="primary" onClick={() => changeTab(selected + 1, true)}>다음: {nextTab.label} →</button> : <button type="button" className="primary" onClick={() => changeTab(0, true)}>결과 확인 완료 · 실행 로드맵 →</button>}</div></nav>}
  </div>;
 }

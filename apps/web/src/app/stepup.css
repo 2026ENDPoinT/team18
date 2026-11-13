@@ -369,6 +369,7 @@ button.academic-change{flex:none;border-color:#cdd9fb;background:#fff;color:#466
 .generation-status.failed{color:#c44444}.generation-status.failed i{border-radius:50%;background:#ffeded;font-weight:800}
 .generation-error{text-align:center;margin-top:24px;color:#ad3838}.generation-error p{margin:0 0 12px}.generation-error button{margin-top:6px}
 .result-generation-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.result-generation-heading .page-title-row{margin:0}
+.result-roadmap-steps{margin-top:32px}
 .execution-steps{display:grid;gap:16px;padding:0;list-style:none}.execution-steps ul{padding-left:20px}.execution-steps li label{display:flex;align-items:baseline;gap:8px}
 @keyframes generation-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.generation-status.running i{animation-duration:2.5s}}

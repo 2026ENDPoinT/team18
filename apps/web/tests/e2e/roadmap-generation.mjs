@@ -10,9 +10,11 @@ function install() {
  const state = window.batchMock = JSON.parse(sessionStorage.getItem('batch-mock') || 'null') || { posts: 0, reads: [], latest: null, runs: {} };
  window.saveBatch = () => sessionStorage.setItem('batch-mock', JSON.stringify(state));
  const plan = { request_id:'test-plan', input_revision:1, input:{career_goal:'데이터 분석 프로젝트', target_role:'데이터 분석가', catalog_id:'catalog'} };
+ const skills = ['SQL','Python','Excel'].map(name=>({name,category:'other',mentioned_job_count:1,mention_frequency:1,
+  required_job_count:1,preferred_job_count:0,mentioned_only_job_count:0,unknown_job_count:0,direct_job_count:1,related_job_count:0,seniority_distribution:{unknown:1},evidence:[]}));
  const comparison = { status:'success', input_revision:1, career_goal:plan.input.career_goal, target_role:plan.input.target_role,
-  comparisons:[], project_analysis:{analyzed_documents:0,verified_experiences:0}, job_analysis:{status:'success', snapshot_id:'job-1', skills:[], keyword_details:[], collection_summary:{selected_jobs:0}, analysis_summary:{analyzed_jobs:0,failed_jobs:0,skipped_jobs:0}} };
- const activities = {status:'success', activities:[], sources:[{status:'success'}]};
+  comparisons:[], project_analysis:{analyzed_documents:0,verified_experiences:0}, job_analysis:{status:'success', snapshot_id:'job-1', skills, keyword_details:[], collection_summary:{selected_jobs:1}, analysis_summary:{analyzed_jobs:1,failed_jobs:0,skipped_jobs:0}} };
+ const activities = {status:'success', activities:[{id:'activity-1',source:'example',title:'데이터 분석 아이디어 공모전',kind:'competition',status:'open',url:'https://example.test/activity',reasons:[],target:'대학생',deadline_label:'접수 중',period:'예시 접수 기간'}], sources:[{status:'success'}]};
  const full = run => ({ ...run, input_revision:1, request_id:'test-plan', is_stale:false, details_restricted:false,
   generation_complete:true, status:'partial', career_goal:plan.input.career_goal, skill_comparison:comparison,
   activity_recommendations:activities,
@@ -20,7 +22,7 @@ function install() {
   course_reasons:[{course_id:'course-1',personalization_reason:'저장된 AI 추천 이유입니다.'}], course_status:'available',
   basis:{catalog:{},review_status:'confirmed',outside_completed_courses:[]},
   preparation_summary:{confirmed_skills:[],skills_to_verify:[],learning_candidates:[]},
-  roadmap:[{step_id:'one',title:'분석 프로젝트 계획',purpose:'관심 분야 살펴보기',reason:'저장한 목표에 맞춘 실행 활동',tasks:[{task_id:'task-1',action:'데이터 분석 경험을 정리한다.',completion_criteria:'경험을 기록함',deliverable:'경험 메모',is_completed:false,progress_version:0}]}] });
+  roadmap:[{step_id:'one',title:'분석 프로젝트 계획',purpose:'관심 분야 살펴보기',reason:'저장한 목표에 맞춘 실행 활동',tasks:[{task_id:'task-1',action:'데이터 분석 경험을 정리한다.',completion_criteria:'경험을 기록함',deliverable:'경험 메모',is_completed:!!run.task_completed,progress_version:run.task_version || 0}]}] });
  const native = window.fetch;
  window.fetch = async (input, options={}) => {
   const url=String(input); if(!url.includes('/api/')) return native(input, options);
@@ -36,6 +38,12 @@ function install() {
   if(url.endsWith('/roadmap')) {
    const run=state.runs[state.latest];
    return json(run ? {...(run.generation_complete ? full(run) : {status:'not_started'}),latest_generation:run} : {status:'not_started'});
+  }
+  if(url.includes('/roadmaps/') && url.includes('/tasks/') && options.method==='PATCH') {
+   const run=state.runs[url.split('/roadmaps/')[1].split('/')[0]], body=JSON.parse(options.body);
+   if(body.expected_progress_version !== (run.task_version || 0)) return json({message:'진행 상태가 변경되었습니다.'},409);
+   run.task_completed=body.is_completed; run.task_version=(run.task_version || 0)+1;
+   window.saveBatch(); return json(full(run));
   }
   if(url.includes('/roadmaps/')) {
    const run=state.runs[url.split('/roadmaps/')[1].split('/')[0]];
@@ -81,8 +89,36 @@ try {
    Object.keys(run.generation_tasks).forEach(key=>run.generation_tasks[key]='success');
    run.generation_complete=true; window.saveBatch();
   });
-  await page.getByRole('tab',{name:'준비 상태'}).waitFor();
-  for (const name of ['준비 상태','직무 역량 비교','실행 로드맵','수강 후보','공모전·대외활동']) {
+  const roadmapTab = page.getByRole('tab',{name:'실행 로드맵',exact:true});
+  await roadmapTab.waitFor();
+  assert.equal(await roadmapTab.getAttribute('aria-selected'),'true');
+  assert.deepEqual(await page.getByRole('tab').allTextContents(),['실행 로드맵','수강 후보','직무 역량 비교','공모전·대외활동']);
+  assert.equal(await page.getByRole('tab',{name:'준비 상태',exact:true}).count(),0);
+  await page.locator('.result-basic').getByText('데이터 분석가',{exact:true}).waitFor();
+  await page.locator('.result-course-summary').getByText('데이터베이스',{exact:true}).waitFor();
+  await page.locator('.result-skill-summary').getByText('SQL',{exact:true}).first().waitFor();
+  await page.locator('.result-activity-summary').getByText('데이터 분석 아이디어 공모전',{exact:false}).first().waitFor();
+  const task = page.getByRole('checkbox',{name:'데이터 분석 경험을 정리한다.'});
+  await task.click();
+  await page.waitForFunction(() => window.batchMock.reads.some(read => read.startsWith('PATCH ') && read.includes('/tasks/task-1')));
+  await page.waitForFunction(() => document.querySelector('.execution-steps input')?.checked === true);
+  await page.reload(); await roadmapTab.waitFor();
+  assert.equal(await task.isChecked(),true,'task progress remains saved on the combined roadmap');
+  if (slow==='comparison') {
+   await page.goto(`${origin}/result?tab=readiness`);
+   await page.waitForURL('**/result?tab=roadmap');
+   await page.locator('.result-basic').getByText('데이터 분석가',{exact:true}).waitFor();
+   assert.equal(await roadmapTab.getAttribute('aria-selected'),'true');
+   assert.equal(await task.isChecked(),true);
+   await roadmapTab.focus(); await page.keyboard.press('ArrowRight');
+   await page.waitForURL('**/result?tab=courses');
+   assert.equal(await page.getByRole('tab',{name:'수강 후보',exact:true}).evaluate(el=>el===document.activeElement),true);
+   await page.keyboard.press('End'); await page.waitForURL('**/result?tab=activities');
+   await page.getByRole('button',{name:'결과 확인 완료 · 실행 로드맵 →',exact:true}).click();
+   await page.waitForURL('**/result?tab=roadmap');
+   assert.equal(await roadmapTab.evaluate(el=>el===document.activeElement),true);
+  }
+  for (const name of ['실행 로드맵','수강 후보','직무 역량 비교','공모전·대외활동']) {
    await page.getByRole('tab',{name,exact:true}).click();
    await page.waitForFunction(label => [...document.querySelectorAll('[role=tab]')].find(tab => tab.textContent === label)?.getAttribute('aria-selected') === 'true', name);
    assert.equal(await page.getByRole('tab',{name,exact:true}).getAttribute('aria-selected'),'true');
@@ -105,12 +141,11 @@ try {
    await page.waitForFunction(() => window.batchMock.posts===3);
    assert.equal(await page.evaluate(() => window.batchMock.lastBody.retry_run_id),'run-2');
    await page.evaluate(() => { const run=window.batchMock.runs[window.batchMock.latest]; Object.keys(run.generation_tasks).forEach(key=>run.generation_tasks[key]='success');run.generation_complete=true;window.saveBatch(); });
-   await page.getByRole('tab',{name:'준비 상태'}).waitFor();
+   await roadmapTab.waitFor();
    if (process.env.CAPTURE_BATCH_HELP === '1') {
     await page.setViewportSize({width:1440,height:900});
     await page.addStyleTag({content:'nextjs-portal{display:none!important}'});
-    await page.screenshot({path:'apps/web/public/help/result-readiness.png'});
-    await page.getByRole('tab',{name:'실행 로드맵'}).click();
+    await page.evaluate(async()=>{window.scrollTo(0,0);await document.fonts.ready;});
     await page.screenshot({path:'apps/web/public/help/result-roadmap.png'});
    }
   } else if (slow==='courses') {
@@ -121,10 +156,10 @@ try {
    await page.getByRole('button',{name:'다시 시도'}).click();
    await page.waitForFunction(() => window.batchMock.posts===3);
    await page.evaluate(() => { const run=window.batchMock.runs[window.batchMock.latest];Object.keys(run.generation_tasks).forEach(key=>run.generation_tasks[key]='success');run.generation_complete=true;window.saveBatch(); });
-   await page.getByRole('tab',{name:'준비 상태'}).waitFor();
+   await roadmapTab.waitFor();
   }
   assert.deepEqual(errors,[]);
   await context.close();
  }
- console.log('PASS: three completion orders, reload, failure/retry, reanalysis, five tabs, no tab-triggered recommendation requests, desktop/mobile layout');
+ console.log('PASS: three completion orders, four result tabs, summary and saved task progress on the roadmap, legacy link, retry and desktop/mobile layout');
 } finally { await browser.close(); }

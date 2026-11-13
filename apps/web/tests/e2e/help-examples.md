@@ -124,6 +124,8 @@ from the result overview. The lower cards show the first three saved course
 recommendations (in server order), the saved analyzed role, and up to three
 activities. The course tab retains the full filtered list and learning evidence.
 Current completed/reviewed-equivalent course IDs are excluded from both lists.
+Below the overview, the execution steps show completion criteria and let the
+student save task progress. Old `?tab=readiness` links open this same view.
 
 Visits, tab changes, focus and reload only read saved resources. Activity GETs
 read stored catalogs; these paths do not invoke a collector or AI provider.
