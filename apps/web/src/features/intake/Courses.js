@@ -27,7 +27,7 @@ function YearTable({ year, courses, visibleIds, disabled, toggle, toggleMany }) 
     {section.visible.map(course => <tr key={course.course_id} className={course.is_completed ? 'is-completed' : ''} data-course-id={course.course_id} onClick={() => { if (!disabled) toggle(course.course_id, !course.is_completed); }}>
      <td><strong className="course-name">{course.course_name}</strong>
      </td>
-     <td className="course-check-cell"><button className="course-toggle" type="button" role="switch" aria-label={`${course.course_name} 이미 이수함`} aria-checked={course.is_completed} disabled={disabled} onClick={event => { event.stopPropagation(); toggle(course.course_id, !course.is_completed); }}><span className="course-checkmark" aria-hidden="true">{course.is_completed ? '✓' : ''}</span><span>{course.is_completed ? '선택됨' : '이수'}</span></button></td>
+     <td className="course-check-cell"><button className="course-toggle" type="button" role="switch" aria-label={`${course.course_name} 이미 이수함`} aria-checked={course.is_completed} disabled={disabled} onClick={event => { event.stopPropagation(); toggle(course.course_id, !course.is_completed); }}><span className="course-checkmark" aria-hidden="true">{course.is_completed && <svg width="18" height="18" viewBox="0 0 20 20" fill="none" focusable="false"><path d="m4 10 4 4 8-8" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square" strokeLinejoin="miter"/></svg>}</span></button></td>
     </tr>)}
    </tbody>)}
   </table> : <p className="course-year-empty">{courses.length ? '검색 결과가 없습니다.' : '등록된 과목이 없습니다.'}</p>}
