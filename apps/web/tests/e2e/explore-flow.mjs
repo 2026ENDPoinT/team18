@@ -1,5 +1,6 @@
 // Next :15102 + tests/integration/explore_ui_server.py. Real API/DB; fake external providers.
 import assert from 'node:assert/strict';
+import { confirmCourseSelection } from './course-confirmation.mjs';
 import { mkdirSync } from 'node:fs';
 import { setTimeout as delay } from 'node:timers/promises';
 const { chromium }=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
@@ -35,7 +36,7 @@ try{
  await button('저장 후 다음: 프로젝트 문서').click();
  await page.locator('input[type=file]').setInputFiles({name:'experience.txt',mimeType:'text/plain',buffer:Buffer.from('제가 React로 행사 신청 화면과 입력 검증을 구현했습니다.\n팀원 민수는 Docker로 배포 환경을 구성했습니다.\n제가 SQL로 신청 데이터 조회 쿼리를 작성했습니다.\n제가 Python으로 통계를 정리했습니다.')});
  await poll(()=>button('다음: 이수 과목').isEnabled(),'document ready');await button('다음: 이수 과목').click();
- await button('이수 선택 확인').click();await page.waitForURL('**/input/review');await readyReview();await cleanCopy();
+ await confirmCourseSelection(page);await page.waitForURL('**/input/review');await readyReview();await cleanCopy();
  await fixture({failure:true});await button('프로젝트 경험 분석 실행').click();
  await page.getByRole('alert').filter({hasText:'프로젝트 경험 분석을 완료하지 못했습니다.'}).waitFor();await readyReview();
  await fixture({failure:false,partial:true});await button('프로젝트 경험 분석 실행').click();

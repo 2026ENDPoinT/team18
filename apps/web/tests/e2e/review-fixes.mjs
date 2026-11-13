@@ -1,6 +1,7 @@
 // Real local API/DB/parser. Start review_fixes_ui_server.py and Next on :15102.
 // PLAYWRIGHT_MODULE may point to an existing Playwright installation.
 import assert from 'node:assert/strict';
+import { confirmCourseSelection } from './course-confirmation.mjs';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const origin = process.env.JOB_SKILLS_WEB_ORIGIN || 'http://localhost:15102';
 const browser = await chromium.launch({ executablePath: process.env.P5_BROWSER, headless: true });
@@ -54,7 +55,7 @@ try {
   assert.equal((await json(await page.request.get(base))).input_revision, before.input_revision);
   await page.getByRole('switch', { name: /프로그래밍 기초/ }).click();
   await waitText(page, '이수 선택이 저장되었습니다.');
-  await button(page, '이수 선택 확인').click(); await page.waitForURL('**/input/review');
+  await confirmCourseSelection(page); await page.waitForURL('**/input/review');
   const comparison = await json(await page.request.get(base + '/skill-comparison'));
   assert.equal(comparison.project_analysis.status, 'no_documents');
   assert.deepEqual(comparison.project_analysis.experiences, []);
