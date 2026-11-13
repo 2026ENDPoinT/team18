@@ -6,6 +6,9 @@ import json
 import os
 import re
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 from pydantic import ValidationError
 from services.gemini import GeminiError
@@ -121,6 +124,13 @@ def _generate(schema, instruction, data, *, max_attempts=MAX_ATTEMPTS, response_
                     raise GeminiError('gemini_timeout', 'Gemini 요청 시간이 초과되었습니다.', 504) from None
                 if code == 400:
                     raise GeminiError('gemini_request_rejected', 'Gemini가 분석 요청을 거부했습니다. 모델 설정을 확인해 주세요.') from None
+                # Keep diagnostics without exception strings: provider messages can
+                # contain prompt contents, credentials or the user's document text.
+                error_type = type(exc).__name__
+                safe_type = error_type if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]{0,63}', error_type) else 'Unknown'
+                http_code = code if type(code) is int and 400 <= code <= 599 else None
+                logger.warning('gemini_provider_failure schema=%s type=%s http_code=%s',
+                               schema.__name__, safe_type, http_code)
                 raise GeminiError('gemini_call_failed', 'Gemini 분석 요청에 실패했습니다.') from None
     finally:
         client.close()
