@@ -26,7 +26,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange 
   let disposed = false;
   let busy = false;
   async function load() {
-   if (disposed || busy || document.visibilityState === 'hidden') return;
+   if (disposed || busy) return;
    busy = true;
    const attempt = ++sequence.current;
    setState(previous => ({ ...previous, phase: 'loading', message: '' }));
@@ -50,13 +50,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange 
    } finally { busy = false; if (!disposed) setAnalyzing(false); }
   }
   load();
-  window.addEventListener('focus', load);
-  document.addEventListener('visibilitychange', load);
-  return () => {
-   disposed = true;
-   window.removeEventListener('focus', load);
-   document.removeEventListener('visibilitychange', load);
-  };
+  return () => { disposed = true; };
  }, [active, retry, onResult]);
  const { phase, data:loadedData, message } = state;
  const outdated=!!(loadedData&&plan&&(loadedData.request_id!==plan.request_id||loadedData.comparison?.career_goal!==plan.input.career_goal||(loadedData.comparison?.target_role||'')!==(plan.input.target_role||'')));

@@ -4,7 +4,6 @@ export const resultTabs = [
  { key: 'activities', label: '공모전·대외활동' },
 ];
 export const resultHref = key => `/result?tab=${key}`;
-export const roadmapDetailHref = `${resultHref('roadmap')}&view=steps`;
 
 // Only the analyzed role field is a job name. Search keywords and skill names
 // cannot be substituted, including before an analysis has been saved.
@@ -13,16 +12,6 @@ export function relatedRoles(comparison) {
  if (!job?.snapshot_id) return [];
  const role = (job.canonical_role || job.target_role || '').trim();
  return role ? [role] : [];
-}
-
-// Both the dashboard and the result use persisted task progress, never inferred skill levels.
-export function roadmapProgress(result) {
- const steps = [...(result?.roadmap || [])].sort((a, b) => a.order - b.order);
- const tasks = steps.flatMap(step => (step.tasks || []).map(task => ({ step, task })));
- const remaining = tasks.filter(({ task }) => !task.is_completed);
- const ready = remaining.find(({ step }) => (step.depends_on || []).every(id =>
-  steps.find(parent => parent.step_id === id)?.tasks.every(task => task.is_completed)));
- return { total: tasks.length, completed: tasks.length - remaining.length, next: ready || remaining[0] || null };
 }
 
 export function courseLearning(course) {

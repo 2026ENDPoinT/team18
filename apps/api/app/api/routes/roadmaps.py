@@ -6,12 +6,14 @@ from fastapi import APIRouter, Depends
 
 from api.dependencies import owned_context, parse_body, require_origin, respond
 from api.domain import Problem
-from api.schemas import openapi_body, validate_body
+from api.schemas import EmptyRequest, openapi_body, validate_body
 from repositories.roadmaps import RoadmapRepository, metadata, run_payload
 from repositories.postgres import StorageConflict
 from services.gemini import GeminiError
 from services.gemini_roadmap import generate_roadmap
-from services.project_experience import digest
+from services.project_experience import digest, model_basis
+from repositories.experience_analysis import decode
+from services.course_reasons import VERSION as REASONS_VERSION, reason_input, generate_course_reasons
 from services.roadmap_generation import capture_basis, model_input, validate_result
 from services.roadmap_schemas import GenerationRequest, ProgressRequest
 from services.ai_guard import guarded_call
@@ -132,6 +134,35 @@ def history(rid: str, ctx=Depends(owned_context)):
     result = {'runs': [metadata(r, current) for r in RoadmapRepository(ctx[0]).history(rid)], 'input_revision': current['input_revision']}
     ctx[0].commit()
     return respond(200, result)
+
+
+@router.post('/roadmaps/{run_id:roadmap_id}/course-reasons', dependencies=[Depends(require_origin)], openapi_extra=openapi_body(EmptyRequest))
+def course_reasons(rid: str, run_id: str, ctx=Depends(owned_context), body=Depends(parse_body)):
+    validate_body(EmptyRequest, body)
+    current = read_basis(ctx, rid)
+    store = RoadmapRepository(ctx[0])
+    run = store.get(rid, run_id)
+    if not run:
+        raise Problem(404, 'not_found', '저장된 수강 후보를 찾을 수 없습니다.')
+    if metadata(run, current)['details_restricted']:
+        raise Problem(409, 'evidence_unavailable', '문서 근거가 변경되어 추천 이유를 확인할 수 없습니다.')
+    if run['status'] not in ('success', 'partial'):
+        raise Problem(409, 'roadmap_not_ready', '수강 후보 생성이 완료된 뒤 추천 이유를 확인해 주세요.')
+    data = reason_input(decode(run['basis_json']), run_payload(store, run, current)['recommended_courses'])
+    current_hash = digest(current)
+    model = model_basis()
+    cache_key = digest([REASONS_VERSION, rid, run_id, model, data])
+    ctx[0].commit()
+    # One batch for the saved candidates; the durable cache and request lease
+    # cover remounts, reloads, multiple windows and multiple API workers.
+    result = guarded_call(ctx, 'course_reasons', cache_key,
+                          lambda: generate_course_reasons(data), cache=True) if data['courses'] else {'reasons': []}
+    latest = read_basis(ctx, rid)
+    if digest(latest) != current_hash:
+        raise Problem(409, 'revision_conflict', '추천 이유를 작성하는 동안 입력이 변경되었습니다. 최신 내용을 확인해 주세요.')
+    ctx[0].commit()
+    return respond(200, {**result, 'run_id': run_id, 'provider': 'gemini', 'model_name': model,
+                         'reason_version': REASONS_VERSION})
 
 
 @router.get('/roadmaps/{run_id:roadmap_id}')

@@ -72,8 +72,8 @@ try{
  for(const name of ['준비 상태','직무 역량 비교','실행 로드맵','수강 후보','공모전·대외활동']){await page.getByRole('tab',{name,exact:true}).click();await cleanCopy();assert.equal(await page.locator('.result-summary>div').count(),1);}
  await compareTab();assert.ok((await editor().innerText()).includes('데이터 분석가'));
  await button('직무 분석 실행').click();await poll(()=>button('직무 분석 다시 실행').isEnabled(),'job analysis complete');
- await page.getByRole('tab',{name:'실행 로드맵',exact:true}).click();await button('로드맵 생성').click();
- await poll(async()=>(await page.locator('#result-panel').innerText()).includes('작업 완료'),'generated roadmap');
+ await page.getByRole('tab',{name:'수강 후보',exact:true}).click();await button('로드맵 생성').click();
+ await page.locator('.course-candidates-list').waitFor();
  for(const name of ['준비 상태','직무 역량 비교','실행 로드맵','수강 후보','공모전·대외활동']){await page.getByRole('tab',{name,exact:true}).click();await cleanCopy();assert.equal(await page.locator('.result-summary>div').count(),1);}
  assert.ok((await counters()).roadmap_fixture>0);
  console.log('PASS: one primary footer navigation, removed copy and no empty summary column before/after real roadmap persistence across all tabs');

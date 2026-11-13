@@ -71,17 +71,15 @@ try {
 
  await go('/result?tab=skills'); await poll(() => button('직무 분석 실행').isEnabled(), 'job analysis ready'); await button('직무 분석 실행').click();
  await poll(() => button('직무 분석 다시 실행').isEnabled(), 'job saved');
- await tab('실행 로드맵').click(); await button('로드맵 생성').click(); await page.locator('.next-task').waitFor();
- let run = await get('/roadmap'); assert.ok(run.run_id); const task = run.roadmap[0].tasks[0];
- await textHas(page.locator('.next-task'), task.title); await textHas(page.locator('.next-task'), task.deliverable); await textHas(page.locator('.next-task'), run.roadmap[0].reason);
- await page.getByRole('region', { name: '확인할 질문' }).waitFor();
- await screenshot('next-task-desktop');
- await page.setViewportSize({width:390,height:844}); await screenshot('next-task-390'); assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)); await page.setViewportSize({width:1440,height:1000});
- assert.ok((await page.locator('.next-task').boundingBox()).y < (await page.locator('.roadmap-controls').boundingBox()).y);
- await button('이 작업 완료로 표시').click(); await poll(() => page.locator('.next-task').innerText().then(t => t.includes('작업 완료 1 / 3개')), 'task completion saved');
+ await tab('수강 후보').click(); await button('로드맵 생성').click(); await page.locator('.course-candidates-list').waitFor();
+ let run = await get('/roadmap'); assert.ok(run.run_id);
+ await tab('실행 로드맵').click(); await page.locator('.result-overview').waitFor();
+ assert.equal(await page.locator('.next-task,.roadmap-tasks,.roadmap-history').count(),0);
+ await screenshot('result-summary-desktop');
+ await page.setViewportSize({width:390,height:844}); await screenshot('result-summary-390'); assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)); await page.setViewportSize({width:1440,height:1000});
  await dash(); ai = await counts(); written = writes.length;
  const comparison = await get('/skill-comparison'); await textHas(card('직무 역량 비교'), comparison.job_analysis.canonical_role); await textHas(card('직무 역량 비교'), 'SQL');
- run = await get('/roadmap'); await textHas(card('실행 로드맵'), '작업 완료 1 / 3개'); await textHas(card('실행 로드맵'), run.roadmap[1].tasks[0].title);
+ run = await get('/roadmap'); await textHas(card('실행 로드맵'), '저장된 수강 후보');
  assert.ok(run.recommended_courses.length); const course = run.recommended_courses[0]; await textHas(card('수강 후보'), course.course_name); await textHas(card('수강 후보'), course.personalization_reason || course.reason);
  await screenshot('full-desktop');
  for (const [name, key] of [['직무 역량 비교','skills'], ['실행 로드맵','roadmap'], ['수강 후보','courses'], ['공모전·대외활동','activities']]) {
@@ -95,23 +93,21 @@ try {
  await page.keyboard.press('ArrowRight'); await page.waitForURL('**/result?tab=courses'); await page.goBack(); await page.waitForURL('**/result?tab=roadmap'); assert.equal(await tab('실행 로드맵').getAttribute('aria-selected'), 'true');
  await page.goBack(); await page.waitForURL('**/result?tab=skills'); assert.equal(await tab('직무 역량 비교').getAttribute('aria-selected'), 'true');
  assert.deepEqual(await counts(), ai); assert.equal(writes.length, written);
- console.log('PASS: full saved cards match all result details, exact tab URL/direct entry/reload/back/keyboard, first pending task and stored reason/deliverable, grouped questions, no implicit AI or mutations');
+ console.log('PASS: full saved cards match all result details, exact tab URL/direct entry/reload/back/keyboard, saved recommendations and summary navigation, no implicit AI or mutations');
 
  await page.route('**/documents', route => route.fulfill({ status: 503, json: { message: '문서 조회 일시 실패' } }));
  await page.route('**/skill-comparison', route => route.fulfill({ status: 503, json: { message: '직무 조회 일시 실패' } }));
  await dash(); await textHas(card('경험·문서'), '불러오지 못했습니다'); assert.ok(!(await card('경험·문서').innerText()).includes('0개'));
- await textHas(card('직무 역량 비교'), '불러오지 못했습니다'); await textHas(card('실행 로드맵'), '작업 완료 1 / 3개'); await textHas(card('역량 탐색'), 'React Native');
+ await textHas(card('직무 역량 비교'), '불러오지 못했습니다'); await textHas(card('실행 로드맵'), '저장된 수강 후보'); await textHas(card('역량 탐색'), 'React Native');
  await page.unroute('**/documents'); await page.unroute('**/skill-comparison'); await button('최신 내용 불러오기').click(); await card('경험·문서').waitFor(); await textHas(card('경험·문서'), '읽기 완료 1개');
  for (const width of [390,320]) { await page.setViewportSize({ width, height: 844 }); assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)); await screenshot('full-' + width); }
  await page.setViewportSize({ width:1440, height:1000 });
- await go('/'); await button('이어서 작성').click(); await page.waitForURL('**/result?tab=roadmap'); await page.locator('.next-task').waitFor(); assert.equal((await get()).request_id, id);
- await button('이 작업 완료로 표시').click(); await poll(() => page.locator('.next-task').innerText().then(t => t.includes('작업 완료 2 / 3개')), 'second saved');
- await button('이 작업 완료로 표시').click(); await page.getByText('모든 작업을 완료했어요. 저장한 실행 기록을 아래에서 확인하세요.', { exact:true }).waitFor();
- await page.reload(); await textHas(page.locator('.next-task'), '모든 작업을 완료했어요'); await dash(); await textHas(card('실행 로드맵'), '모든 작업을 완료했어요'); await textHas(card('실행 로드맵'), '작업 완료 3 / 3개');
+ await go('/'); await button('이어서 작성').click(); await page.waitForURL('**/result?tab=roadmap'); await page.locator('.result-overview').waitFor(); assert.equal((await get()).request_id, id);
+ await page.reload(); await page.locator('.result-overview').waitFor(); await dash(); await textHas(card('실행 로드맵'), '저장된 수강 후보');
  const newer = await context.newPage(); await newer.goto(origin + '/'); await newer.getByRole('button',{name:'처음부터 작성하기',exact:true}).click(); await newer.waitForURL('**/input/basic');
  await newer.locator('[name=career_goal]').fill('다른 계획의 디자인 관심 분야'); await newer.getByRole('button',{name:'저장',exact:true}).click(); await newer.getByRole('status').filter({hasText:'저장되었습니다.'}).waitFor();
  await newer.goto(origin + '/dashboard'); await newer.locator('.dashboard-card').first().waitFor(); assert.ok((await newer.locator('.dashboard-card').first().innerText()).includes('다른 계획의 디자인 관심 분야'));
- await page.reload(); await card('기본 정보').waitFor(); await textHas(card('기본 정보'),'데이터 분석 분야의 프로젝트를 준비합니다'); await textHas(card('실행 로드맵'),'작업 완료 3 / 3개'); assert.equal((await get()).request_id,id);
+ await page.reload(); await card('기본 정보').waitFor(); await textHas(card('기본 정보'),'데이터 분석 분야의 프로젝트를 준비합니다'); await textHas(card('실행 로드맵'),'저장된 수강 후보'); assert.equal((await get()).request_id,id);
  await newer.close();
  const signed = await browser.newContext();
  await signed.route('https://job-skills-test.supabase.co/**',route=>route.fulfill({json:{access_token:'test.token.value',refresh_token:'test-refresh',expires_in:3600,token_type:'bearer',user:{...user,id:'12345678-0000-4000-8000-000000000003',is_anonymous:false,email:'browser-check@example.test'}}}));
@@ -121,7 +117,7 @@ try {
  await signedPage.goto(origin+'/dashboard'); await signedPage.locator('.dashboard-card').first().waitFor(); assert.ok((await signedPage.locator('.dashboard-card').first().innerText()).includes('다른 계정의 환경 관심 분야')); assert.ok(!(await signedPage.locator('body').innerText()).includes('dashboard-experience.txt'));
  await signed.close();
  console.log('PASS: current tab plan retained when a newer plan exists, authenticated-session resume, isolated owner data');
- assert.deepEqual(errors, []); console.log('PASS: independent 503 failures never show zero, retry recovery, 320/390 layouts, returning saved roadmap, all-completed persistence');
+ assert.deepEqual(errors, []); console.log('PASS: independent 503 failures never show zero, retry recovery, 320/390 layouts, returning saved roadmap summary');
  console.log('ALL DASHBOARD BROWSER CHECKS PASSED');
 } catch (error) { await screenshot('failure').catch(() => {}); console.error(await page.locator('body').innerText()); throw error; }
 finally { await context.close(); await browser.close(); }

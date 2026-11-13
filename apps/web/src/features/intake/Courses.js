@@ -11,8 +11,12 @@ import { courseYears, filterCourses, loadCourseCatalog, termSections, withPendin
 
 function CourseGroupToggle({ label, courses, disabled, toggleMany }) {
  const allSelected = courses.length > 0 && courses.every(course => course.is_completed);
+ const selection = allSelected ? 'all' : courses.some(course => course.is_completed) ? 'some' : 'none';
  const action = allSelected ? '전체 해제' : '전체 선택';
- return <button className="course-group-toggle" type="button" aria-label={`${label} ${action}`} disabled={disabled || !courses.length} onClick={() => toggleMany(courses.map(course => course.course_id), !allSelected)}>{action}</button>;
+ return <button className="course-group-toggle" type="button" data-selection={selection} aria-label={`${label} ${action}`} disabled={disabled || !courses.length} onClick={() => toggleMany(courses.map(course => course.course_id), !allSelected)}>
+  <span className="course-group-toggle-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" focusable="false"><path d={selection === 'some' ? 'M4 8h8' : 'm3.5 8 3 3 6-6'} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+  <span>{action}</span>
+ </button>;
 }
 
 function YearTable({ year, courses, visibleIds, disabled, toggle, toggleMany }) {
@@ -183,8 +187,9 @@ export default function Courses() {
    </section>
    <div className="course-year-grid">{years.map(group => <YearTable key={group.year || 'unknown'} {...group} visibleIds={visibleIds} disabled={disabled} toggle={toggle} toggleMany={toggleMany}/>)}</div>
    <div className="course-confirm-bar" aria-label="이수 선택 확인 영역">
-    <div className="course-confirm-row"><div className="course-confirm-summary"><strong aria-live="polite">선택 {data.selection_summary.count}과목</strong></div><button ref={reviewTrigger} className="primary" aria-haspopup="dialog" aria-expanded={reviewOpen} disabled={!canConfirm} onClick={openReview}>이수 선택 확인</button></div>
-    <p className="field-help course-save-status" role="status">{phase === 'saving' ? '선택을 저장 중입니다… 계속 체크할 수 있어요.' : phase === 'confirming' ? '선택 확인 중…' : phase === 'failed' ? '저장 상태를 확인해 주세요.' : message || '선택은 자동 저장됩니다. 0개를 선택해도 계속할 수 있어요.'}</p>
+    <div className="course-confirm-row"><div className="course-confirm-summary"><strong aria-live="polite">선택 {data.selection_summary.count}과목</strong>
+     <p className="field-help course-save-status" role="status">{phase === 'saving' ? '선택을 저장 중입니다… 계속 체크할 수 있어요.' : phase === 'confirming' ? '선택 확인 중…' : phase === 'failed' ? '저장 상태를 확인해 주세요.' : message || '선택은 자동 저장됩니다. 0개를 선택해도 계속할 수 있어요.'}</p>
+    </div><button ref={reviewTrigger} className="primary" aria-haspopup="dialog" aria-expanded={reviewOpen} disabled={!canConfirm} onClick={openReview}>이수 선택 확인</button></div>
    </div>
    {reviewOpen && <CourseSelectionDialog data={data} missing={missingRef.current} phase={phase} failure={failure} message={message} trigger={reviewTrigger} canConfirm={canConfirm && phase !== 'saving'} onConfirm={confirm} onClose={closeReview} onRetrySave={savePending} onRefresh={() => { closeReview(); refresh(); }}/>}
   </>}

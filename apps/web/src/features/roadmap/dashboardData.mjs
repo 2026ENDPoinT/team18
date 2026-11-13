@@ -1,7 +1,7 @@
 import { experiencePresentation } from './experiencePresentation.mjs';
 import { coursePresentation } from './coursePresentation.mjs';
 import { orderedSkills } from './jobSkillAnalysis.mjs';
-import { roadmapProgress, courseReason, experienceAnswer, resultHref, roadmapDetailHref } from './resultPresentation.mjs';
+import { courseReason, experienceAnswer, resultHref } from './resultPresentation.mjs';
 
 // GET only. A rejected resource stays an error and cannot become a zero count.
 export async function loadDashboardResources(apiRequest, plan) {
@@ -60,11 +60,10 @@ export function dashboardCards(plan, resources) {
   `대표 요구 기술: ${orderedSkills({ ...jobs, comparison }).filter(skill => skill.recommendation_eligible !== false).slice(0, 3).map(skill => skill.name).join(', ') || '확인된 기술 없음'}`,
  ] : [jobs?.status === 'error' ? '직무 분석을 완료하지 못했습니다. 다시 실행해 주세요.' : '현재 진로 정보로 저장된 분석이 없습니다. 직무 분석을 실행해 주세요.'], '직무 분석 확인·실행');
  const run = data('roadmap'), usable = run?.roadmap && !run.details_restricted;
- const progress = roadmapProgress(usable ? run : null);
- const roadmap = make('roadmap', '실행 로드맵', roadmapDetailHref, usable ? [
-  progress.next ? `다음 할 일: ${progress.next.task.title}` : progress.total ? '모든 작업을 완료했어요.' : '저장된 실행 작업이 없습니다.',
-  `작업 완료 ${progress.completed} / ${progress.total}개`,
- ] : [run?.details_restricted ? '근거가 변경되어 상세 접근이 제한된 결과입니다.' : '저장된 로드맵이 없습니다. 결과 화면에서 생성해 주세요.'], '지금 할 일 확인');
+ const roadmap = make('roadmap', '실행 로드맵', resultHref('roadmap'), usable ? [
+  `저장된 수강 후보 ${coursePresentation(run.recommended_courses || []).cards.length}개`,
+  '기본 정보와 추천 과목·관련 직무·활동을 함께 확인하세요.',
+ ] : [run?.details_restricted ? '근거가 변경되어 상세 접근이 제한된 결과입니다.' : '저장된 로드맵이 없습니다. 수강 후보 화면에서 생성해 주세요.'], '로드맵 요약 보기');
  const candidate = usable && coursePresentation(run.recommended_courses || []).cards[0];
  const recommendations = make('recommendedCourses', '수강 후보', resultHref('courses'), candidate ? [candidate.course_name, courseReason(candidate)] : [usable ? '현재 근거로 추천된 과목이 없습니다. 과목 목록과 이수 선택을 확인해 주세요.' : '로드맵을 생성하면 실제 추천 과목을 확인할 수 있어요.'], '수강 후보와 학습 내용 확인');
  recommendations.error = error('roadmap');

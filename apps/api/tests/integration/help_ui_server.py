@@ -48,6 +48,15 @@ def roadmap(data):
 server.roadmaps.generate_roadmap = roadmap
 
 
+def course_reasons(data):
+    return {'reasons': [{'course_id': course['course_id'],
+        'personalization_reason': '행사 신청 데이터를 분석하려는 목표와 연결해 SQL 조회·집계 내용을 살펴볼 수 있어요.',
+        'evidence_ids': [course['evidence'][0]['id']] if course['evidence'] else []} for course in data['courses']]}
+
+
+server.roadmaps.generate_course_reasons = course_reasons
+
+
 def activities(db, *, include_event_context=False):
     server.counters['provider_fixture'] += 1
     return [dict(id='minseo-data-example', kind='competition', title='대학생 공공데이터 분석 아이디어 공모전 (예시)',

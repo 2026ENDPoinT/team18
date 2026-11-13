@@ -28,6 +28,19 @@ export function installRoadmapMock() {
   if (!url.includes('/api/')) return nativeFetch(input, options);
   const json = (data, status = 200) => { persist(); return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } }); };
   const body = options.body ? JSON.parse(options.body) : {};
+  if (url.endsWith('/course-reasons')) {
+   m.reasonRequests = (m.reasonRequests || 0) + 1;
+   if (m.holdReasons) await new Promise(resolve => { window.releaseReasons = () => { m.holdReasons = false; resolve(); }; });
+   if (m.reasonFailure) return json({ error: 'gemini_timeout', message: '추천 이유 요청 시간이 초과되었습니다.' }, 504);
+   const runId = url.split('/').at(-2), record = m.runs.find(r => r.run_id === runId);
+   m.reasonCache ||= {};
+   if (!m.reasonCache[runId]) {
+    m.reasonProviderCalls = (m.reasonProviderCalls || 0) + 1;
+    m.reasonCache[runId] = { run_id: runId, provider: 'gemini', reasons: record.recommended_courses.map(c => ({ course_id: c.course_id,
+     personalization_reason: '데이터 분석 목표를 위해 데이터베이스에서 다루는 조회 개념을 살펴볼 수 있어요. 학습 내용을 실제 데이터 정리에 연결해 보는 후보입니다.', evidence_ids: [] })) };
+   }
+   return json(m.reasonCache[runId]);
+  }
   if (url.endsWith('/activities')) return json({ request_id: 'test-plan', input_revision: m.revision,
    activity_basis: 'goal-only', status: 'success', activities: [],
    sources: ['competition', 'extracurricular'].map(kind => ({ kind, status: 'success' })),

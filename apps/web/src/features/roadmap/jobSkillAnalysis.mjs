@@ -1,4 +1,4 @@
-// Tab visits/focus/reload only read saved evidence. Paid work requires run:true.
+// Tab visits/reload only read saved evidence. Paid work requires run:true.
 export function orderedSkills(data) {
  if (data.analysis_version !== 'job-skills-v2') return data.skills || [];
  const order = new Map((data.comparison?.comparisons || []).map((item, index) => [item.skill_name, index]));

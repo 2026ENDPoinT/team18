@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadDashboardResources, dashboardCards, resumeDestination } from '../../src/features/roadmap/dashboardData.mjs';
-import { roadmapProgress, courseLearning } from '../../src/features/roadmap/resultPresentation.mjs';
+import { courseLearning } from '../../src/features/roadmap/resultPresentation.mjs';
 const plan = { request_id: 'one', input: { career_goal:'데이터 분석', catalog_id:'catalog' } };
 test('a failed card stays an error while independent saved values survive; GET only', async () => {
  const calls = [];
@@ -27,14 +27,13 @@ test('no goal or catalog skips unavailable lookups; current owner/plan paths onl
  assert.ok(!calls.some(path=>path.includes('/activities')||path.includes('/courses?')));
  assert.ok(calls.every(path=>path==='/reference'||path.startsWith('/roadmap-inputs/two/')));
 });
-test('next stored task respects prerequisites, completed state and empty runs',()=>{
- const run={roadmap:[{step_id:'b',order:1,depends_on:['a'],tasks:[{task_id:'b1',is_completed:false}]},{step_id:'a',order:2,depends_on:[],tasks:[{task_id:'a1',is_completed:false}]}]};
- assert.equal(roadmapProgress(run).next.task.task_id,'a1');
- run.roadmap[1].tasks[0].is_completed=true;
- assert.equal(roadmapProgress(run).next.task.task_id,'b1');
- run.roadmap[0].tasks[0].is_completed=true;
- assert.deepEqual(roadmapProgress(run),{next:null,completed:2,total:2});
- assert.deepEqual(roadmapProgress(null),{next:null,completed:0,total:0});
+test('roadmap card opens the summary and describes saved recommendations',()=>{
+ const resources={roadmap:{data:{roadmap:[{tasks:[{title:'removed task',is_completed:false}]}],recommended_courses:[{course_id:'one',course_name:'데이터베이스'}]}}};
+ const card=dashboardCards(plan,resources).find(card=>card.key==='roadmap');
+ assert.equal(card.href,'/result?tab=roadmap');
+ assert.equal(card.lines[0],'저장된 수강 후보 1개');
+ assert.ok(!card.lines.join(' ').includes('removed task'));
+ assert.equal(card.action,'로드맵 요약 보기');
 });
 test('course descriptions never infer learning from a title or prerequisite alone',()=>{
  assert.equal(courseLearning({course_name:'SQL',course_evidence:'SQL',keyword_evidence:[{keyword_role:'prerequisite',evidence_text:'Python 사전 지식'}]}),'공식 학습 내용이 제공되지 않았습니다.');

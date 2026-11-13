@@ -70,7 +70,6 @@ export default function ProjectExperienceReview() {
   {busy && <p role="status">문서 분석 또는 확인 내용을 처리하고 있습니다…</p>}
   {message && <p role="alert">{message}</p>}
   <div className="doc-actions"><button className="primary" disabled={busy || conflict || !data || !data.eligible_documents} onClick={() => mutate('/project-experience-analysis', {}, 'POST')}>프로젝트 경험 분석 실행</button><button disabled={busy} onClick={load}>최신 내용 불러오기</button><Link href="/input/documents" className="button">문서 확인</Link></div>
-  {!!data?.analyzed_documents && <div className="doc-actions"><button disabled={busy||conflict} onClick={() => mutate('/project-experience-analysis', { refresh: true }, 'POST')}>프로젝트 경험 재분석</button></div>}
   {data && <>
    <p className="field-help">분석 가능한 문서 {data.eligible_documents}개 · 분석 완료 {data.analyzed_documents}개 · 확인할 경험 {data.verified_experiences}개</p>
    {data.status === 'no_documents' && <p role="status">현재 분석 가능한 문서가 없습니다. 경험이 없다는 의미는 아닙니다. 문서 상태를 확인해 주세요.</p>}

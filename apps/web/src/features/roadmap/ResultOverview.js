@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import ActivityRecommendations from './ActivityRecommendations';
-import { courseReason, relatedRoles, resultHref, roadmapDetailHref } from './resultPresentation.mjs';
+import { relatedRoles, resultHref } from './resultPresentation.mjs';
 import { recommendedCourseCards } from './coursePresentation.mjs';
 
 function ResourceMessage({ resource, loading, error, retry }) {
@@ -10,7 +10,7 @@ function ResourceMessage({ resource, loading, error, retry }) {
  return null;
 }
 
-export default function ResultOverview({ resources, reload }) {
+export default function ResultOverview({ resources, reload, activities }) {
  const { plan: profile, roadmap, comparison, courses: selection } = resources;
  const plan = profile?.data, input = plan?.input, result = roadmap?.data;
  const ready = profile?.phase === 'ready', courseReady = roadmap?.phase === 'ready' && selection?.phase === 'ready';
@@ -35,10 +35,10 @@ export default function ResultOverview({ resources, reload }) {
      : !hasRun ? <p role="status">{result?.generation_pending || result?.status === 'generating' ? '요청한 로드맵을 생성하고 있어요.' : '아직 수강 추천이 없어요.'}</p>
      : <>
       {result.is_stale && <p className="summary-note" role="status">이전 입력 기준의 추천이에요. 현재 이수한 과목은 제외했어요.</p>}
-      {courses.length ? <ul className="result-brief-list">{courses.slice(0, 3).map(course => <li key={course.course_id} data-recommended-course={course.course_id}><h3>{course.course_name}</h3><p title={courseReason(course)}>{courseReason(course)}</p></li>)}</ul>
+      {courses.length ? <ul className="result-brief-list">{courses.slice(0, 3).map(course => <li key={course.course_id} data-recommended-course={course.course_id}><h3>{course.course_name}</h3></li>)}</ul>
        : <p role="status">{result.course_status === 'catalog_unavailable' ? '추천에 사용할 과목 목록이 없어요.' : result.course_status === 'evidence_unavailable' ? '수강 추천에 필요한 직무 근거가 없어요.' : '현재 조건에 맞는 추천 과목이 없어요.'}</p>}
      </>}
-    <Link className="summary-link" href={hasRun ? resultHref('courses') : roadmapDetailHref}>{hasRun ? `전체 ${courses.length}과목·추천 근거 보기 →` : '로드맵 생성하러 가기 →'}</Link>
+    <Link className="summary-link" href={resultHref('courses')}>{hasRun ? `전체 ${courses.length}과목·추천 근거 보기 →` : '로드맵 생성하러 가기 →'}</Link>
     {hasRun && !courses.length && <Link className="summary-link" href="/input/courses">과목 목록·이수 선택 확인 →</Link>}
    </>}
   </section>
@@ -52,8 +52,7 @@ export default function ResultOverview({ resources, reload }) {
   </section>
   <section className="result-card result-activity-summary" aria-labelledby="result-activity-title">
    <h2 id="result-activity-title">추천 공모전·대외활동</h2>
-   <ActivityRecommendations active compact inputRevision={plan?.input_revision}/>
+   <ActivityRecommendations active compact resource={activities}/>
   </section>
-  <div className="result-overview-actions"><Link className="button" href={roadmapDetailHref}>실행 작업·완료 기록 보기 →</Link></div>
  </div>;
 }

@@ -1,48 +1,14 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
-import { apiRequest } from '../../lib/api/client';
-import { resolvePlanId } from '../../lib/api/session';
-import { activityKindLabel, createActivityLoader } from './activityLoader.mjs';
+import { activityKindLabel } from './activityLoader.mjs';
 import Link from 'next/link';
 import { resultHref } from './resultPresentation.mjs';
 
-const ignoreResult = () => {};
-export default function ActivityRecommendations({ active, inputRevision, onResult = ignoreResult, compact = false }) {
- const loader = useRef(null), refresh = useRef(false);
- if (!loader.current) loader.current = createActivityLoader({ apiRequest, resolvePlanId });
- const [state, setState] = useState({ phase: 'idle', data: null, message: '' });
- const [retry, setRetry] = useState(0);
- useEffect(() => {
-  if (!active) return;
-  let disposed = false, busy = false;
-  async function load() {
-   if (disposed || busy || document.visibilityState === 'hidden') return;
-   busy = true;
-   setState({ phase: 'loading', data: null, message: '' });
-   const force = refresh.current; refresh.current = false;
-   try {
-    const data = await loader.current({ refresh: force });
-    if (!disposed) { setState({ phase: 'ready', data, message: '' }); onResult(data); }
-   } catch (error) {
-    if (!disposed) { setState({ phase: 'error', data: null, message: error.message }); onResult(null); }
-   } finally { busy = false; }
-  }
-  load();
-  window.addEventListener('focus', load);
-  document.addEventListener('visibilitychange', load);
-  // Recheck eligibility while the tab remains open, including at midnight in Korea.
-  const timer = setInterval(load, 60000);
-  return () => {
-   disposed = true; clearInterval(timer);
-   window.removeEventListener('focus', load);
-   document.removeEventListener('visibilitychange', load);
-  };
- }, [active, inputRevision, retry, onResult]);
- const { phase, data, message } = state;
+export default function ActivityRecommendations({ active, resource, compact = false }) {
+ const { phase, data, message, refresh } = resource;
  const failed = data?.sources?.filter(source => source.status !== 'success') || [];
  if (compact) return <div className="activity-summary" aria-busy={phase === 'idle' || phase === 'loading'}>
   {(phase === 'idle' || phase === 'loading') && <p role="status">활동 추천을 불러오는 중이에요…</p>}
-  {(phase === 'error' || data?.status === 'error') && <div><p role="alert">활동 추천을 불러오지 못했어요.</p><button onClick={() => setRetry(v => v + 1)}>다시 조회</button></div>}
+  {(phase === 'error' || data?.status === 'error') && <div><p role="alert">활동 추천을 불러오지 못했어요.</p><button onClick={refresh}>다시 조회</button></div>}
   {phase === 'ready' && data?.status !== 'error' && <>
    {failed.length > 0 && <p className="summary-note" role="status">일부 출처를 조회하지 못해 확인된 활동만 표시해요.</p>}
    {data.activities.length === 0 ? <p role="status">현재 추천 조건에 맞는 활동이 없어요.</p> : <ul className="result-brief-list">{data.activities.slice(0, 3).map(item => {
@@ -59,7 +25,7 @@ export default function ActivityRecommendations({ active, inputRevision, onResul
  return <div hidden={!active} className="activity-recommendations" aria-busy={phase === 'loading'}>
   <h2>공모전·대외활동 추천</h2>
   <p>저장한 진로 목표를 바탕으로, 한국 시간 기준 접수 중이거나 접수 예정이고 대학생 또는 누구나 참여 대상으로 안내된 공고를 추천합니다. 문서나 직무 분석 없이도 이용할 수 있습니다.</p>
-  <button disabled={phase === 'loading'} onClick={() => { refresh.current = true; setRetry(v => v + 1); }}>활동 추천 다시 확인</button>
+  <button disabled={phase === 'idle' || phase === 'loading'} onClick={refresh}>활동 추천 다시 확인</button>
   {phase === 'loading' && <p role="status">접수 기간과 목표에 맞는 실제 공고를 확인하고 있습니다…</p>}
   {phase === 'error' && <p role="alert">{message}</p>}
   {data?.status === 'error' && <p role="alert">추천 활동을 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.</p>}
