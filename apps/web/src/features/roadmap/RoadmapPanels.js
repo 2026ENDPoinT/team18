@@ -48,12 +48,13 @@ const unconfirmed = result => (result.preparation_items || []).filter(item => ['
 
 export function Preparation({ result }) {
  const summary = result.preparation_summary;
+ const questions = unconfirmed(result), questionSet = new Set(questions);
  return <>
   <h2>준비 상태</h2><p>{result.career_goal}{result.target_role ? ` · ${result.target_role}` : ''}</p>
-  <div className="columns">{[['confirmed_skills', '확인된 수행 경험'], ['skills_to_verify', '추가 확인이 필요한 기술'], ['learning_candidates', '추가 학습을 검토할 기술']].map(([key, title]) => <div className="wire-box" key={key}><h3>{title}</h3><p>{summary[key].join(', ') || '현재 확인된 항목 없음'}</p></div>)}</div>
+  <div className="columns preparation-summary">{[['confirmed_skills', '확인된 수행 경험'], ['skills_to_verify', '추가 확인이 필요한 기술'], ['learning_candidates', '추가 학습을 검토할 기술']].map(([key, title]) => <div className="wire-box" key={key}><h3>{title}</h3><p>{summary[key].join(', ') || '현재 확인된 항목 없음'}</p></div>)}</div>
   <p>분석된 해외 채용공고 {result.basis.job_summary.analyzed_jobs || 0}개 · 프로젝트 분석 {result.basis.project_documents.filter(d => ['success', 'partial'].includes(d.status)).length}개</p>
-  <ConfirmationQuestions items={unconfirmed(result)}/>
-  <ul className="skill-list">{result.preparation_items.filter(item => !unconfirmed(result).includes(item)).map(item => {
+  <ConfirmationQuestions items={questions}/>
+  <ul className="skill-list">{result.preparation_items.filter(item => !questionSet.has(item)).map(item => {
    return <li className="skill-card" key={item.skill_name}><h3>{item.skill_name} <span className="badge">{statusLabels[item.student_status]}</span></h3><p>{item.reason}</p>
     {item.job_requirement?.priority_reason && <p className="field-help">{item.job_requirement.priority_reason}</p>}
     {item.job_requirement?.single_job_notice && <p className="notice">{item.job_requirement.single_job_notice}</p>}
@@ -93,7 +94,7 @@ export function CourseCandidates({ result }) {
    {result.recommended_courses.length === 0 && <p>현재 근거와 미선택 과목에서 추천할 후보를 찾지 못했습니다.</p>}
    {result.recommended_courses.length > 0 && result.recommended_courses.length < 5 && <p className="notice">이수 및 대체과목을 제외하면 추천 가능한 고유 과목이 {result.recommended_courses.length}개입니다.</p>}
   </>}
-  <ul className="skill-list">{cards.map(course => <li className="skill-card" key={course.course_id}>
+  <ul className="skill-list course-candidates-list">{cards.map(course => <li className="skill-card" key={course.course_id}>
    <h3>{course.course_name}{course.recommendation_label && <> <span className="badge">{course.recommendation_label}</span></>}</h3>
    <div className="recommendation-reason"><p><b>목표와의 연결</b> {courseReason(course)}</p></div>
    <p>{course.credits == null ? '학점 미제공' : `${course.credits}학점`}{course.recommended_year ? ` · 교육과정 권장 ${course.recommended_year}학년` : ''}{course.recommended_term ? ` ${course.recommended_term}` : ''}</p>

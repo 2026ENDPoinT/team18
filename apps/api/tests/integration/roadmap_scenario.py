@@ -8,6 +8,8 @@ from unittest.mock import patch
 
 from project_experience_scenario import ProjectExperienceAPI, fake_extraction, job_result
 from repositories.plans import connect, Repository
+from repositories.roadmaps import RoadmapRepository
+from repositories.experience_analysis import decode
 from services.gemini import GeminiError
 from services.roadmap_schemas import GeneratedRoadmap
 
@@ -202,6 +204,26 @@ class RoadmapAPI(ProjectExperienceAPI):
         self.assertEqual(run['preparation_summary']['learning_candidates'], [])
         self.assertIn('SQL', run['preparation_summary']['skills_to_verify'])
         self.assertEqual(run['roadmap'][0]['skill_targets'][0]['student_status'], 'not_verified')
+
+    def test_latest_result_includes_pending_generation_without_history_request(self):
+        self.jobs()
+        saved, _ = self.generated()
+        with closing(connect()) as db:
+            store = RoadmapRepository(db)
+            basis = decode(store.get(self.rid, saved['run_id'])['basis_json'])
+            pending = store.create(self.rid, basis)
+            db.commit()
+        with patch('api.routes.roadmaps.generate_roadmap') as ai:
+            latest = self.client.get(self.base + '/roadmap').json()
+            self.assertEqual(latest['run_id'], saved['run_id'])
+            self.assertTrue(latest['generation_pending'])
+            with closing(connect()) as db:
+                RoadmapRepository(db).fail(self.rid, pending['run_id'], 'generation_failed')
+                db.commit()
+            latest = self.client.get(self.base + '/roadmap').json()
+            self.assertEqual(latest['run_id'], saved['run_id'])
+            self.assertFalse(latest['generation_pending'])
+            ai.assert_not_called()
 
     def test_roadmap_persistence_cache_progress_refresh(self):
         self.jobs(); run, calls = self.generated(); self.assertEqual(calls, 1)

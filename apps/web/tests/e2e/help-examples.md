@@ -1,6 +1,6 @@
 # Page help screenshots and browser regression
 
-`apps/web/public/help/*.png` contains ten distinct captures of `#main-content` in the actual `apps/web` application, made in Chromium at a 1440×900 viewport. These are not rendered mockups or generated illustrations. Each image was visually inspected. The same fictional student, 민서, is used throughout: 한빛대학교 (예시) 컴퓨터공학과 2학년, a data-analysis goal, two completed courses, and an event-registration project. The help dialog explicitly labels the school, document, analysis and recommendation as fictional examples.
+`apps/web/public/help/*.png` contains ten distinct captures of `#main-content` in the actual `apps/web` application, made in Chromium at a 1440×900 viewport. These are not rendered mockups or generated illustrations. Each image was visually inspected. The same fictional student, 민서, is used throughout: 한빛대학교 (예시) 컴퓨터공학과, a data-analysis goal, two completed courses, and an event-registration project. The help dialog explicitly labels the school, document, analysis and recommendation as fictional examples.
 
 The disposable `apps/api/tests/integration/help_ui_server.py` runs the real plan/document/course/experience/roadmap APIs and SQLite repository. Its external-network block prevents calls to production services. Authentication, AI generation, job postings and the activity catalog use deterministic fixtures; the uploaded TXT parser and persistence are real. No production credentials or student data are used. The original provider boundaries stay unchanged in production code.
 
@@ -28,7 +28,7 @@ Other maintained regressions: `intake-flow.mjs` with `intake_ui_server.py`, `exp
 
 ## Verification scope
 
-- Real local UI and API: anonymous plan creation/resume, department catalog reads (zero/one/multiple), delayed-response protection, TXT upload/extraction, course selection and missing-course report, zero-course confirmation, experience answer persistence, career PATCH, saved roadmap reads and task progress. SQLite contains only disposable test data.
+- Real local UI and API: anonymous plan creation/resume, department catalog reads (zero/one/multiple), delayed-response protection, TXT upload/extraction, course selection and confirmation, zero-course confirmation, experience answer persistence, career PATCH, saved roadmap reads and task progress. SQLite contains only disposable test data.
 - Browser-controlled failure cases: network save failure/retry, changed metadata, image 404/retry and provider-error rendering. Concurrent plan/course changes use the real API conflict checks.
 - Simulated external services: Supabase sessions/OAuth responses, Gemini outputs, Google Vision OCR results, Himalayas postings and ContestKorea activities. No live external-provider success claim is made. OCR orchestration and document parsing still run through the real API.
 - Regression suites: `help-flow`, `intake-flow` (also the `p5-flow` entry), `explore-flow`, `dashboard-flow`, `review-fixes`, `guest-flow`, `stepup-ui`, `roadmaps`, and `tests/browser/activities.mjs`.
@@ -36,23 +36,18 @@ Other maintained regressions: `intake-flow.mjs` with `intake_ui_server.py`, `exp
 
 The main help flow runs both 1440×900 and 390×844. The intake regression additionally checks 320px layout, real 409 conflicts, upload/OCR orchestration and extracted-text modal focus return. The help test inspects closed disclosures as well as visible text so removed internal metadata cannot reappear merely by expanding a section.
 
-## Four-year course screen
+## Current desktop UI regression
 
-The course example now shows all four year tables. To capture it against the full
-repository catalog snapshot (68 source rows, 52 bilingual groups), run
-`course_groups_ui_server.py` on port 18082 and Next on port 15101 with
-`ROADMAP_API_ORIGIN=http://127.0.0.1:18082` and the test auth variables above, then:
+The course help example uses the small fictional catalog from `help_ui_server.py`
+and shows the four year tables in the selection confirmation dialog.
+
+With the same fixture API and Next server running, check the current desktop flow:
 
 ```sh
-CAPTURE_HELP=1 PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs P5_BROWSER=/path/to/chromium node apps/web/tests/e2e/course-years.mjs
+PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs P5_BROWSER=/path/to/chromium node apps/web/tests/e2e/ui-polish.mjs
 ```
 
-This writes `public/help/courses.png` and desktop/mobile screenshots plus
-`verification.json` under `/tmp/team18-course-years` (override with
-`COURSE_ARTIFACTS`). Run this after the bulk help capture to retain the full
-catalog example. `course-groups.mjs` is a compatibility entry for the same suite.
-It checks 1440×900, 1024×900 and 390×844, forces actual API pages of 20 to verify
-all three pages are rendered, and compares each year count with the API total.
-The same test covers rapid queued toggles, hidden selection totals, reload,
-canonical bilingual storage, save retry, confirmation ordering, 409 conflicts,
-missing year/term metadata and last-row hit testing above the fixed bar.
+This uses a 1280×720 desktop viewport. It checks required-field feedback, whole-row
+toggling, year/semester selection, search-hidden selections, reversals while saving,
+reload persistence, dialog focus restoration, ordered result navigation, and reuse
+of the saved result without fetching result history or starting another analysis.

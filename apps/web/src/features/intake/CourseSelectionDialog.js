@@ -23,7 +23,7 @@ export default function CourseSelectionDialog({ data, missing, phase, failure, m
    <header className="course-review-dialog-heading"><h2 ref={heading} tabIndex={-1} id={titleId}>이수 과목 확인</h2><button type="button" disabled={submitting} onClick={onClose} aria-label="이수 과목 확인 닫기">닫기</button></header>
    <p id={descriptionId}>선택한 과목을 확인한 뒤 역량 탐색으로 이동하세요.</p>
    <div className="course-review-dialog-body" tabIndex={0} role="region" aria-label="선택한 이수 과목 둘러보기">
-    <SelectedCoursesSummary data={data} byYear/>
+    <SelectedCoursesSummary data={data}/>
     {missing && <p className="notice">목록에 없는 이수 과목 신고가 포함됩니다.</p>}
    </div>
    {phase === 'failed' && <div className="notice" role="alert">{message}<div className="doc-actions">{failure?.kind === 'toggle' && !failure.conflict && <button type="button" onClick={onRetrySave}>다시 저장</button>}<button type="button" onClick={onRefresh}>최신 상태 불러오기</button></div></div>}

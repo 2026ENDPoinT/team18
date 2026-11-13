@@ -119,6 +119,9 @@ def latest(rid: str, ctx=Depends(owned_context)):
     result = run_payload(store, run, current) if run else {
         'status': 'not_started', 'limited_guidance_available': current['generation_mode'] == 'limited_guidance',
         'input_revision': current['input_revision'], 'current_input_revision': current['input_revision']}
+    result['generation_pending'] = any(
+        item['status'] == 'generating' and not metadata(item, current)['generation_expired']
+        for item in history)
     ctx[0].commit()
     return respond(200, result)
 

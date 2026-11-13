@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { loadCourseCatalog, courseYear, termSections, filterCourses, withPendingSelections } from '../../src/features/intake/courseCatalog.mjs';
+import { loadCourseCatalog, courseYear, courseYears, termSections, filterCourses, withPendingSelections } from '../../src/features/intake/courseCatalog.mjs';
 
 const rows = Array.from({ length: 125 }, (_, i) => ({ course_id:`course-${i}`, course_name:`과목 ${i}`, course_code:`CS${i}`, recommended_year:i%4+1, recommended_term:i%2+1, credits:3, category:'전공선택', is_completed:false }));
 function response(courses, page=1, total=courses.length) { return { catalog_id:'catalog', catalog_version:'2026', selection_revision:3, input_revision:7, courses, total, page, page_size:20, out_of_scope_completed_courses:[] }; }
@@ -34,16 +34,21 @@ test('missing years/terms remain visible; Korean name ordering stays within each
  assert.deepEqual(sections[0].courses.map(c=>c.course_name),['가상현실','자료구조 (Data Structure)']);
  assert.equal(sections[2].courses.length,2);
  assert.equal(sections.reduce((n,s)=>n+s.courses.length,0),courses.length);
+ const years=courseYears(courses);
+ assert.deepEqual(years.map(group=>group.year),[1,2,3,4,null]);
+ assert.equal(years.reduce((count,group)=>count+group.courses.length,0),courses.length);
+ assert.equal(years.at(-1).courses[0],courses[2]);
+ assert.deepEqual(courseYears([]).map(group=>group.year),[1,2,3,4]);
 });
 
 test('pending toggles preserve bilingual IDs and whole-catalog totals through filters', () => {
  const courses=[{...rows[0],course_name:'자료구조 (Data Structure)',course_code:'100 / 200',member_course_ids:['course-0','legacy-en']}, {...rows[1],credits:null}];
  const data=withPendingSelections(response(courses),new Map([['course-0',true],['course-1',true]]));
- assert.deepEqual(data.selection_summary,{count:2,known_credits:3,unknown_credits_count:1});
+ assert.deepEqual(data.selection_summary,{count:2});
  for (const search of ['Data Structure','data structure','200']) {
-  assert.deepEqual(filterCourses(data.courses,{search,category:'',only:true}).map(c=>c.course_id),['course-0']);
+  assert.deepEqual(filterCourses(data.courses,{search,only:true}).map(c=>c.course_id),['course-0']);
  }
- assert.equal(filterCourses(data.courses,{search:'no matches',category:'',only:true}).length,0);
+ assert.equal(filterCourses(data.courses,{search:'no matches',only:true}).length,0);
  assert.equal(data.selection_summary.count,2); assert.deepEqual(data.courses[0].member_course_ids,['course-0','legacy-en']);
  assert.equal(courses[0].is_completed,false);
 });
