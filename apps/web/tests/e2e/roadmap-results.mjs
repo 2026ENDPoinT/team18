@@ -25,17 +25,19 @@ try {
  await page.goto(origin+'/result'); await ready(); // A genuine old saved plan remains readable.
  assert.equal(await page.locator('.execution-steps').count(),0);
  assert.equal(await page.getByRole('checkbox').count(),0);
- assert.equal((await get(`/roadmaps/${fixture.legacy_id}`)).progress.completed,1);
+ const old = await get(`/roadmaps/${fixture.legacy_id}`);
+ assert.equal(old.progress.completed,1);
+ assert.equal(old.recommended_courses[0].recommendation_reason,'본 강좌에서는 데이터베이스의 구성과 운영 방법을 학습한다.');
  await page.getByRole('button',{name:'재분석',exact:true}).click(); await ready();
  let saved=await get('/roadmap');
  assert.equal(saved.generation_complete,true); assert.equal(saved.status,'success'); assert.deepEqual(saved.roadmap,[]);
- assert.equal(saved.course_reasons_source,'catalog_evidence');
+ assert.equal(saved.course_reasons_source,'catalog_fixed');
  const countWrites=()=>calls.filter(c=>c.method!=='GET').length;
  const writes=countWrites();
  for (const label of ['수강 후보','직무 역량 비교','공모전·대외활동','결과 요약']) {
   await page.getByRole('tab',{name:label,exact:true}).click();
   await page.waitForFunction(label=>document.querySelector('[role=tab][aria-selected=true]')?.textContent===label,label);
-  if(label==='수강 후보') await page.getByText('목표와 일치하는 학습 내용:',{exact:false}).waitFor();
+  if(label==='수강 후보') await page.getByText('본 강좌에서는 데이터베이스의 구성과 운영 방법을 학습한다.',{exact:false}).waitFor();
   if(label==='공모전·대외활동') await page.getByText('현재 추천 조건에 맞는 공고가 없습니다.',{exact:false}).waitFor();
  }
  await page.reload(); await ready(); assert.equal(countWrites(),writes);

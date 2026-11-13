@@ -119,6 +119,8 @@ def run_payload(store, run, current, *, include_unverified=False):
             (work and not work.get('verified') and not include_unverified)):
         return meta
     result = grouped_roadmap(decode(run['result_json']), run['catalog_id'])
+    from services.course_reasons import present_course_reasons
+    result = present_course_reasons(store.db, run['catalog_id'], result)
     progress = store.progress(run['run_id'])
     for step in result['roadmap']:
         for task in step['tasks']:

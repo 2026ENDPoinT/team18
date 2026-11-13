@@ -46,6 +46,8 @@ def recommendations(rid: str, ctx=Depends(owned_context), body=Depends(parse_bod
         raise Problem(409, 'revision_conflict', '분석 중 과목 근거가 변경되었습니다. 다시 시도해 주세요.')
     # Apply the same completion/equivalence rules even to a cached result.
     result = recommend(profile, list(latest.values()), status, skills=skills)
+    from services.course_reasons import attach_course_reasons
+    result = attach_course_reasons(db, cid, result)
     db.commit()
     notice = '이수 및 대체과목 제외 후 추천 가능한 과목이 없습니다.' if not result else f'이수 및 대체과목을 제외하면 추천 가능한 고유 과목이 {len(result)}개입니다.' if len(result) < 5 else None
     return respond(200, {'courses': result, 'status': 'ok', 'catalog_id': cid, 'input_revision': revision, 'review_status': status, 'career_goal': profile['career_goal'], 'reason': notice})

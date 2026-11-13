@@ -1,6 +1,6 @@
 """Regression coverage for verified partial evidence and safe catalog fallbacks."""
 from services.roadmap_batch import (
-    _activity_available, _comparison_available, _fallback_course_reasons, _valid_bundle
+    _activity_available, _comparison_available, _valid_bundle
 )
 
 
@@ -64,24 +64,6 @@ def test_bundle_accepts_verified_partial_results_only():
     assert _valid_bundle(result)
     result['activity_recommendations']['sources'][1]['collected'] = 0
     assert not _valid_bundle(result)
-
-
-def test_course_fallback_uses_only_existing_verified_reason():
-    courses = [{'course_id': 'course-1', 'course_name': '데이터베이스',
-                'personalization_reason': '원문으로 검증된 데이터베이스 관련 설명'}]
-    fallback = _fallback_course_reasons(courses, 'synthetic-catalog')
-    assert fallback['source'] == 'catalog_evidence'
-    assert fallback['reasons'] == [{
-        'course_id': 'course-1',
-        'personalization_reason': courses[0]['personalization_reason'],
-        'evidence_ids': [],
-    }]
-
-
-def test_missing_reason_reports_insufficient_evidence():
-    result = _fallback_course_reasons([{'course_id': 'c', 'course_name': 'SQL'}], None)
-    assert result['reasons'][0]['personalization_reason'] == '추천 근거 확인 필요'
-    assert result['reasons'][0]['evidence_ids'] == []
 
 
 def test_partial_bundle_requires_honest_terminal_states_and_intact_reasons():

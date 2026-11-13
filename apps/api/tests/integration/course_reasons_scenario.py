@@ -10,7 +10,7 @@ from repositories.experience_analysis import decode
 case = RoadmapAPI()
 case.setUp()
 try:
-    with patch('services.course_reasons._generate', side_effect=AssertionError('Unexpected AI')) as ai:
+    with patch('google.genai.Client', side_effect=AssertionError('Unexpected AI')) as ai:
         saved = case.make().json()
         path = f'{case.base}/roadmaps/{saved["run_id"]}/course-reasons'
         original = case.client.get(case.base + '/roadmap').json()
@@ -27,14 +27,14 @@ try:
             assert other.client.post(path, json={}).status_code == 404
         finally:
             other.doCleanups()
-        # Legacy saved results without a bundled reason use saved catalog prose.
+        # Legacy saved results without fixed DB text use the safe notice.
         with closing(connect()) as db:
             store = RoadmapRepository(db)
             raw = decode(store.get(case.rid, saved['run_id'])['result_json'])
             raw.pop('course_reasons'); raw.pop('course_reasons_source')
             db.execute('UPDATE roadmap_runs SET result_json=? WHERE run_id=?', (store.encode(raw), saved['run_id']))
         fallback = case.client.post(path, json={}).json()
-        assert fallback['source'] == 'catalog_evidence'
+        assert fallback['source'] == 'safe_fallback'
         assert fallback['reasons'] == saved['course_reasons']
         case.doc('새 프로젝트 문서입니다.')
         assert case.client.post(path, json={}).status_code == 409

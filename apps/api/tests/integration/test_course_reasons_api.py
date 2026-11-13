@@ -6,7 +6,7 @@ import tempfile
 import pytest
 
 
-@pytest.mark.parametrize('scenario', ['course_reasons_scenario.py', 'personalized_course_reasons_scenario.py'])
+@pytest.mark.parametrize('scenario', ['course_reasons_scenario.py', 'fixed_course_reasons_scenario.py'])
 def test_course_reasons_api(scenario):
     with tempfile.TemporaryDirectory() as tmp:
         env = dict(os.environ, ROADMAP_DB_BACKEND='sqlite', ROADMAP_DB_PATH=str(Path(tmp) / 'db.sqlite'),

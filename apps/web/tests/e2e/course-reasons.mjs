@@ -1,4 +1,4 @@
-// Real Next UI with persisted API snapshots. Gemini transport/cache is tested in Python.
+// Real Next UI with projected API fixtures. DB/no-Gemini behavior is covered by real API tests.
 import assert from 'node:assert/strict';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const origin = process.env.RESULT_WEB_ORIGIN || 'http://localhost:15110';
@@ -9,8 +9,10 @@ await context.addInitScript(() => {
  sessionStorage.setItem('roadmap_request_id', 'test-plan'); sessionStorage.setItem('roadmap_request_owner', 'test-user');
  const state = window.reasonState = JSON.parse(sessionStorage.getItem('reason-state') || 'null') || { reads: [], fallback: false, completed: false, legacy: false };
  window.saveReasons = () => sessionStorage.setItem('reason-state', JSON.stringify(state));
+ const fixed = '본 강좌에서는 데이터베이스의 구성과 운영 방법을 학습한다.';
  const course = { course_id: 'db', course_name: '데이터베이스', credits: 3, recommended_year: 2, recommended_term: '2학기',
-  personalization_reason: '목표와 일치하는 학습 내용: SQL 조회와 집계를 학습합니다.',
+  recommendation_reason: state.fallback ? null : fixed,
+  personalization_reason: state.fallback ? '추천 근거 확인 필요' : '옛 AI 문구',
   keyword_evidence: [{ keyword: 'SQL', keyword_role: 'learning', evidence_text: 'SQL 조회와 집계를 학습합니다.' }] };
  const comparison = { comparisons: [], project_analysis: { status: 'no_documents' }, job_analysis: { status: 'not_started', skills: [] } };
  const activities = { status: 'success', activities: [], sources: [{ status: 'success' }] };
@@ -18,7 +20,7 @@ await context.addInitScript(() => {
   generation_complete: true, generation_tasks: { comparison: 'unavailable', courses: 'success', activities: 'success', roadmap: 'success' },
   recommended_courses: [course], roadmap: [], career_goal: '데이터 분석', target_role: '데이터 분석가',
   skill_comparison: comparison, activity_recommendations: activities, course_status: 'available',
-  ...(!state.legacy ? { course_reasons: [{ course_id: 'db', personalization_reason: state.fallback ? course.personalization_reason : '데이터 분석 목표에 필요한 SQL 조회·집계를 학습하는 과목입니다. 확인된 Python 전처리 경험을 데이터 저장·조회와 연결하는 방향으로 확장할 수 있습니다.' }], course_reasons_source: state.fallback ? 'catalog_evidence_fallback' : 'gemini' } : {}),
+  ...(!state.legacy ? { course_reasons: [{ course_id: 'db', personalization_reason: state.fallback ? course.personalization_reason : '데이터 분석 목표에 필요한 SQL 조회·집계를 학습하는 과목입니다. 확인된 Python 전처리 경험을 데이터 저장·조회와 연결하는 방향으로 확장할 수 있습니다.' }], course_reasons_source: state.fallback ? 'safe_fallback' : 'catalog_fixed' } : {}),
   basis: { review_status: 'confirmed', outside_completed_courses: [], catalog: {} },
  });
  const nativeFetch = window.fetch;
@@ -39,7 +41,7 @@ await context.addInitScript(() => {
 const page = await context.newPage(), errors = [];
 page.on('pageerror', error => errors.push(error.message));
 const reason = () => page.locator('.course-candidates-list .recommendation-reason');
-const generated = () => reason().filter({ hasText: '확인된 Python 전처리 경험' }).waitFor();
+const generated = () => reason().filter({ hasText: '본 강좌에서는 데이터베이스의 구성과 운영 방법을 학습한다.' }).waitFor();
 try {
  await page.goto(origin + '/result?tab=courses'); await generated();
  assert.equal(await page.locator('.course-candidates-list h3').innerText(), '데이터베이스');
@@ -58,19 +60,21 @@ try {
  for (const width of [1440, 390]) {
   await page.setViewportSize({ width, height: 900 });
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  await page.screenshot({ path: `/tmp/team18-personalized-reasons-${width}.png`, fullPage: true });
+  await page.screenshot({ path: `/tmp/team18-fixed-reasons-${width}.png`, fullPage: true });
  }
  for (const legacy of [false, true]) {
-  await page.evaluate(legacy => { reasonState.fallback = true; reasonState.legacy = legacy; saveReasons(); }, legacy);
-  await page.reload(); await reason().filter({ hasText: '목표와 일치하는 학습 내용:' }).waitFor();
+  await page.evaluate(legacy => { reasonState.fallback = false; reasonState.legacy = legacy; saveReasons(); }, legacy);
+  await page.reload(); await generated();
   assert.equal(await page.locator('.result-page [role="alert"]').count(), 0);
   assert.equal(await page.locator('.course-candidates-list h3').count(), 1);
  }
+ await page.evaluate(() => { reasonState.fallback = true; reasonState.legacy = false; saveReasons(); });
+ await page.reload(); await reason().filter({ hasText: '추천 근거 확인 필요' }).waitFor();
  await page.evaluate(() => { reasonState.completed = true; saveReasons(); });
  await page.reload(); await page.getByText('현재 근거와 미선택 과목에서 추천할 후보를 찾지 못했습니다.', { exact: true }).waitFor();
  assert.equal(await page.locator('.course-candidates-list h3').count(), 0);
  const calls = await page.evaluate(() => reasonState.reads);
  assert.ok(calls.every(call => call.startsWith('GET ') && !call.includes('/course-reasons')));
  assert.deepEqual(errors, []);
- console.log('PASS: saved Gemini text, unchanged card/details, no calls on tabs/reload/focus/expand, immediate cache, fallback/legacy without error banner, completed filter, desktop/mobile');
+ console.log('PASS: fixed DB text overrides stale AI, unchanged card/details, no calls on tabs/reload/focus/expand, fallback/legacy without error banner, completed filter, desktop/mobile');
 } finally { await context.close(); await browser.close(); }

@@ -10,6 +10,8 @@ from repositories.plans import connect
 CATALOG = 'seoultech-cse-2026-major-v1'
 snapshot = json.loads((Path(__file__).parents[1] / 'fixtures/seoultech_cse_2026_course_evidence.json').read_text())
 from course_groups import grouped_courses
+from scripts.seed_course_reasons import apply, load_data
+fixed = {r['course_id']: r['recommendation_reason'] for r in load_data()['courses']}
 
 grouped = grouped_courses(snapshot, CATALOG)
 reviewed = [(source, k) for course in grouped for source in (course.get('_keyword_sources') or [course])
@@ -35,6 +37,7 @@ try:
                     evidence_page_start,evidence_page_end) VALUES(?,?,?,?,?,?,?)''',
                     (CATALOG, c['course_id'], k['keyword'], k['keyword_role'], k['evidence_text'],
                      k['evidence_page_start'], k['evidence_page_end']))
+        assert apply(db) == 68
         db.commit()
     response = case.client.patch(case.base, json={'expected_input_revision': case.revision(), 'changes': {'catalog_id': CATALOG}})
     assert response.status_code == 200, response.text
@@ -67,6 +70,8 @@ try:
         roadmap_courses = roadmap_response.json()['recommended_courses']
         signature = lambda rows: [(c['course_id'], c['recommendation_type'], c['learning_keywords']) for c in rows]
         assert signature(courses) == signature(roadmap_courses)
+        assert all(c['reason'] == c['personalization_reason'] == c['recommendation_reason'] == fixed[c['course_id']] for c in courses + roadmap_courses)
+        assert all(c['personalization_reason'] == fixed[c['course_id']] for c in roadmap_response.json()['course_reasons'])
         assert len(courses) >= 5
         types = [c['recommendation_type'] for c in courses]
         assert types == sorted(types, key=lambda kind: kind != 'direct')

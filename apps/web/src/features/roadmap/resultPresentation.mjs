@@ -18,5 +18,7 @@ export function courseLearning(course) {
  const quotes = (course.keyword_evidence || []).filter(item => item.keyword_role === 'learning').map(item => item.evidence_text).filter(Boolean);
  return [...new Set(quotes)].join(' ') || (course.course_evidence && course.course_evidence !== course.course_name ? course.course_evidence : '공식 학습 내용이 제공되지 않았습니다.');
 }
-export const courseReason = course => course.personalization_reason || course.reason || '추천 근거 확인 필요';
+export const courseReason = course => Object.hasOwn(course, 'recommendation_reason')
+ ? (course.recommendation_reason?.trim() ? course.recommendation_reason : '추천 근거 확인 필요')
+ : course.personalization_reason || course.reason || '추천 근거 확인 필요';
 export const experienceAnswer = item => ({ confirmed: '본인 경험으로 확인', corrected: '사용자 수정 답변', unknown: '판단 보류', no_experience: '경험 없다고 답변' })[item.user_answer?.status] || '본인 확인 필요';

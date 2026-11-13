@@ -11,6 +11,15 @@ class CourseRepository:
     def department(self, did): return self.db.execute('SELECT * FROM departments WHERE department_id=?',(did,)).fetchone()
     def catalogs(self, did): return [dict(r) for r in self.db.execute('SELECT * FROM course_catalogs WHERE department_id=? AND is_selectable=TRUE ORDER BY version_label, catalog_id',(did,))]
     def catalog(self, cid): return self.db.execute('SELECT * FROM course_catalogs WHERE catalog_id=?',(cid,)).fetchone()
+    def recommendation_reasons(self, cid, course_ids):
+        """Read display-only text separately from ranking inputs and basis hashes."""
+        ids = sorted({value for value in course_ids if isinstance(value, str) and value})
+        if not cid or not ids:
+            return {}
+        placeholders = ','.join('?' for _ in ids)
+        return {row['course_id']: row['recommendation_reason'] for row in self.db.execute(
+            'SELECT course_id,recommendation_reason FROM catalog_courses '
+            f'WHERE catalog_id=? AND course_id IN ({placeholders})', (cid, *ids))}
     def courses(self, rid, cid, include_description=False):
         hours = 'cc.theory_hours,cc.practice_hours' if getattr(self.db, 'backend', 'sqlite') == 'postgres' else 'NULL AS theory_hours,NULL AS practice_hours'
         description = ''

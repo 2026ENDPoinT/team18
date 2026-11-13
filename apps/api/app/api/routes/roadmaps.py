@@ -158,19 +158,14 @@ def course_reasons(rid: str, run_id: str, ctx=Depends(owned_context), body=Depen
         raise Problem(409, 'evidence_unavailable', '문서 근거가 변경되어 추천 이유를 확인할 수 없습니다.')
     if run['status'] not in ('success', 'partial'):
         raise Problem(409, 'roadmap_not_ready', '수강 후보 생성이 완료된 뒤 추천 이유를 확인해 주세요.')
-    from services.roadmap_batch import _fallback_course_reasons
     saved = run_payload(store, run, current)
     if 'recommended_courses' not in saved:
         raise Problem(409, 'roadmap_not_ready', '결과 저장 확인이 끝난 뒤 추천 이유를 확인해 주세요.')
-    # Existing explanations are immutable history. Legacy runs use saved ranking
-    # evidence if they predate the bundled explanations; no provider is involved.
-    result = ({'reasons': saved['course_reasons'], 'source': saved.get('course_reasons_source', 'saved_result')}
-              if 'course_reasons' in saved else
-              _fallback_course_reasons(saved['recommended_courses'], run['catalog_id']))
+    # run_payload already overlays the saved run's catalog text without AI/cache.
     ctx[0].commit()
-    return respond(200, {**result, 'run_id': run_id,
-                         'provider': 'gemini' if result['source'] == 'gemini' else 'server',
-                         'reason_version': saved.get('course_reasons_version', 'catalog-evidence-v1')})
+    return respond(200, {'reasons': saved['course_reasons'], 'source': saved['course_reasons_source'],
+                         'run_id': run_id, 'provider': saved['course_reasons_provider'],
+                         'reason_version': saved['course_reasons_version']})
 
 
 @router.get('/roadmaps/{run_id:roadmap_id}')

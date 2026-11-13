@@ -29,9 +29,9 @@ class BatchAPI(RoadmapAPI):
             mock.start(); self.addCleanup(mock.stop)
         model = patch('services.gemini_roadmap.generate_roadmap', side_effect=AssertionError('Unexpected roadmap AI'))
         self.model = model.start(); self.addCleanup(model.stop)
-        reasons = patch('services.course_reasons.generate_course_reasons', side_effect=AssertionError('Unexpected reason AI'))
+        reasons = patch('google.genai.Client', side_effect=AssertionError('Unexpected reason AI'))
         self.reasons = reasons.start(); self.addCleanup(reasons.stop)
-        for path in ('services.gemini_roadmap._generate', 'services.course_reasons._generate'):
+        for path in ('services.gemini_roadmap._generate', 'services.gemini_jobs._generate'):
             blocked = patch(path, side_effect=AssertionError('Unexpected Gemini transport'))
             spy = blocked.start()
             self.addCleanup(blocked.stop)

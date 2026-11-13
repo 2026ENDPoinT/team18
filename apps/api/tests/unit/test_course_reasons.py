@@ -1,142 +1,93 @@
-import json
+"""DB-only display behavior, including historical and invalid identities."""
 from copy import deepcopy
-from unittest.mock import Mock, patch
+import sqlite3
+from unittest.mock import patch
 
 import pytest
 
-from services.course_reasons import CourseReasons, experience_input, generate_course_reasons, reason_input, validate_course_reasons
-from services.gemini import GeminiError
+from services.course_reasons import (
+    MISSING_REASON, VERSION, attach_course_reasons, course_reasons_payload,
+    experience_input, present_course_reasons,
+)
+
+CATALOG = 'seoultech-cse-2026-major-v1'
+KO = 'stcse-2026-ac66832f2c533c700dde1354'
+EN = 'stcse-2026-56e5e2a1aedbfd4d2e87404c'
+TEXT = '본 강좌에서는 데이터베이스의 구성과 운영 방법을 학습한다. '
 
 
-def fixture():
-    basis = {'profile': {'career_goal': '행사 신청 데이터를 분석하고 싶어요.', 'target_role': '데이터 분석가',
-                         'email': 'never-send@example.com', 'gpa': 4.0},
-             'review_status': 'confirmed', 'project_documents': [{'text': 'PRIVATE PROJECT'}],
-             'courses': [{'course_id': 'db', 'description_text': 'SQL 조회와 집계를 학습한다. Python 사전지식이 필요하다.',
-                          'keywords': [{'keyword': 'SQL', 'keyword_role': 'learning', 'evidence_text': 'SQL 조회와 집계를 학습한다.'},
-                                       {'keyword': 'Python', 'keyword_role': 'prerequisite', 'evidence_text': 'Python 사전지식이 필요하다.'},
-                                       {'keyword': 'Fake', 'keyword_role': 'learning', 'evidence_text': '다른 과목의 문장'}]},
-                         {'course_id': 'unknown', 'description_text': None},
-                         {'course_id': 'not-recommended', 'description_text': 'NOT SENT'}]}
-    courses = [{'course_id': 'db', 'course_name': '데이터베이스', 'recommendation_type': 'direct'},
-               {'course_id': 'unknown', 'course_name': '기초 수학', 'recommendation_type': 'exploration'}]
-    return basis, courses
+@pytest.fixture
+def db():
+    db = sqlite3.connect(':memory:')
+    db.row_factory = sqlite3.Row
+    db.execute('CREATE TABLE catalog_courses(catalog_id text, course_id text, recommendation_reason text)')
+    db.executemany('INSERT INTO catalog_courses VALUES(?,?,?)', [
+        (CATALOG, KO, TEXT), (CATALOG, EN, '영문 행의 개별 설명'),
+        ('other', KO, '다른 목록의 설명'), (CATALOG, 'blank', ' \n'),
+    ])
+    yield db
+    db.close()
 
 
-def output():
-    return {'reasons': [
-        {'course_id': 'db', 'personalization_reason': '행사 신청 데이터를 분석하려는 목표에 SQL 조회·집계를 연결할 수 있어요. 신청 흐름을 정리하는 데 활용할 학습 후보입니다.', 'evidence_ids': ['e0']},
-        {'course_id': 'unknown', 'personalization_reason': '추천 근거 확인 필요', 'evidence_ids': []},
-    ]}
+def test_overlay_exact_text_preserves_ranking_and_evidence_without_ai(db):
+    courses = [{'course_id': KO, 'reason': 'old AI', 'personalization_reason': 'old AI',
+                'course_evidence': '원문', 'keyword_evidence': [{'evidence_text': '원문'}],
+                'related_skills': ['SQL'], 'recommendation_type': 'direct'},
+               {'course_id': EN, 'course_name': 'Database'}]
+    original = deepcopy(courses)
+    with patch('google.genai.Client', side_effect=AssertionError('AI forbidden')) as ai:
+        output = attach_course_reasons(db, CATALOG, courses)
+        ai.assert_not_called()
+    assert courses == original
+    assert [c['course_id'] for c in output] == [KO, EN]
+    assert all(c['reason'] == c['personalization_reason'] == c['recommendation_reason'] == TEXT for c in output)
+    for c, before in zip(output, original):
+        assert all(c[k] == v for k, v in before.items() if k not in ('reason', 'personalization_reason'))
+    assert output[0]['reason_provider'] == 'database'
+    assert output[0]['reason_version'] == VERSION
 
 
-def test_minimized_input_preserves_only_own_learning_evidence():
-    basis, courses = fixture()
-    data = reason_input(basis, courses)
-    assert data['career_goal'] == basis['profile']['career_goal']
-    assert data['target_role'] == '데이터 분석가'
-    assert data['courses'][0]['evidence'] == [{'id': 'e0', 'kind': 'learning_evidence', 'keyword': 'SQL', 'text': 'SQL 조회와 집계를 학습한다.'}]
-    assert data['courses'][1]['evidence'] == []
-    text = json.dumps(data)
-    assert all(value not in text for value in ('PRIVATE PROJECT', 'never-send', 'gpa', 'NOT SENT', 'Fake'))
-    assert data['courses'][0]['descriptions'][0]['text'] == basis['courses'][0]['description_text']
-    assert data['courses'][0]['learning_keywords'] == ['SQL']  # prerequisite is context, not learning evidence
+@pytest.mark.parametrize('catalog,cid', [(CATALOG, 'invalid'), (CATALOG, 'blank'), ('unknown', KO), (None, KO), (CATALOG, "' OR 1=1 --")])
+def test_unknown_or_empty_uses_safe_notice_never_saved_ai_or_names(db, catalog, cid):
+    courses = [{'course_id': cid, 'course_name': '데이터베이스', 'reason': 'old claim',
+                'personalization_reason': 'old claim', 'member_course_ids': [KO]}]
+    result = attach_course_reasons(db, catalog, courses)
+    assert result[0]['recommendation_reason'] is None
+    assert result[0]['personalization_reason'] == MISSING_REASON
+    assert course_reasons_payload(result)['source'] == 'safe_fallback'
 
 
-def test_bilingual_sources_are_validated_against_their_own_description():
-    basis, courses = fixture()
-    courses[0]['member_course_ids'] = ['db', 'db-en']
-    basis['courses'][0]['_keyword_sources'] = [
-        {'course_id': 'db-en', 'description_text': 'Learn SQL queries.', 'keywords': [
-            {'keyword': 'SQL', 'keyword_role': 'learning', 'evidence_text': 'Learn SQL queries.'}]},
-        {'course_id': 'foreign', 'description_text': 'Foreign text', 'keywords': []}]
-    data = reason_input(basis, courses)
-    assert data['courses'][0]['evidence'][0]['text'] == 'Learn SQL queries.'
-    assert len(data['courses'][0]['evidence']) == 1
-    basis['courses'][0]['_keyword_sources'][0]['description_text'] = 'Unrelated description'
-    assert reason_input(basis, courses)['courses'][0]['evidence'] == []
+def test_catalog_scope_missing_canonical_and_metadata(db):
+    assert attach_course_reasons(db, 'other', [{'course_id': KO}])[0]['reason'] == '다른 목록의 설명'
+    mixed = attach_course_reasons(db, CATALOG, [{'course_id': KO}, {'course_id': 'unknown'}])
+    assert course_reasons_payload(mixed)['source'] == 'catalog_fixed_with_fallback'
+    db.execute('DELETE FROM catalog_courses WHERE course_id=?', (KO,))
+    assert attach_course_reasons(db, CATALOG, [{'course_id': EN}])[0]['reason'] == MISSING_REASON
+    assert course_reasons_payload([])['reasons'] == []
 
 
-def test_real_sdk_transport_uses_configured_model_and_returns_generated_reason():
-    sdk = Mock()
-    sdk.models.generate_content.return_value.text = json.dumps(output())
-    with patch.dict('os.environ', {'GEMINI_API_KEY': 'test-key', 'GEMINI_MODEL': 'operator-selected-model'}), \
-         patch('google.genai.Client', return_value=sdk):
-        result = generate_course_reasons(reason_input(*fixture()))
-    assert result == output()
-    call = sdk.models.generate_content.call_args.kwargs
-    assert call['model'] == 'operator-selected-model'
-    assert json.loads(call['contents']) == reason_input(*fixture())
-    assert call['config'].response_mime_type == 'application/json'
-    sdk.close.assert_called_once()
+def test_historical_payload_is_projected_without_mutation_or_cached_prose(db):
+    saved = {'recommended_courses': [{'course_id': KO, 'reason': 'AI'}],
+             'course_reasons': [{'course_id': KO, 'personalization_reason': 'AI'}],
+             'course_reasons_source': 'gemini', 'course_reasons_error': 'timeout', 'roadmap': []}
+    before = deepcopy(saved)
+    output = present_course_reasons(db, CATALOG, saved)
+    assert saved == before
+    assert output['course_reasons'][0] == {'course_id': KO, 'personalization_reason': TEXT, 'evidence_ids': []}
+    assert output['course_reasons_source'] == 'catalog_fixed'
+    assert output['course_reasons_provider'] == 'database'
+    assert output['course_reasons_error'] is None
 
 
-@pytest.mark.parametrize('change', ['missing', 'duplicate', 'foreign', 'foreign_evidence', 'missing_evidence', 'name_only_claim', 'prohibited'])
-def test_invalid_provider_output_is_not_cached_or_shown(change):
-    raw = deepcopy(output())
-    if change == 'missing': raw['reasons'].pop()
-    elif change == 'duplicate': raw['reasons'].append(raw['reasons'][0])
-    elif change == 'foreign': raw['reasons'][0]['course_id'] = 'not-recommended'
-    elif change == 'foreign_evidence': raw['reasons'][0]['evidence_ids'] = ['foreign']
-    elif change == 'missing_evidence': raw['reasons'][0]['evidence_ids'] = []
-    elif change == 'name_only_claim': raw['reasons'][1]['personalization_reason'] = '이 과목에서는 SQL 프로젝트를 진행해요.'
-    elif change == 'prohibited': raw['reasons'][0]['personalization_reason'] = '취업을 위해 반드시 수강하세요.'
-    with patch('services.course_reasons._generate', return_value=CourseReasons.model_validate(raw)):
-        with pytest.raises(GeminiError): generate_course_reasons(reason_input(*fixture()))
-
-
-def test_empty_candidates_and_provider_failure_never_fall_back_to_template():
-    with patch('services.course_reasons._generate') as model:
-        assert generate_course_reasons({'courses': []}) == {'reasons': []}
-        model.assert_not_called()
-    with patch('services.course_reasons._generate', side_effect=GeminiError('gemini_timeout', 'timeout')) as model:
-        with pytest.raises(GeminiError): generate_course_reasons(reason_input(*fixture()))
-        assert model.call_count == 1
-
-
-def test_cached_reasons_are_validated_against_the_same_evidence():
-    data, saved = reason_input(*fixture()), output()
-    assert validate_course_reasons(data, saved) == saved
-    saved['reasons'][0]['evidence_ids'] = ['foreign']
-    with pytest.raises(GeminiError): validate_course_reasons(data, saved)
-
-
-def test_effective_experiences_and_completed_courses_without_private_fields():
-    basis, courses = fixture()
+def test_shared_experience_input_preserves_other_ai_features_and_privacy():
     original = {'evidence_verified': True, 'skill_name': 'Python', 'activity': '전처리',
                 'contribution_scope': 'personal', 'evidence_text': 'PRIVATE QUOTE', 'document_id': 'PRIVATE ID'}
     corrected = {**original, 'user_answer': {'status': 'corrected', 'correction': {
         'skill_name': 'Excel', 'activity': '집계표 작성', 'contribution_scope': 'personal'}}}
     denied = {**original, 'user_answer': {'status': 'no_experience'}}
-    basis['project_experiences'] = experience_input([original, corrected, denied, {**original, 'evidence_verified': False}])
-    basis['courses'].append({'course_id': 'python', 'course_name': '파이썬 기초', 'is_completed': True})
-    basis['outside_completed_courses'] = [{'course_id': 'old', 'course_name': '통계', 'credits': 3}]
-    basis['skills'] = [{'skill_name': 'SQL', 'student_status': 'no_experience', 'reason': '사용자 답변', 'private': 'PRIVATE'}]
-    data = reason_input(basis, courses)
-    assert data['project_experiences'][1]['skill_name'] == 'Excel'
-    assert data['project_experiences'][1]['activity'] == '집계표 작성'
-    assert data['project_experiences'][2] == {'skill_name': 'Python', 'user_status': 'no_experience'}
-    assert len(data['project_experiences']) == 3
-    assert [c['course_id'] for c in data['completed_courses']] == ['python', 'old']
-    assert data['skill_comparison'][0]['student_status'] == 'no_experience'
-    assert 'PRIVATE' not in json.dumps(data)
-
-
-@pytest.mark.parametrize('text', [
-    'AWS 배포 실습을 배우는 과목입니다. 클라우드 프로젝트를 확장할 수 있습니다.',
-    'Python을 학습하는 과목입니다. 분석 경험을 확장할 수 있습니다.',
-    '이미 숙련된 SQL을 활용하는 과목입니다. 경험을 확장할 수 있습니다.',
-])
-def test_valid_evidence_id_does_not_license_unrelated_technology_or_mastery(text):
-    raw = output()
-    raw['reasons'][0]['personalization_reason'] = text
-    with pytest.raises(GeminiError):
-        validate_course_reasons(reason_input(*fixture()), raw)
-
-
-def test_no_evidence_needs_no_provider_request():
-    basis, courses = fixture()
-    with patch('services.course_reasons._generate') as model:
-        result = generate_course_reasons(reason_input(basis, courses[1:]))
-    model.assert_not_called()
-    assert result['reasons'][0]['personalization_reason'] == '추천 근거 확인 필요'
+    result = experience_input([original, corrected, denied, {**original, 'evidence_verified': False}])
+    assert result[1]['skill_name'] == 'Excel'
+    assert result[1]['activity'] == '집계표 작성'
+    assert result[2] == {'skill_name': 'Python', 'user_status': 'no_experience'}
+    assert len(result) == 3
+    assert 'PRIVATE' not in str(result)

@@ -24,7 +24,9 @@ os.environ.update(ROADMAP_DB_BACKEND='postgres', ROADMAP_DATABASE_URL=url,
                   ROADMAP_INSECURE_LOCAL_COOKIE='1', ROADMAP_APP_ORIGIN='http://localhost:3000')
 from roadmap_batch_scenario import BatchAPI
 from activity_reasons_scenario import ActivityReasonAPI
+from fixed_course_reasons_scenario import FixedReasonAPI
 
 suite = unittest.TestSuite(BatchAPI(name) for name in unittest.defaultTestLoader.getTestCaseNames(BatchAPI) if name.startswith('test_batch_'))
 suite.addTests(ActivityReasonAPI(name) for name in unittest.defaultTestLoader.getTestCaseNames(ActivityReasonAPI) if name.startswith('test_activity_'))
+suite.addTests(FixedReasonAPI(name) for name in unittest.defaultTestLoader.getTestCaseNames(FixedReasonAPI) if name.startswith('test_fixed_'))
 raise SystemExit(not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful())

@@ -73,18 +73,6 @@ def _activity_available(value):
     return False
 
 
-def _fallback_course_reasons(courses, catalog_id):
-    """Use existing catalog-grounded ranking explanations, never invented AI text."""
-    reasons = []
-    for course in grouped_courses(courses, catalog_id):
-        reason = course.get('personalization_reason') or course.get('reason')
-        if not isinstance(reason, str) or not reason.strip() or course.get('description_basis') == 'name_inference':
-            reason = '추천 근거 확인 필요'
-        reasons.append({'course_id': course['course_id'], 'personalization_reason': reason,
-                        'evidence_ids': []})
-    return {'reasons': reasons, 'source': 'catalog_evidence'}
-
-
 def _log(rid, run_id, task, error):
     # Never serialize exception text: drivers/providers can include credentials or user data.
     logger.error('roadmap_task_failed %s', json.dumps({'run_id': run_id, 'task': task,
@@ -198,56 +186,16 @@ def _execute(task, rid, owner, basis):
 
 
 def _execute_reasons(rid, owner, run_id, basis, courses):
-    from services.ai_guard import guarded_call
-    from services.course_reasons import VERSION, generate_course_reasons, reason_input, validate_course_reasons
-    from services.gemini import GeminiError
-    from services.project_experience import model_basis
-
-    catalog_id = basis['profile']['catalog_id']
-    fallback = _fallback_course_reasons(courses, catalog_id)
-    data = reason_input(basis, grouped_courses(courses, catalog_id))
-    missing = {course['course_id'] for course in data['courses'] if not course['evidence']}
-    for reason in fallback['reasons']:
-        if reason['course_id'] in missing:
-            reason['personalization_reason'] = '추천 근거 확인 필요'
-    if not any(course['evidence'] for course in data['courses']):
-        return fallback
-    key = digest([rid, VERSION, model_basis(), data])
-
-    def generate():
-        # Only provider/validation errors fall back. DB reservation, cache and
-        # result commits remain outside this catch and fail the durable run.
-        try:
-            return {**validate_course_reasons(data, generate_course_reasons(data)), 'source': 'gemini'}
-        except GeminiError as error:
-            _log(rid, run_id, 'course_reasons', error)
-            return {**fallback, 'source': 'catalog_evidence_fallback', 'error_code': error.code}
-
+    from services.course_reasons import attach_course_reasons, course_reasons_payload
     with closing(connect()) as db:
-        repo, row, _, run = _locked(db, rid, owner, run_id)
+        _, row, _, run = _locked(db, rid, owner, run_id)
         if run['status'] != 'generating' or _date(run['lease_until']) <= datetime.now(timezone.utc):
             raise Problem(409, 'generation_expired', '생성 시간이 만료되었습니다.')
         if row['input_revision'] != basis['input_revision'] or digest(capture_basis(db, row)) != run['basis_hash']:
-            raise Problem(409, 'revision_conflict', '추천 이유 생성 중 입력이나 근거가 변경되었습니다.')
-        db.commit()  # Never hold the plan lock during the provider request.
-        try:
-            result = guarded_call((db, repo, owner), 'course_reasons', key, generate, units=1, cache=True)
-        except Problem as error:
-            if error.code not in ('ai_request_in_progress', 'ai_cooldown', 'ai_budget_exceeded'):
-                raise
-            _log(rid, run_id, 'course_reasons', error)
-            result = {**fallback, 'source': 'catalog_evidence_fallback', 'error_code': error.code}
-        # Validate durable cached JSON against exactly the same curriculum input.
-        if isinstance(result, dict) and result.get('source') == 'gemini':
-            try:
-                result = {**validate_course_reasons(data, {'reasons': result.get('reasons')}), 'source': 'gemini'}
-            except GeminiError as error:
-                _log(rid, run_id, 'course_reasons_cache', error)
-                result = {**fallback, 'source': 'catalog_evidence_fallback', 'error_code': error.code}
-        else:
-            result = {**fallback, 'source': 'catalog_evidence_fallback',
-                      'error_code': result.get('error_code', 'gemini_invalid_response') if isinstance(result, dict) else 'gemini_invalid_response'}
-    return {**result, 'reason_version': VERSION}
+            raise Problem(409, 'revision_conflict', '추천 이유 조회 중 입력이나 근거가 변경되었습니다.')
+        displayed = attach_course_reasons(db, run['catalog_id'], courses)
+        db.commit()
+    return course_reasons_payload(displayed)
 
 
 def _valid_reasons(courses, reasons, catalog_id):
@@ -328,17 +276,21 @@ def _finish(rid, owner, run_id):
                 raise Problem(409, 'revision_conflict', '활동 추천 근거가 변경되었습니다.')
             if _date(activity['valid_until']) <= datetime.now(timezone.utc):
                 raise Problem(409, 'activity_snapshot_expired', '활동 추천을 다시 확인해야 합니다.')
+        from services.course_reasons import attach_course_reasons, course_reasons_payload
+        displayed_courses = attach_course_reasons(db, run['catalog_id'], results['courses'])
+        reasons = course_reasons_payload(displayed_courses)
         result = {
             'status': 'success' if all(v == 'success' for v in states.values()) else 'partial',
             'generation_mode': 'saved_data', 'roadmap': [],
             'career_goal': basis['profile']['career_goal'], 'target_role': basis['profile']['target_role'],
             'preparation_summary': {'confirmed_skills': [], 'skills_to_verify': [], 'learning_candidates': []},
             'preparation_items': [], 'evidence': basis['evidence'],
-            'recommended_courses': results['courses'], 'skill_comparison': results['comparison'],
-            'activity_recommendations': activity, 'course_reasons': results['course_reasons']['reasons'],
-            'course_reasons_source': results['course_reasons']['source'],
-            'course_reasons_version': results['course_reasons'].get('reason_version', 'catalog-evidence-v1'),
-            'course_reasons_error': results['course_reasons'].get('error_code'), 'component_status': states,
+            'recommended_courses': displayed_courses, 'skill_comparison': results['comparison'],
+            'activity_recommendations': activity, 'course_reasons': reasons['reasons'],
+            'course_reasons_source': reasons['source'],
+            'course_reasons_provider': reasons['provider'],
+            'course_reasons_version': reasons['reason_version'],
+            'course_reasons_error': None, 'component_status': states,
             'component_errors': work.get('errors', {}),
             'catalog_id': basis['profile']['catalog_id'], 'limitations': basis['limitations'],
             **roadmap_context(basis),
@@ -404,8 +356,7 @@ def run(rid, owner, run_id, *, propagate=False):
                                      career_goal=basis['profile']['career_goal'],
                                      target_role=basis['profile']['target_role'])
                 reasons = _execute_reasons(rid, owner, run_id, basis, value) if task == 'courses' else None
-                # Serialize explanation batches through the existing owner AI guard.
-                # Candidate collection/ranking above stays parallel and entirely rule based.
+                # Activity explanations retain the existing owner AI guard.
                 if task == 'activities' and value.get('activities'):
                     value = _execute_activity_reasons(rid, owner, run_id, basis, value)
                 def record(w, key=task, data=value, status=state, code=error_code, prose=reasons):

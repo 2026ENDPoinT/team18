@@ -28,14 +28,14 @@ from api.routes import activities, job_skill_analysis
 from api.domain import COOKIE, Problem
 from repositories.plans import connect
 from repositories.roadmaps import RoadmapRepository
-from services import gemini_roadmap, course_reasons, gemini_jobs
+from services import gemini_roadmap, gemini_jobs
 from services.roadmap_generation import capture_basis, model_input, validate_result
 
 case = RoadmapAPI()
 case.setUp()
 with closing(connect()) as db:
     sentence = 'SQL을 활용한 데이터 조회 및 집계를 학습한다.'
-    db.execute('UPDATE catalog_courses SET description_text=? WHERE catalog_id=? AND course_id=?', (sentence, C, DB_COURSE))
+    db.execute('UPDATE catalog_courses SET description_text=?,recommendation_reason=? WHERE catalog_id=? AND course_id=?', (sentence, '본 강좌에서는 데이터베이스의 구성과 운영 방법을 학습한다.', C, DB_COURSE))
     db.execute('INSERT INTO catalog_course_keywords(catalog_id,course_id,keyword,keyword_role,evidence_text) VALUES(?,?,?,?,?)', (C, DB_COURSE, 'SQL', 'learning', sentence))
 case.jobs()
 with closing(connect()) as db:
@@ -47,7 +47,7 @@ with closing(connect()) as db:
     db.commit()
 
 spies = {}
-for module, function in ((gemini_roadmap, 'generate_roadmap'), (course_reasons, 'generate_course_reasons'),
+for module, function in ((gemini_roadmap, 'generate_roadmap'),
                          (gemini_jobs, '_generate'), (job_skill_analysis, 'job_skill_analysis')):
     spy = Mock(side_effect=AssertionError('Unexpected Gemini call: ' + function))
     setattr(module, function, spy)
