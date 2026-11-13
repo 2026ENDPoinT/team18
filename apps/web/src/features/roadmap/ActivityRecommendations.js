@@ -8,7 +8,7 @@ export default function ActivityRecommendations({ active, resource, compact = fa
  const failed = data?.sources?.filter(source => source.status !== 'success') || [];
  if (compact) return <div className="activity-summary" aria-busy={phase === 'idle' || phase === 'loading'}>
   {(phase === 'idle' || phase === 'loading') && <p role="status">활동 추천을 불러오는 중이에요…</p>}
-  {(phase === 'error' || data?.status === 'error') && <div><p role="alert">활동 추천을 불러오지 못했어요.</p><button onClick={refresh}>다시 조회</button></div>}
+  {(phase === 'error' || data?.status === 'error') && <div><p role="alert">활동 추천을 불러오지 못했어요.</p>{refresh && <button onClick={refresh}>다시 조회</button>}</div>}
   {phase === 'ready' && data?.status !== 'error' && <>
    {failed.length > 0 && <p className="summary-note" role="status">일부 출처를 조회하지 못해 확인된 활동만 표시해요.</p>}
    {data.activities.length === 0 ? <p role="status">현재 추천 조건에 맞는 활동이 없어요.</p> : <ul className="result-brief-list">{data.activities.slice(0, 3).map(item => {
@@ -25,7 +25,7 @@ export default function ActivityRecommendations({ active, resource, compact = fa
  return <div hidden={!active} className="activity-recommendations" aria-busy={phase === 'loading'}>
   <h2>공모전·대외활동 추천</h2>
   <p>저장한 진로 목표를 바탕으로, 한국 시간 기준 접수 중이거나 접수 예정이고 대학생 또는 누구나 참여 대상으로 안내된 공고를 추천합니다. 문서나 직무 분석 없이도 이용할 수 있습니다.</p>
-  <button disabled={phase === 'idle' || phase === 'loading'} onClick={refresh}>활동 추천 다시 확인</button>
+  {refresh && <button disabled={phase === 'idle' || phase === 'loading'} onClick={refresh}>활동 추천 다시 확인</button>}
   {phase === 'loading' && <p role="status">접수 기간과 목표에 맞는 실제 공고를 확인하고 있습니다…</p>}
   {phase === 'error' && <p role="alert">{message}</p>}
   {data?.status === 'error' && <p role="alert">추천 활동을 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.</p>}

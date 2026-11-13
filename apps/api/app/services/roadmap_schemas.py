@@ -15,6 +15,8 @@ class StrictModel(BaseModel):
 class GenerationRequest(StrictModel):
     expected_input_revision: int = Field(ge=0)
     refresh: bool = False
+    background: bool = False
+    retry_run_id: str | None = None
 
 
 class ProgressRequest(StrictModel):

@@ -25,6 +25,7 @@ expected = {
  '/api/roadmap-inputs/{rid}/job-skill-analysis', '/api/roadmap-inputs/{rid}/activities',
  '/api/roadmap-inputs/{rid}/roadmap', '/api/roadmap-inputs/{rid}/roadmaps',
  '/api/roadmap-inputs/{rid}/roadmaps/{run_id}', '/api/roadmap-inputs/{rid}/roadmaps/{run_id}/tasks/{task_id}',
+ '/api/roadmap-inputs/{rid}/roadmaps/{run_id}/course-reasons',
  '/api/roadmap-inputs/{rid}/project-experience-analysis',
  '/api/roadmap-inputs/{rid}/project-experiences/{eid}/confirmation',
  '/api/roadmap-inputs/{rid}/skill-comparison', '/api/roadmap-inputs/{rid}/skill-comparison/answers',

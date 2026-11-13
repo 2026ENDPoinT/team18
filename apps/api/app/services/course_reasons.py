@@ -1,6 +1,6 @@
 """Gemini-written explanations for a fixed, saved set of course candidates."""
 from typing import Annotated
-from pydantic import Field, StringConstraints
+from pydantic import Field, StringConstraints, ValidationError
 
 from services.gemini import GeminiError
 from services.gemini_jobs import _generate
@@ -80,6 +80,15 @@ def generate_course_reasons(data):
     if not data['courses']:
         return {'reasons': []}
     result = _generate(CourseReasons, INSTRUCTION, data, max_attempts=1)
+    return validate_course_reasons(data, result)
+
+
+def validate_course_reasons(data, result):
+    """Apply the same checks to fresh responses and durable cached JSON."""
+    try:
+        result = result if isinstance(result, CourseReasons) else CourseReasons.model_validate(result)
+    except (ValidationError, TypeError, ValueError):
+        raise GeminiError('gemini_invalid_response', '추천 이유의 과목 정보를 확인하지 못했습니다. 다시 시도해 주세요.') from None
     expected = {c['course_id']: c for c in data['courses']}
     supplied = {r.course_id: r for r in result.reasons}
     if set(supplied) != set(expected) or len(supplied) != len(result.reasons):

@@ -2,11 +2,21 @@
 
 import logging
 import os
+import re
 
 logger = logging.getLogger(__name__)
 
 class StorageUnavailable(Exception):
     """A safe error which must not expose connection details."""
+
+    def __init__(self, message, diagnostic='storage_unavailable'):
+        super().__init__(message)
+        self.diagnostic = diagnostic
+
+
+def _sql_diagnostic(error):
+    code = getattr(error, 'sqlstate', None) or ''
+    return 'sqlstate_' + code if re.fullmatch(r'[0-9A-Z]{5}', code) else type(error).__name__
 
 
 class StorageConflict(StorageUnavailable):
@@ -68,7 +78,7 @@ def connect_postgres(url):
     except (psycopg.Error, ValueError, UnicodeError) as error:
         code = _connection_error_code(error)
         logger.error('PostgreSQL connection failed: %s', code)
-        raise StorageUnavailable(f'PostgreSQL 연결에 실패했습니다. 설정과 네트워크를 확인해 주세요. ({code})') from None
+        raise StorageUnavailable(f'PostgreSQL 연결에 실패했습니다. 설정과 네트워크를 확인해 주세요. ({code})', code) from None
 
 
 class PostgresConnection:
@@ -85,13 +95,13 @@ class PostgresConnection:
         except self.error_type as error:
             if getattr(error, 'sqlstate', None) in ('40001', '40P01'):
                 raise StorageConflict('동시에 입력이 변경되었습니다.') from None
-            raise StorageUnavailable('PostgreSQL 저장소 작업에 실패했습니다.') from None
+            raise StorageUnavailable('PostgreSQL 저장소 작업에 실패했습니다.', _sql_diagnostic(error)) from None
 
     def commit(self):
         try:
             self.connection.execute('COMMIT')
-        except self.error_type:
-            raise StorageUnavailable('PostgreSQL 저장을 완료하지 못했습니다.') from None
+        except self.error_type as error:
+            raise StorageUnavailable('PostgreSQL 저장을 완료하지 못했습니다.', _sql_diagnostic(error)) from None
 
     def close(self):
         # Explicit BEGIN is used with autocommit. Always discard unfinished

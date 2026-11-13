@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from services.course_reasons import CourseReasons, generate_course_reasons, reason_input
+from services.course_reasons import CourseReasons, generate_course_reasons, reason_input, validate_course_reasons
 from services.gemini import GeminiError
 
 
@@ -90,3 +90,10 @@ def test_empty_candidates_and_provider_failure_never_fall_back_to_template():
     with patch('services.course_reasons._generate', side_effect=GeminiError('gemini_timeout', 'timeout')) as model:
         with pytest.raises(GeminiError): generate_course_reasons(reason_input(*fixture()))
         assert model.call_count == 1
+
+
+def test_cached_reasons_are_validated_against_the_same_evidence():
+    data, saved = reason_input(*fixture()), output()
+    assert validate_course_reasons(data, saved) == saved
+    saved['reasons'][0]['evidence_ids'] = ['foreign']
+    with pytest.raises(GeminiError): validate_course_reasons(data, saved)

@@ -11,7 +11,7 @@ const requirementLabels = { required: '필수', preferred: '우대', mentioned: 
 const categoryLabels = { programming_language: '프로그래밍 언어', database_query_language: '쿼리 언어', framework: '프레임워크', database: '데이터베이스', cloud: '클라우드', devops: '개발·운영', development_tool: '개발 도구', data_ai: '데이터·AI', technical_competency: '기술 역량', other: '기타 기술' };
 const levelLabels = { entry: '초급', mid: '중급', senior: '고급', unknown: '경력 미확인' };
 
-export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange }) {
+export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange, savedComparison, savedRunId }) {
  const loader = useRef(null);
  if (!loader.current) loader.current = createJobSkillLoader({ apiRequest, resolvePlanId });
  const sequence = useRef(0), previousAnalysis=useRef(null);
@@ -20,6 +20,7 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange 
  const [retry, setRetry] = useState(0);
  const [saving, setSaving] = useState(false);
  const nextAction = useRef({});
+ const loadedSnapshot = useRef(null);
  const [analyzing, setAnalyzing] = useState(false);
  useEffect(() => {
   if (!active) return;
@@ -27,15 +28,22 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange 
   let busy = false;
   async function load() {
    if (disposed || busy) return;
+   const action = nextAction.current;
+   const snapshotKey = `${plan?.request_id}:${savedRunId}`;
+   if (savedComparison && !action.run && !action.answersChanged && loadedSnapshot.current === snapshotKey) return;
    busy = true;
    const attempt = ++sequence.current;
    setState(previous => ({ ...previous, phase: 'loading', message: '' }));
-   const action = nextAction.current;
    nextAction.current = {};
    setAnalyzing(Boolean(action.run));
    try {
-    const data = await loader.current(action);
+    const data = savedComparison && !action.run && !action.answersChanged ? {
+     keyword_details: [], collection_summary: { selected_jobs: 0 }, analysis_summary: { analyzed_jobs: 0, failed_jobs: 0, skipped_jobs: 0 },
+     skills: [], errors: [], ...savedComparison.job_analysis, input_revision: savedComparison.input_revision,
+     comparison: savedComparison, request_id: plan.request_id,
+    } : await loader.current(action);
     if (!disposed && sequence.current === attempt) {
+     loadedSnapshot.current = snapshotKey;
      if(data.snapshot_id)previousAnalysis.current=data.request_id;
      if(action.run&&data.snapshot_id)setCareerChanged(false);
      setState({ phase: 'ready', data, message: '' });
@@ -51,13 +59,13 @@ export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange 
   }
   load();
   return () => { disposed = true; };
- }, [active, retry, onResult]);
+ }, [active, retry, onResult, savedComparison, savedRunId, plan?.request_id]);
  const { phase, data:loadedData, message } = state;
  const outdated=!!(loadedData&&plan&&(loadedData.request_id!==plan.request_id||loadedData.comparison?.career_goal!==plan.input.career_goal||(loadedData.comparison?.target_role||'')!==(plan.input.target_role||'')));
  const data=outdated?null:loadedData;
  const hasPreviousAnalysis=!!data?.snapshot_id||previousAnalysis.current===plan?.request_id;
  function updateCareer(saved, changed){
-  sequence.current++;nextAction.current={};
+  sequence.current++;nextAction.current={};loadedSnapshot.current=null;
   onPlanChange(saved);onResult(null);
   setState({phase:'loading',data:null,message:''});
   if(changed)setCareerChanged(true);
