@@ -31,10 +31,10 @@ try {
  assert.equal(await page.locator('[name=year_level],[name=gpa],[name=completed_credits]').count(),0);
  await goal.fill('데이터 분석을 해보고 싶어요');
  assert.equal(await page.locator('#career-goal-error').count(),0);
- await page.locator('[name=university_id]').selectOption({index:1});
+ await page.locator('[name=university_id]').selectOption('10000000-0000-4000-8000-000000000001');
  await page.locator('[name=department_id] option').nth(1).waitFor({state:'attached'});
- await page.locator('[name=department_id]').selectOption({index:1});
- await button('저장 후 다음: 프로젝트 문서').click(); await page.waitForURL('**/input/documents');
+ await page.locator('[name=department_id]').selectOption('20000000-0000-4000-8000-000000000001');
+ await button('저장 후 다음 →').click(); await page.waitForURL('**/input/documents');
  await button('문서 없이 계속').click(); await page.waitForURL('**/input/courses');
  await page.locator('[data-course-id]').first().waitFor();
  const plan = await get(''), query = '/courses?catalog_id='+plan.input.catalog_id+'&page_size=100';
@@ -68,11 +68,14 @@ try {
  await page.keyboard.press('Escape'); await dialog.waitFor({state:'detached'});
  assert.equal(await button('이수 선택 확인').evaluate(el=>el===document.activeElement),true);
  await button('이수 선택 확인').click(); await button('확인하고 역량 탐색').click(); await page.waitForURL('**/input/review');
- await page.goto(origin+'/result'); await button('제한 안내 로드맵 생성').click(); await page.locator('.next-task').waitFor();
- await page.getByRole('tab',{name:'준비 상태',exact:true}).click();
+ await page.goto(origin+'/result?tab=roadmap&view=steps'); await button('제한 안내 로드맵 생성').click(); await page.locator('.next-task').waitFor();
+ assert.equal(await page.getByRole('tab',{name:'준비 상태',exact:true}).count(),0);
+ assert.equal(await page.getByRole('tab',{name:'실행 로드맵',exact:true}).getAttribute('aria-selected'),'true');
  const readsBefore = requests.filter(request=>request.method==='GET'&&request.path.endsWith('/roadmap')).length;
- await button('다음: 실행 로드맵 →').click(); await page.waitForURL('**/result?tab=roadmap');
+ await page.getByRole('tab',{name:'수강 후보',exact:true}).click();
+ await page.getByRole('tab',{name:'실행 로드맵',exact:true}).click(); await page.waitForURL('**/result?tab=roadmap');
  assert.equal(requests.filter(request=>request.method==='GET'&&request.path.endsWith('/roadmap')).length,readsBefore,'tab navigation reuses the saved result');
+ await page.getByRole('link',{name:'실행 작업·완료 기록 보기 →',exact:true}).click();
  for (const [label,key] of [['직무 역량 비교','skills'],['수강 후보','courses'],['공모전·대외활동','activities']]) {
   await button(`다음: ${label} →`).click(); await page.waitForURL('**/result?tab='+key);
   assert.equal(await page.getByRole('tab',{name:label,exact:true}).getAttribute('aria-selected'),'true');

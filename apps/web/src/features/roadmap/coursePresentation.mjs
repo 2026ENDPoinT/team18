@@ -21,3 +21,12 @@ export function relatedCourseNames(ids, byId) {
  const courses = ids.map(id => byId.get(id)).filter(Boolean);
  return [...new Map(courses.map(course => [course.course_id, course.course_name])).values()];
 }
+
+// Saved recommendations already follow the server's exclusion and ranking rules.
+// Reapply current selections when an older saved run is shown after an input edit.
+// Identity/equivalence comes from reviewed IDs, never similar course names.
+export function recommendedCourseCards(result, selectedCourses = []) {
+ const completed = new Set(selectedCourses.flatMap(course => [course.course_id, ...(course.member_course_ids || []), ...(course.verified_equivalent_ids || [])]));
+ return coursePresentation(result?.recommended_courses || []).cards.filter(course =>
+  ![course.course_id, ...course.member_course_ids, ...(course.verified_equivalent_ids || [])].some(id => completed.has(id)));
+}

@@ -1,5 +1,5 @@
 // Real Next/API/SQLite with help_ui_server.py. Only external services and failure injection are fixtures.
-// CAPTURE_HELP=1 writes the ten actual application screenshots into public/help.
+// CAPTURE_HELP=1 writes the nine actual application screenshots into public/help.
 import assert from 'node:assert/strict';
 import { confirmCourseSelection, openCourseConfirmation } from './course-confirmation.mjs';
 import { mkdirSync } from 'node:fs';
@@ -29,10 +29,11 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
  const go=path=>page.goto(origin+path);
  const get=(suffix='')=>page.evaluate(async suffix=>{const r=await fetch('/api/roadmap-inputs/'+sessionStorage.getItem('roadmap_request_id')+suffix);if(!r.ok)throw Error(await r.text());return r.json();},suffix);
  const readyReview=()=>poll(()=>button('프로젝트 경험 분석 실행').isEnabled(),'review ready');
- const saveBasic=async()=>{await button('저장').click();await page.getByRole('status').filter({hasText:'저장되었습니다.'}).waitFor();};
+ const saveBasic=async()=>{await button('저장').click();await page.getByRole('status').filter({hasText:'저장됨'}).waitFor();};
  const clean=async()=>{const body=await page.locator('#main-content').textContent();for(const phrase of forbidden)assert.ok(!body.includes(phrase),phrase);};
  async function image(id) {
   if(!capture||viewport.width!==1440)return;
+  if(process.env.HELP_CAPTURE_IDS && !process.env.HELP_CAPTURE_IDS.split(',').includes(id))return;
   await clean(); await page.addStyleTag({content:'nextjs-portal{display:none}'});
   await page.evaluate(()=>document.fonts.ready);
   if(id==='courses'){
@@ -63,12 +64,12 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
   await go('/');await button('로그인 없이 시작하기').click();await page.waitForURL('**/input/basic');
   await page.locator('[name=career_goal]').fill(goal);await page.locator('[name=target_role]').fill('데이터 분석가');
   await help('basic');assert.equal(await page.locator('[name=career_goal]').inputValue(),goal);
-  await page.locator('[name=university_id]').selectOption({index:1});await page.locator('[name=department_id]').selectOption({index:1});
-  await poll(()=>button('저장 후 다음: 프로젝트 문서').isEnabled(),'catalog ready');
+  await page.locator('[name=university_id]').selectOption('10000000-0000-4000-8000-000000000001');await page.locator('[name=department_id]').selectOption('20000000-0000-4000-8000-000000000001');
+  await poll(()=>button('저장 후 다음 →').isEnabled(),'catalog ready');
   await page.route(/\/api\/roadmap-inputs\/[\da-f-]+$/,route=>route.request().method()==='PATCH'?route.fulfill({status:503,json:{message:'저장하지 못했습니다. 다시 시도해 주세요.'}}):route.continue(),{times:1});
-  await button('저장').click();await page.getByRole('status').filter({hasText:'저장하지 못했습니다.'}).waitFor();assert.equal(await page.locator('[name=career_goal]').inputValue(),goal);await clean();await saveBasic();await image('basic');
+  await button('저장').click();await page.getByRole('alert').filter({hasText:'저장하지 못했습니다.'}).waitFor();assert.equal(await page.locator('[name=career_goal]').inputValue(),goal);await clean();await saveBasic();await image('basic');
   const initialId=(await get()).request_id;
-  await page.getByRole('link',{name:'공모전·대외활동 바로 보기',exact:true}).click();await page.waitForURL('**/result?tab=activities');
+  await go('/result?tab=activities');await page.waitForURL('**/result?tab=activities');
   await page.locator('.activity-recommendations .skill-card').first().waitFor();assert.equal((await get('/documents')).documents.length,0);await help('result-activities');await clean();
   await go('/input/documents');await page.locator('input[type=file]').setInputFiles({name:'민서_행사신청_프로젝트.txt',mimeType:'text/plain',buffer:Buffer.from(text)});
   await poll(()=>button('다음: 이수 과목').isEnabled(),'document ready');await help('documents','close');await image('documents');await clean();
@@ -86,14 +87,14 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
   await experience('React').getByRole('button',{name:'수정할게요',exact:true}).click();await experience('React').locator('textarea').fill('행사 신청 화면과 입력 검증을 구현했어요');
   await help('review');assert.equal(await experience('React').locator('textarea').inputValue(),'행사 신청 화면과 입력 검증을 구현했어요');
   await experience('React').getByRole('button',{name:'수정 내용 저장',exact:true}).click();await readyReview();await page.reload();await readyReview();assert.equal(await experience('React').getByRole('heading',{level:3}).innerText(),'행사 신청 화면과 입력 검증을 구현했어요');await image('review');
-  await page.locator('footer.footer').getByRole('link',{name:'다음: 로드맵 결과',exact:true}).click();await page.waitForURL('**/result');await help('result-overview');
+  await page.locator('footer.footer').getByRole('link',{name:'다음: 로드맵 결과',exact:true}).click();await page.waitForURL('**/result');await help('result-roadmap');assert.equal(await tab('실행 로드맵').getAttribute('aria-selected'),'true');assert.equal(await page.getByRole('tab').count(),4);assert.equal(await tab('준비 상태').count(),0);
   await tab('직무 역량 비교').click();await poll(()=>button('직무 분석 실행').isEnabled(),'job ready');await button('직무 분석 실행').click();await poll(()=>button('직무 분석 다시 실행').isEnabled(),'job saved');
-  await help('result-skills');await tab('실행 로드맵').click();await button('로드맵 생성').click();await page.locator('.next-task').waitFor();assert.ok((await get('/roadmap')).run_id);
-  for(const [name,key] of [['준비 상태','overview'],['직무 역량 비교','skills'],['실행 로드맵','roadmap'],['수강 후보','courses'],['공모전·대외활동','activities']]){
+  await help('result-skills');await go('/result?tab=roadmap&view=steps');await button('로드맵 생성').click();await page.locator('.next-task').waitFor();assert.ok((await get('/roadmap')).run_id);
+  for(const [name,key] of [['실행 로드맵','roadmap'],['직무 역량 비교','skills'],['수강 후보','courses'],['공모전·대외활동','activities']]){
    await tab(name).click();await page.waitForURL('**/result?tab='+key);
    if(key==='skills')await poll(()=>button('직무 분석 다시 실행').isEnabled(),'saved skills');
    if(key==='activities')await page.locator('.activity-recommendations .skill-card').first().waitFor();
-   if(key==='courses'){await page.locator('#result-panel .skill-card').first().waitFor();if(capture)await page.locator('.course-learning summary').first().click();}
+   if(key==='courses'){await page.locator('.course-candidates-list .skill-card').first().waitFor();if(capture)await page.locator('.course-learning summary').first().click();}
    await help('result-'+key);await clean();await image('result-'+key);
    await page.reload();assert.equal(await tab(name).getAttribute('aria-selected'),'true');
   }
@@ -107,7 +108,7 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
   assert.equal(writes.filter(r=>/\/(roadmap|job-skill-analysis|project-experience-analysis)$/.test(r.url())).length,paidBefore);
   await go('/input/basic');assert.equal(await page.locator('[name=target_role]').inputValue(),'데이터 엔지니어');await go('/dashboard');await card('기본 정보').waitFor();assert.ok((await card('기본 정보').innerText()).includes('데이터 엔지니어'));
   for(const [name,key] of [['직무 역량 비교','skills'],['실행 로드맵','roadmap'],['수강 후보','courses'],['공모전·대외활동','activities']]){
-   await card(name).focus();await page.keyboard.press('Enter');await page.waitForURL('**/result?tab='+key);assert.equal(await tab(name).getAttribute('aria-selected'),'true');await help('result-'+key);await clean();await page.reload();assert.equal(await tab(name).getAttribute('aria-selected'),'true');await page.goBack();await page.waitForURL('**/dashboard');await card(name).waitFor();
+   await card(name).focus();await page.keyboard.press('Enter');await page.waitForURL('**/result?tab='+key+(key==='roadmap'?'&view=steps':''));assert.equal(await tab(name).getAttribute('aria-selected'),'true');await help('result-'+key);await clean();await page.reload();assert.equal(await tab(name).getAttribute('aria-selected'),'true');await page.goBack();await page.waitForURL('**/dashboard');await card(name).waitFor();
   }
   console.log(`PASS ${viewport.width}×${viewport.height}: guest → department → upload → one-button courses → four experience responses/edit → results → career edit → dashboard tabs; reload, draft/selection/tab retention, saved retry`);
 
@@ -124,15 +125,15 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
    return await route.fulfill({response,json:data});
    } catch(error) { if(!/already handled|Target closed|ERR_ABORTED|closed/.test(error.message))throw error; }
   });
-  for(const key of ['overview','skills','roadmap','courses','activities']){await go('/result?tab='+key);await page.waitForLoadState('networkidle');if(key==='skills')await poll(()=>button('직무 분석 실행').isEnabled(),'new goal empty skills');else if(key==='activities')await button('활동 추천 다시 확인').waitFor();else await page.locator('.roadmap-controls').waitFor();await help('result-'+key);await clean();}
+  for(const key of ['roadmap','skills','courses','activities']){await go('/result?tab='+key);await page.waitForLoadState('networkidle');if(key==='skills')await poll(()=>button('직무 분석 실행').isEnabled(),'new goal empty skills');else if(key==='activities')await button('활동 추천 다시 확인').waitFor();else if(key==='roadmap')await page.locator('.result-overview').waitFor();else await page.locator('.roadmap-controls').waitFor();await help('result-'+key);await clean();}
   await page.unroute('**/api/roadmap-inputs/**');
   // Failure history still gives an actionable retry without diagnostic IDs.
-  await go('/result?tab=roadmap');await button('현재 입력으로 다시 분석').waitFor();
+  await go('/result?tab=roadmap&view=steps');await button('현재 입력으로 다시 분석').waitFor();
   await page.route('**/roadmap',route=>route.request().method()==='POST'?route.fulfill({status:502,json:{error:'gemini_invalid_response',message:'실패',run_id:'internal-run-id',detail_code:'experience_status_mismatch'}}):route.continue());
   await button('현재 입력으로 다시 분석').click();await page.getByRole('alert').filter({hasText:'다시 생성해 주세요.'}).waitFor();await clean();assert.ok(!(await page.locator('body').innerText()).includes('internal-run-id'));await help('result-roadmap');await page.unroute('**/roadmap');
   if(!capture){await page.route('**/help/basic.png',route=>route.fulfill({status:404,body:''}),{times:1});await go('/input/basic');await button('기본 정보 예시 보기').click();await page.getByRole('dialog').getByRole('alert').waitFor();await button('이미지 다시 불러오기').click();await poll(()=>page.getByRole('dialog').locator('img').evaluate(el=>el.complete&&el.naturalWidth>0),'image retry');await page.keyboard.press('Escape');}
   // New plan: skip a document and confirm zero courses, then read activities without analysis.
-  await go('/');await button('처음부터 작성하기').click();await page.waitForURL('**/input/basic');await page.locator('[name=career_goal]').fill(goal);await page.locator('[name=university_id]').selectOption({index:1});await page.locator('[name=department_id]').selectOption({index:1});await poll(()=>button('저장 후 다음: 프로젝트 문서').isEnabled(),'catalog ready');await button('저장 후 다음: 프로젝트 문서').click();await page.waitForURL('**/input/documents');await button('문서 없이 계속').click();await page.waitForURL('**/input/courses');await poll(()=>button('이수 선택 확인').isEnabled(),'zero courses ready');await help('courses');await confirmCourseSelection(page);await page.waitForURL('**/input/review');await page.getByText('현재 분석 가능한 문서가 없습니다. 경험이 없다는 의미는 아닙니다. 문서 상태를 확인해 주세요.',{exact:true}).waitFor();await clean();await help('review');
+  await go('/');await button('처음부터 작성하기').click();await page.waitForURL('**/input/basic');await page.locator('[name=career_goal]').fill(goal);await page.locator('[name=university_id]').selectOption('10000000-0000-4000-8000-000000000001');await page.locator('[name=department_id]').selectOption('20000000-0000-4000-8000-000000000001');await poll(()=>button('저장 후 다음 →').isEnabled(),'catalog ready');await button('저장 후 다음 →').click();await page.waitForURL('**/input/documents');await button('문서 없이 계속').click();await page.waitForURL('**/input/courses');await poll(()=>button('이수 선택 확인').isEnabled(),'zero courses ready');await help('courses');await confirmCourseSelection(page);await page.waitForURL('**/input/review');await page.getByText('현재 분석 가능한 문서가 없습니다. 경험이 없다는 의미는 아닙니다. 문서 상태를 확인해 주세요.',{exact:true}).waitFor();await clean();await help('review');
   assert.equal((await get('/documents')).documents.length,0);assert.notEqual((await get()).request_id,initialId);assert.equal((await get()).review_status,'confirmed');
   await go('/result?tab=courses');await page.getByText('아직 표시할 로드맵 결과가 없습니다. 분석 근거를 확인한 후 로드맵을 생성해 주세요.',{exact:true}).waitFor();await clean();await help('result-courses');await go('/result?tab=activities');await page.locator('.activity-recommendations .skill-card').first().waitFor();await help('result-activities');await clean();
   await page.route('**/api/roadmap-inputs/*/documents',route=>route.fulfill({status:503,json:{error:'feature_unavailable',message:'PostgreSQL 문서 기능은 아직 연결되지 않았습니다.'}}),{times:1});
@@ -143,4 +144,4 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
  finally { await context.close(); }
 }
 await browser.close();
-console.log(capture?'ALL TEN ACTUAL APP EXAMPLES CAPTURED':'ALL HELP AND FULL USER FLOW CHECKS PASSED');
+console.log(capture?(process.env.HELP_CAPTURE_IDS?'SELECTED ACTUAL APP EXAMPLES CAPTURED':'ALL NINE ACTUAL APP EXAMPLES CAPTURED'):'ALL HELP AND FULL USER FLOW CHECKS PASSED');

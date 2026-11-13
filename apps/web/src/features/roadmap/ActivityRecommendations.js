@@ -3,8 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 import { apiRequest } from '../../lib/api/client';
 import { resolvePlanId } from '../../lib/api/session';
 import { activityKindLabel, createActivityLoader } from './activityLoader.mjs';
+import Link from 'next/link';
+import { resultHref } from './resultPresentation.mjs';
 
-export default function ActivityRecommendations({ active, inputRevision, onResult }) {
+const ignoreResult = () => {};
+export default function ActivityRecommendations({ active, inputRevision, onResult = ignoreResult, compact = false }) {
  const loader = useRef(null), refresh = useRef(false);
  if (!loader.current) loader.current = createActivityLoader({ apiRequest, resolvePlanId });
  const [state, setState] = useState({ phase: 'idle', data: null, message: '' });
@@ -37,6 +40,22 @@ export default function ActivityRecommendations({ active, inputRevision, onResul
  }, [active, inputRevision, retry, onResult]);
  const { phase, data, message } = state;
  const failed = data?.sources?.filter(source => source.status !== 'success') || [];
+ if (compact) return <div className="activity-summary" aria-busy={phase === 'idle' || phase === 'loading'}>
+  {(phase === 'idle' || phase === 'loading') && <p role="status">활동 추천을 불러오는 중이에요…</p>}
+  {(phase === 'error' || data?.status === 'error') && <div><p role="alert">활동 추천을 불러오지 못했어요.</p><button onClick={() => setRetry(v => v + 1)}>다시 조회</button></div>}
+  {phase === 'ready' && data?.status !== 'error' && <>
+   {failed.length > 0 && <p className="summary-note" role="status">일부 출처를 조회하지 못해 확인된 활동만 표시해요.</p>}
+   {data.activities.length === 0 ? <p role="status">현재 추천 조건에 맞는 활동이 없어요.</p> : <ul className="result-brief-list">{data.activities.slice(0, 3).map(item => {
+    const url = item.url || item.source_links?.[0]?.url;
+    const external = /^https?:\/\//.test(url || '');
+    return <li key={`${item.source}:${item.original_id || item.id}`}>
+     <a href={external ? url : resultHref('activities')} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>{item.title}{external && <span aria-hidden="true"> ↗</span>}</a>
+     <p>{activityKindLabel(item.kind)} · {item.status === 'upcoming' ? '접수 예정' : '접수 중'}</p>
+    </li>;
+   })}</ul>}
+  </>}
+  <Link className="summary-link" href={resultHref('activities')}>활동 상세 보기 →</Link>
+ </div>;
  return <div hidden={!active} className="activity-recommendations" aria-busy={phase === 'loading'}>
   <h2>공모전·대외활동 추천</h2>
   <p>저장한 진로 목표를 바탕으로, 한국 시간 기준 접수 중이거나 접수 예정이고 대학생 또는 누구나 참여 대상으로 안내된 공고를 추천합니다. 문서나 직무 분석 없이도 이용할 수 있습니다.</p>

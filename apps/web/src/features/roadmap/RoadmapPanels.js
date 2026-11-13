@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { roadmapProgress, courseLearning, courseReason } from './resultPresentation.mjs';
 import { experiencePresentation } from './experiencePresentation.mjs';
-import { coursePresentation, relatedCourseNames } from './coursePresentation.mjs';
+import { coursePresentation, relatedCourseNames, recommendedCourseCards } from './coursePresentation.mjs';
 
 const statusLabels = { confirmed_experience: '확인된 경험', document_supported: '문서 근거 · 본인 확인 필요', needs_confirmation: '확인 필요', not_verified: '자료 부족 · 확인 필요', no_experience: '사용자가 경험 없음으로 응답' };
 
@@ -46,24 +46,6 @@ function ConfirmationQuestions({ items }) {
 }
 const unconfirmed = result => (result.preparation_items || []).filter(item => ['document_supported', 'needs_confirmation', 'not_verified'].includes(item.student_status));
 
-export function Preparation({ result }) {
- const summary = result.preparation_summary;
- const questions = unconfirmed(result), questionSet = new Set(questions);
- return <>
-  <h2>준비 상태</h2><p>{result.career_goal}{result.target_role ? ` · ${result.target_role}` : ''}</p>
-  <div className="columns preparation-summary">{[['confirmed_skills', '확인된 수행 경험'], ['skills_to_verify', '추가 확인이 필요한 기술'], ['learning_candidates', '추가 학습을 검토할 기술']].map(([key, title]) => <div className="wire-box" key={key}><h3>{title}</h3><p>{summary[key].join(', ') || '현재 확인된 항목 없음'}</p></div>)}</div>
-  <p>분석된 해외 채용공고 {result.basis.job_summary.analyzed_jobs || 0}개 · 프로젝트 분석 {result.basis.project_documents.filter(d => ['success', 'partial'].includes(d.status)).length}개</p>
-  <ConfirmationQuestions items={questions}/>
-  <ul className="skill-list">{result.preparation_items.filter(item => !questionSet.has(item)).map(item => {
-   return <li className="skill-card" key={item.skill_name}><h3>{item.skill_name} <span className="badge">{statusLabels[item.student_status]}</span></h3><p>{item.reason}</p>
-    {item.job_requirement?.priority_reason && <p className="field-help">{item.job_requirement.priority_reason}</p>}
-    {item.job_requirement?.single_job_notice && <p className="notice">{item.job_requirement.single_job_notice}</p>}
-    <Evidence refs={[item.comparison_ref, ...item.job_refs, ...item.project_refs]} result={result}/></li>;
-  })}</ul>
-  <Link href="/input/review">경험 확인 답변 수정 →</Link>
- </>;
-}
-
 export function RoadmapSteps({ result, saving, onToggle }) {
  const byId = Object.fromEntries(result.roadmap.map(step => [step.step_id, step]));
  const { byId: courses } = coursePresentation(result.recommended_courses);
@@ -83,16 +65,16 @@ export function RoadmapSteps({ result, saving, onToggle }) {
   </li>)}</ol></>;
 }
 
-export function CourseCandidates({ result }) {
+export function CourseCandidates({ result, selectedCourses }) {
  const catalog = result.basis.catalog;
- const { cards } = coursePresentation(result.recommended_courses);
+ const cards = recommendedCourseCards(result, selectedCourses);
  return <><h2>수강 후보</h2><p>이 로드맵 실행의 경험·이수 선택 기준으로 생성한 개인화 후보입니다.</p>
   {result.course_status === 'evidence_unavailable' ? <p className="notice">검증된 직무 근거가 없어 수강 후보 추천을 보류했습니다. 직무 분석 후 로드맵을 다시 생성해 주세요.</p> : result.course_status === 'catalog_unavailable' ? <p className="notice">과목 목록을 사용할 수 없어 수강 후보를 생성하지 않았습니다.</p> : <>
-   {catalog.source_url?.startsWith('https://') && <p><a href={catalog.source_url} target="_blank" rel="noopener noreferrer">과목 목록 출처 ↗</a></p>}
+   {catalog?.source_url?.startsWith('https://') && <p><a href={catalog.source_url} target="_blank" rel="noopener noreferrer">과목 목록 출처 ↗</a></p>}
    {result.basis.review_status === 'unconfirmed' && <p className="notice">이수 선택 확인 전의 잠정 후보입니다. 미이수로 확정하지 않습니다. <Link href="/input/courses">이수 선택 확인 →</Link></p>}
    {result.basis.review_status === 'partial' && <p className="notice">현재 목록에 누락된 과목이 있습니다. 이수 선택 확인은 현재 목록 안에 한정됩니다.</p>}
-   {result.recommended_courses.length === 0 && <p>현재 근거와 미선택 과목에서 추천할 후보를 찾지 못했습니다.</p>}
-   {result.recommended_courses.length > 0 && result.recommended_courses.length < 5 && <p className="notice">이수 및 대체과목을 제외하면 추천 가능한 고유 과목이 {result.recommended_courses.length}개입니다.</p>}
+   {cards.length === 0 && <p>현재 근거와 미선택 과목에서 추천할 후보를 찾지 못했습니다.</p>}
+   {cards.length > 0 && cards.length < 5 && <p className="notice">이수 및 대체과목을 제외하면 추천 가능한 고유 과목이 {cards.length}개입니다.</p>}
   </>}
   <ul className="skill-list course-candidates-list">{cards.map(course => <li className="skill-card" key={course.course_id}>
    <h3>{course.course_name}{course.recommendation_label && <> <span className="badge">{course.recommendation_label}</span></>}</h3>

@@ -117,6 +117,7 @@ export default function Home() {
  }
  const phase = planStatus.userId === user?.id ? planStatus.phase : 'loading';
  return <div className="home-page">
+  <div className="home-main">
   <section className="home-hero">
    <div className="home-copy"><div className="home-eyebrow">MY CAREER, ONE STEP UP</div><h1>어떤 일을<br/>해 보고 싶나요?</h1><p className="lead">관심 분야를 적으면 프로젝트 경험과 이수 과목을 연결해 다음 할 일을 정리할 수 있어요.</p>
     <div className="start-action home-actions">{user?<>
@@ -134,6 +135,7 @@ export default function Home() {
    <aside className="preview-card" aria-label="계획 예시"><div className="preview-label">완성된 계획 예시 <span aria-hidden="true">▤</span></div><h2>백엔드 개발자</h2><div className="progress-art" aria-hidden="true"><span>■</span><span>○</span><span>◇</span></div>{[['내 프로젝트','동아리 행사 신청 서비스'],['확인한 경험','신청 API의 중복 처리 구현'],['다음 할 일','집계 SQL의 담당 범위 확인']].map(([a,b])=><div className="preview-row" key={a}><span>{a}</span><b>{b}</b></div>)}<p className="field-help">화면 이해를 돕기 위한 예시입니다.<br/>내 로드맵은 저장한 정보와 분석 결과로 만들어집니다.</p></aside>
   </section>
   <section className="steps-wrap"><h2>계획 작성 순서</h2><div className="home-steps">{[['◎','진로와 학교','관심 분야와 교육과정 선택'],['▤','프로젝트 자료','내 역할을 설명하는 문서 등록'],['▧','이수 과목','학과 목록에서 이수 여부 확인'],['✧','내 역할 확인','경험과 연결된 역량 살펴보기']].map(([icon,title,description])=><div className="step-card" key={title}><i aria-hidden="true">{icon}</i><b>{title}</b><p>{description}</p></div>)}</div></section>
+  </div>
   <div className="support-note">게스트는 같은 브라우저의 세션으로 다시 이용할 수 있습니다. 세션을 잃거나 로그아웃하면 데이터를 자동 복원할 수 없습니다. Google 계정은 다른 기기에서도 복원할 수 있습니다.</div>
  </div>;
 }
