@@ -31,10 +31,10 @@ try {
  assert.equal(await page.locator('[name=year_level],[name=gpa],[name=completed_credits]').count(),0);
  await goal.fill('데이터 분석을 해보고 싶어요');
  assert.equal(await page.locator('#career-goal-error').count(),0);
- await page.locator('[name=university_id]').selectOption({index:1});
+ await page.locator('[name=university_id]').selectOption('10000000-0000-4000-8000-000000000001');
  await page.locator('[name=department_id] option').nth(1).waitFor({state:'attached'});
- await page.locator('[name=department_id]').selectOption({index:1});
- await button('저장 후 다음: 프로젝트 문서').click(); await page.waitForURL('**/input/documents');
+ await page.locator('[name=department_id]').selectOption('20000000-0000-4000-8000-000000000001');
+ await button('저장 후 다음 →').click(); await page.waitForURL('**/input/documents');
  await button('문서 없이 계속').click(); await page.waitForURL('**/input/courses');
  await page.locator('[data-course-id]').first().waitFor();
  const plan = await get(''), query = '/courses?catalog_id='+plan.input.catalog_id+'&page_size=100';

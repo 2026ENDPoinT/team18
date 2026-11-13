@@ -23,7 +23,7 @@ export function Shell({ children }) {
   <a className="skip-link" href="#main-content">본문으로 이동</a>
   <header className="global-bar"><Link href="/" className="global-brand"><Logo/>스텝업</Link><nav className="global-nav" aria-label="진행 메뉴">{[['home','/','시작'],['input','/input/basic','입력·검토'],['result','/result','내 로드맵']].map(([id,href,label])=><Link key={id} href={href} className={current===id?'active':''} aria-current={current===id?'page':undefined}>{label}</Link>)}</nav><Link href="/" className="account-link">계정 · 로그인</Link></header>
   <div className={home?'home-shell':'stepup-app'}>
-   {!home&&<aside className="stepup-side"><nav className="side-nav" aria-label="주 메뉴">{menu.map(([href,icon,label],i)=><div key={href}>{i===1&&<div className="nav-heading">역량 체크하기</div>}<Link href={href} className={pathname===href?'active':''} aria-current={pathname===href?'page':undefined}><span aria-hidden="true">{icon}</span>{label}</Link></div>)}</nav><div className="sidebar-bottom"><b>나만의 진로를 발견해요</b>경험과 목표를 연결해<br/>다음 단계를 찾아보세요.</div></aside>}
+   {!home&&<aside className="stepup-side"><nav className="side-nav" aria-label="주 메뉴">{menu.map(([href,icon,label],i)=><div key={href}>{i===1&&<div className="nav-heading">역량 체크하기</div>}<Link href={href} className={pathname===href?'active':''} aria-current={pathname===href?'page':undefined}><span aria-hidden="true">{icon}</span>{label}</Link></div>)}</nav></aside>}
    <main id="main-content" className={home?'home-content':'service-content'}>{children}</main>
   </div>
  </>;

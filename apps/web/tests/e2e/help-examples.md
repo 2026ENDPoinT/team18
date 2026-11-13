@@ -52,6 +52,31 @@ toggling, year/semester selection, search-hidden selections, reversals while sav
 reload persistence, dialog focus restoration, ordered result navigation, and reuse
 of the saved result without fetching result history or starting another analysis.
 
+## Basic information summary and save flow
+
+Run `apps/api/tests/integration/basic_ui_server.py` instead of the help fixture
+server to test the school/department disclosure. It adds a second fictional
+school, multiple catalogs and a department without a catalog to the same real
+local API/SQLite setup. Use the Next command above, then run:
+
+```sh
+CAPTURE_HELP=1 PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs P5_BROWSER=/path/to/chromium node apps/web/tests/e2e/basic-form.mjs
+```
+
+This updates only `public/help/basic.png` from the actual collapsed desktop UI.
+Both 1440×900 and 390×844 exercise first visit, selection and collapse, reopening
+with selected values, school change without losing the career draft, catalog
+reset/automatic attachment, saved catalog restoration, delayed catalog responses,
+catalog retry, required-goal focus, save-in-flight navigation blocking, refresh
+restoration, school-free saving and both destinations, 503 retry and real 409
+conflict handling. The help dialog preserves the draft and returns focus.
+
+Captures and the verification report are written to the ignored
+`apps/web/test-results/basic-form/` directory: `desktop-collapsed.png`,
+`mobile-expanded.png` (390×844 viewport), `mobile-expanded-full.png` (the entire
+scrollable page at that viewport width), and `report.json`. The example uses a
+fictional student's running-record analysis goal; no production data is changed.
+
 The result starts with 실행 로드맵 and has four tabs; the retired 준비 상태 tab
 and its example are removed. To refresh only the result examples, set
 `HELP_CAPTURE_IDS=result-roadmap,result-skills,result-courses,result-activities`

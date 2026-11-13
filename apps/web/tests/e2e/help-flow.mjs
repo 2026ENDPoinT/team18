@@ -29,7 +29,7 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
  const go=path=>page.goto(origin+path);
  const get=(suffix='')=>page.evaluate(async suffix=>{const r=await fetch('/api/roadmap-inputs/'+sessionStorage.getItem('roadmap_request_id')+suffix);if(!r.ok)throw Error(await r.text());return r.json();},suffix);
  const readyReview=()=>poll(()=>button('프로젝트 경험 분석 실행').isEnabled(),'review ready');
- const saveBasic=async()=>{await button('저장').click();await page.getByRole('status').filter({hasText:'저장되었습니다.'}).waitFor();};
+ const saveBasic=async()=>{await button('저장').click();await page.getByRole('status').filter({hasText:'저장됨'}).waitFor();};
  const clean=async()=>{const body=await page.locator('#main-content').textContent();for(const phrase of forbidden)assert.ok(!body.includes(phrase),phrase);};
  async function image(id) {
   if(!capture||viewport.width!==1440)return;
@@ -64,12 +64,12 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
   await go('/');await button('로그인 없이 시작하기').click();await page.waitForURL('**/input/basic');
   await page.locator('[name=career_goal]').fill(goal);await page.locator('[name=target_role]').fill('데이터 분석가');
   await help('basic');assert.equal(await page.locator('[name=career_goal]').inputValue(),goal);
-  await page.locator('[name=university_id]').selectOption({index:1});await page.locator('[name=department_id]').selectOption({index:1});
-  await poll(()=>button('저장 후 다음: 프로젝트 문서').isEnabled(),'catalog ready');
+  await page.locator('[name=university_id]').selectOption('10000000-0000-4000-8000-000000000001');await page.locator('[name=department_id]').selectOption('20000000-0000-4000-8000-000000000001');
+  await poll(()=>button('저장 후 다음 →').isEnabled(),'catalog ready');
   await page.route(/\/api\/roadmap-inputs\/[\da-f-]+$/,route=>route.request().method()==='PATCH'?route.fulfill({status:503,json:{message:'저장하지 못했습니다. 다시 시도해 주세요.'}}):route.continue(),{times:1});
-  await button('저장').click();await page.getByRole('status').filter({hasText:'저장하지 못했습니다.'}).waitFor();assert.equal(await page.locator('[name=career_goal]').inputValue(),goal);await clean();await saveBasic();await image('basic');
+  await button('저장').click();await page.getByRole('alert').filter({hasText:'저장하지 못했습니다.'}).waitFor();assert.equal(await page.locator('[name=career_goal]').inputValue(),goal);await clean();await saveBasic();await image('basic');
   const initialId=(await get()).request_id;
-  await page.getByRole('link',{name:'공모전·대외활동 바로 보기',exact:true}).click();await page.waitForURL('**/result?tab=activities');
+  await go('/result?tab=activities');await page.waitForURL('**/result?tab=activities');
   await page.locator('.activity-recommendations .skill-card').first().waitFor();assert.equal((await get('/documents')).documents.length,0);await help('result-activities');await clean();
   await go('/input/documents');await page.locator('input[type=file]').setInputFiles({name:'민서_행사신청_프로젝트.txt',mimeType:'text/plain',buffer:Buffer.from(text)});
   await poll(()=>button('다음: 이수 과목').isEnabled(),'document ready');await help('documents','close');await image('documents');await clean();
@@ -133,7 +133,7 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
   await button('현재 입력으로 다시 분석').click();await page.getByRole('alert').filter({hasText:'다시 생성해 주세요.'}).waitFor();await clean();assert.ok(!(await page.locator('body').innerText()).includes('internal-run-id'));await help('result-roadmap');await page.unroute('**/roadmap');
   if(!capture){await page.route('**/help/basic.png',route=>route.fulfill({status:404,body:''}),{times:1});await go('/input/basic');await button('기본 정보 예시 보기').click();await page.getByRole('dialog').getByRole('alert').waitFor();await button('이미지 다시 불러오기').click();await poll(()=>page.getByRole('dialog').locator('img').evaluate(el=>el.complete&&el.naturalWidth>0),'image retry');await page.keyboard.press('Escape');}
   // New plan: skip a document and confirm zero courses, then read activities without analysis.
-  await go('/');await button('처음부터 작성하기').click();await page.waitForURL('**/input/basic');await page.locator('[name=career_goal]').fill(goal);await page.locator('[name=university_id]').selectOption({index:1});await page.locator('[name=department_id]').selectOption({index:1});await poll(()=>button('저장 후 다음: 프로젝트 문서').isEnabled(),'catalog ready');await button('저장 후 다음: 프로젝트 문서').click();await page.waitForURL('**/input/documents');await button('문서 없이 계속').click();await page.waitForURL('**/input/courses');await poll(()=>button('이수 선택 확인').isEnabled(),'zero courses ready');await help('courses');await confirmCourseSelection(page);await page.waitForURL('**/input/review');await page.getByText('현재 분석 가능한 문서가 없습니다. 경험이 없다는 의미는 아닙니다. 문서 상태를 확인해 주세요.',{exact:true}).waitFor();await clean();await help('review');
+  await go('/');await button('처음부터 작성하기').click();await page.waitForURL('**/input/basic');await page.locator('[name=career_goal]').fill(goal);await page.locator('[name=university_id]').selectOption('10000000-0000-4000-8000-000000000001');await page.locator('[name=department_id]').selectOption('20000000-0000-4000-8000-000000000001');await poll(()=>button('저장 후 다음 →').isEnabled(),'catalog ready');await button('저장 후 다음 →').click();await page.waitForURL('**/input/documents');await button('문서 없이 계속').click();await page.waitForURL('**/input/courses');await poll(()=>button('이수 선택 확인').isEnabled(),'zero courses ready');await help('courses');await confirmCourseSelection(page);await page.waitForURL('**/input/review');await page.getByText('현재 분석 가능한 문서가 없습니다. 경험이 없다는 의미는 아닙니다. 문서 상태를 확인해 주세요.',{exact:true}).waitFor();await clean();await help('review');
   assert.equal((await get('/documents')).documents.length,0);assert.notEqual((await get()).request_id,initialId);assert.equal((await get()).review_status,'confirmed');
   await go('/result?tab=courses');await page.getByText('아직 표시할 로드맵 결과가 없습니다. 분석 근거를 확인한 후 로드맵을 생성해 주세요.',{exact:true}).waitFor();await clean();await help('result-courses');await go('/result?tab=activities');await page.locator('.activity-recommendations .skill-card').first().waitFor();await help('result-activities');await clean();
   await page.route('**/api/roadmap-inputs/*/documents',route=>route.fulfill({status:503,json:{error:'feature_unavailable',message:'PostgreSQL 문서 기능은 아직 연결되지 않았습니다.'}}),{times:1});

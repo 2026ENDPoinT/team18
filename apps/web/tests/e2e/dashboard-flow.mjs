@@ -38,7 +38,7 @@ try {
  const school = await page.locator('[name=university_id] option:checked').innerText(), department = await page.locator('[name=department_id] option:checked').innerText();
  await button('저장').click(); await page.getByRole('status').filter({ hasText: '저장되었습니다.' }).waitFor();
  let ai = await counts(), written = writes.length;
- await page.getByRole('link', { name: '공모전·대외활동 바로 보기', exact: true }).click(); await page.waitForURL('**/result?tab=activities');
+ await go('/result?tab=activities'); await page.waitForURL('**/result?tab=activities');
  await poll(() => page.locator('.activity-recommendations .skill-card').count().then(n => n > 0), 'goal-only activity');
  const activity = (await get('/activities')).activities[0]; await textHas(page.locator('.activity-recommendations'), activity.title);
  assert.equal(writes.length, written); assert.deepEqual(await counts(), ai);
