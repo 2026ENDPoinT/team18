@@ -1,5 +1,5 @@
 export const generationTasks = [
- ['comparison', '직무 역량 비교'], ['courses', '수강 후보 추천'],
+ ['courses', '수강 후보 추천'], ['comparison', '직무 역량 비교'],
  ['activities', '공모전·대외활동 추천'], ['roadmap', '최종 결과 저장'],
 ];
 
