@@ -1,6 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import PageHelp from '../help/PageHelp';
+import { helpForPath } from '../help/examples.mjs';
 
 export function Logo() {
  return <span className="stepup-logo" aria-hidden="true"><svg viewBox="0 0 48 48" width="35" height="35"><path fill="currentColor" d="M3 36a2 2 0 0 1 2-2h10v10H3v-8Zm13-7a2 2 0 0 1 2-2h10v17H16V29Zm13-8a2 2 0 0 1 2-2h10v25H29V21Z"/><path d="M31 17V3.5a1 1 0 0 1 1.5-.87l10.5 5.8a1 1 0 0 1 0 1.75L32 16" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg></span>;
@@ -30,5 +32,9 @@ export function Stepper({ current, blockForward = false }) {
   const steps = [['기본 정보','/input/basic'],['프로젝트 문서','/input/documents'],['이수 과목','/input/courses'],['분석 내용 확인','/input/review']];
   return <nav className="stepper" aria-label="입력 단계">{steps.map(([label, href], i) => <span className="step-wrap" key={href}>{blockForward && i > current ? <span aria-disabled="true">{i + 1}. {label}</span> : <Link className={i === current ? 'current' : ''} aria-current={i === current ? 'step' : undefined} href={href}>{i + 1}. {label}</Link>}{i < 3 && <span aria-hidden="true">›</span>}</span>)}</nav>;
 }
-export function Heading({ number, title, description }) { return <><div className="eyebrow">{String(Number(number)-1).padStart(2,'0')} / 05</div><h1 className="page-title">{title}</h1><p className="description">{description}</p></>; }
+export function PageTitle({ title, helpId }) {
+ const pathname = usePathname();
+ return <div className="page-title-row"><h1 className="page-title">{title}</h1><PageHelp exampleId={helpId || helpForPath[pathname]}/></div>;
+}
+export function Heading({ number, title, description, helpId }) { return <><div className="eyebrow">{String(Number(number)-1).padStart(2,'0')} / 05</div><PageTitle title={title} helpId={helpId}/><p className="description">{description}</p></>; }
 export function Footer({ previous, next, nextLabel, note }) { return <footer className="footer"><div><Link className="button" href={previous}>이전</Link>{note && <div className="footer-note">{note}</div>}</div>{next && <Link className="button primary" href={next}>{nextLabel}</Link>}</footer>; }

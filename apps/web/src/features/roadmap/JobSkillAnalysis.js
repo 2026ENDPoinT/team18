@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import CareerInfoEditor from './CareerInfoEditor';
 import { apiRequest } from '../../lib/api/client';
 import { resolvePlanId } from '../../lib/api/session';
 import { createJobSkillLoader, orderedSkills } from './jobSkillAnalysis.mjs';
@@ -10,10 +11,11 @@ const requirementLabels = { required: '필수', preferred: '우대', mentioned: 
 const categoryLabels = { programming_language: '프로그래밍 언어', database_query_language: '쿼리 언어', framework: '프레임워크', database: '데이터베이스', cloud: '클라우드', devops: '개발·운영', development_tool: '개발 도구', data_ai: '데이터·AI', technical_competency: '기술 역량', other: '기타 기술' };
 const levelLabels = { entry: '초급', mid: '중급', senior: '고급', unknown: '경력 미확인' };
 
-export default function JobSkillAnalysis({ active, onResult }) {
+export default function JobSkillAnalysis({ active, onResult, plan, onPlanChange }) {
  const loader = useRef(null);
  if (!loader.current) loader.current = createJobSkillLoader({ apiRequest, resolvePlanId });
- const sequence = useRef(0);
+ const sequence = useRef(0), previousAnalysis=useRef(null);
+ const [careerChanged,setCareerChanged]=useState(false);
  const [state, setState] = useState({ phase: 'idle', data: null, message: '' });
  const [retry, setRetry] = useState(0);
  const [saving, setSaving] = useState(false);
@@ -34,6 +36,8 @@ export default function JobSkillAnalysis({ active, onResult }) {
    try {
     const data = await loader.current(action);
     if (!disposed && sequence.current === attempt) {
+     if(data.snapshot_id)previousAnalysis.current=data.request_id;
+     if(action.run&&data.snapshot_id)setCareerChanged(false);
      setState({ phase: 'ready', data, message: '' });
      onResult(data);
     }
@@ -54,7 +58,18 @@ export default function JobSkillAnalysis({ active, onResult }) {
    document.removeEventListener('visibilitychange', load);
   };
  }, [active, retry, onResult]);
- const { phase, data, message } = state;
+ const { phase, data:loadedData, message } = state;
+ const outdated=!!(loadedData&&plan&&(loadedData.request_id!==plan.request_id||loadedData.comparison?.career_goal!==plan.input.career_goal||(loadedData.comparison?.target_role||'')!==(plan.input.target_role||'')));
+ const data=outdated?null:loadedData;
+ const hasPreviousAnalysis=!!data?.snapshot_id||previousAnalysis.current===plan?.request_id;
+ function updateCareer(saved, changed){
+  sequence.current++;nextAction.current={};
+  onPlanChange(saved);onResult(null);
+  setState({phase:'loading',data:null,message:''});
+  if(changed)setCareerChanged(true);
+  setRetry(v=>v+1);
+ }
+
  const summary = data?.analysis_summary;
  async function answerSkill(skill, status) {
   setSaving(true);
@@ -66,10 +81,10 @@ export default function JobSkillAnalysis({ active, onResult }) {
   finally { setSaving(false); }
  }
  return <div hidden={!active} className="job-skills" aria-busy={phase === 'loading'}>
-  <strong>채용공고 기술 스택 분석</strong>
-  <p>저장된 목표와 희망 직무를 바탕으로 해외 원격근무 공고의 기술을 살펴봅니다.</p>
-  <p className="field-help">실행하면 저장한 목표·희망 직무를 Gemini에 전달하고 Himalayas 공고를 분석합니다. 탭 이동은 저장 결과만 조회합니다.</p>
-  <button className="primary" disabled={phase === 'loading' || saving} onClick={() => { nextAction.current = { run: true, force: Boolean(data?.snapshot_id) }; setRetry(v => v + 1); }}>{data?.snapshot_id ? '직무 분석 다시 실행' : '직무 분석 실행'}</button>
+  <CareerInfoEditor plan={plan} disabled={phase==='loading'||saving} onPlanChange={updateCareer}/>
+  <div className="job-analysis-heading"><h3>채용공고 기술 스택 분석</h3>
+  <button className="primary" disabled={phase === 'loading' || saving} onClick={() => { nextAction.current = { run: true, force: Boolean(data?.snapshot_id) }; setRetry(v => v + 1); }}>{hasPreviousAnalysis ? '직무 분석 다시 실행' : '직무 분석 실행'}</button></div>
+  {(careerChanged||outdated)&&<p className="notice" role="status">진로 정보가 변경되었습니다. 현재 진로 정보로 분석하려면 ‘{hasPreviousAnalysis?'직무 분석 다시 실행':'직무 분석 실행'}’을 눌러 주세요.</p>}
   {phase === 'loading' && <p role="status">{analyzing ? '직무 검색어 생성 → 채용공고 수집 → 기술 및 원문 근거 분석 중입니다…' : '저장된 직무 분석을 불러오고 있습니다…'}</p>}
   {data?.status === 'not_started' && <p className="notice">직무 분석을 실행한 뒤 경험을 비교하고 로드맵을 생성할 수 있습니다. 외부 분석이 어려우면 제한 안내 로드맵을 이용해 주세요.</p>}
   {phase === 'error' && <p role="alert">{message}</p>}
@@ -80,17 +95,13 @@ export default function JobSkillAnalysis({ active, onResult }) {
     <div><dt>채용공고 표본</dt><dd>선정 {data.collection_summary.selected_jobs}개 · 분석 성공 {summary.analyzed_jobs}개 · 실패 {summary.failed_jobs}개 · 건너뜀 {summary.skipped_jobs}개</dd></div>
     {data.retrieved_at && <div><dt>조회 시각</dt><dd>{new Date(data.retrieved_at).toLocaleString('ko-KR')}</dd></div>}
    </dl>
-   {data.status === 'partial' && <p className="notice" role="status">일부 수집·분석 또는 근거 검증이 완료되지 않았습니다. 확인된 결과만 표시합니다.</p>}
-   {data.previous_analysis_version && <p className="notice">이전 분석 기준의 저장 결과입니다. 원문과 경험 답변은 유지됩니다. ‘직무 분석 다시 실행’을 눌러야 개선된 기준으로 새로 분석합니다.</p>}
-   {data.sample_notice && <p className="notice" role="status">{data.sample_notice}</p>}
-   {data.refresh_error && <p role="alert">다시 분석을 완료하지 못해 이전 검증 결과를 유지했습니다. {data.refresh_error.errors.find(e => e.message)?.message}</p>}
-   {data.snapshot_id && <p className="field-help">직무 분석 당시 입력 버전 {data.analyzed_input_revision} · 현재 비교 입력 버전 {data.input_revision} · {data.reused ? '저장된 직무 분석 재사용' : '직무 분석 저장 완료'}</p>}
-   {data.comparison?.project_analysis && <div className="notice">프로젝트 문서 {data.comparison.project_analysis.analyzed_documents}개 분석 · 원문 검증 경험 {data.comparison.project_analysis.verified_experiences}개. {data.comparison.project_analysis.status === 'no_documents' ? '분석 가능한 문서가 없어 경험 정보를 확인할 수 없습니다.' : data.comparison.project_analysis.status !== 'success' ? '프로젝트 분석이 미실행 또는 일부 미완료 상태입니다.' : '확인하지 않은 항목은 미확인 상태로 표시합니다.'} <Link href="/input/review">분석 내용 확인·수정 →</Link></div>}
-   {data.status === 'error' && <p role="alert">분석을 완료하지 못했습니다. {data.errors.find(e => e.message)?.message || '잠시 후 다시 시도해 주세요.'}</p>}
+   {data.previous_analysis_version && <p className="notice">이전에 저장한 분석입니다. 현재 진로에 맞춰 확인하려면 ‘직무 분석 다시 실행’을 눌러 주세요.</p>}
+   {data.refresh_error && <p role="alert">다시 분석을 완료하지 못해 이전 검증 결과를 유지했습니다. </p>}
+   {data.comparison?.project_analysis && <div className="notice">분석한 프로젝트 문서 {data.comparison.project_analysis.analyzed_documents}개 · 확인할 경험 {data.comparison.project_analysis.verified_experiences}개. <Link href="/input/review">분석 내용 확인·수정 →</Link></div>}
+   {data.status === 'error' && <p role="alert">분석을 완료하지 못했습니다. 잠시 후 분석 실행 버튼을 눌러 다시 시도해 주세요.</p>}
    {data.status === 'no_jobs' && <p role="status">현재 검색어로 분석할 수 있는 관련 공고가 없습니다.</p>}
    {data.status === 'needs_clarification' && <p role="status">{data.clarification_message} 기존 입력 수정 화면에서 목표나 희망 직무를 구체화해 주세요.</p>}
    {['success', 'partial'].includes(data.status) && !data.skills.length && <p role="status">분석한 공고에서 원문으로 확인할 수 있는 기술을 찾지 못했습니다.</p>}
-   {data.analysis_version === 'job-skills-v2' && <p className="field-help">표시 순서는 목표 직무와의 관련성, 독립 공고 수, 필수·우대 근거, 확인된 경험을 반영합니다. 회사 소개만으로 확인된 기술은 뒤에 표시하며 핵심 추천에 사용하지 않습니다.</p>}
    <ul className="skill-list">{orderedSkills(data).map(skill => <li key={skill.name} className="skill-card">
     <div className="skill-title"><h3>{skill.name}</h3><span className="badge">{categoryLabels[skill.category] || skill.category}</span></div>
     <p><b>{skill.mentioned_job_count} / {summary.analyzed_jobs}개 공고</b>에서 언급 · {(skill.mention_frequency * 100).toFixed(0)}%</p>
@@ -113,7 +124,7 @@ export default function JobSkillAnalysis({ active, onResult }) {
      </li>)}</ul>
     </details>
    </li>)}</ul>
-   <p className="field-help">빈도는 수집한 해외 원격근무 공고 중 분석에 성공한 표본의 언급 비율입니다. 국내 취업시장 전체의 요구 비율이나 학생의 필수 역량·학습 우선순위를 뜻하지 않습니다. 필수·우대는 명시된 원문 표현을 기준으로 구분합니다.</p>
+   <p className="field-help">조회한 해외 원격근무 공고의 요구 기술이며 전체 채용시장을 대표하지 않습니다. 필수·우대 조건은 공고 원문을 함께 확인해 주세요.</p>
   </>}
   <p className="field-help">공고 출처: <a href="https://himalayas.app" target="_blank" rel="noopener noreferrer">Himalayas</a></p>
   {phase === 'error' && <button onClick={() => setRetry(v => v + 1)}>저장 결과 다시 조회</button>}

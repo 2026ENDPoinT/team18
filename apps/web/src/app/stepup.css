@@ -55,3 +55,62 @@ input[type=checkbox],input[type=radio]{accent-color:#536de7}
 
 .inline-fields .field{margin-top:0}
 .field textarea[aria-invalid=true]{border:2px solid #e35664;box-shadow:0 0 0 4px #e356641f}
+
+.course-confirm-bar{position:sticky;bottom:16px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border:1px solid #dce5f5;border-radius:12px;background:#fff;box-shadow:0 4px 24px #263b5820;margin-top:20px}
+.course-confirm-bar>div{min-width:0;display:grid;gap:4px}
+.course-confirm-bar>button{flex-shrink:0;min-height:44px}
+@media(max-width:700px){.course-confirm-bar{position:fixed;bottom:0;left:0;right:0;margin:0;border-radius:14px 14px 0 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));gap:10px}.course-confirm-bar .field-help{font-size:11px}.service-content:has(.course-confirm-bar){padding-bottom:130px}}
+
+.result-summary.result-goal{grid-template-columns:minmax(0,1fr)}
+.career-editor{background:#f8faff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:24px;max-width:900px}
+.career-editor h3{margin:0 0 18px;color:#273c5b}.career-editor .field{margin:16px 0}.career-editor .field small{align-self:start;justify-self:start}
+.career-values{display:grid;gap:14px;margin:0 0 18px}.career-values div{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px}.career-values dt{font-size:12px;color:var(--muted)}.career-values dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:700px){.career-editor{padding:16px}.career-values div{grid-template-columns:minmax(0,1fr);gap:5px}}
+.job-analysis-heading{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px}.job-analysis-heading h3{margin:0;font-size:17px;color:#273c5b}
+
+/* Current-plan overview and the first actionable roadmap task. */
+.dashboard-toolbar { display:flex; justify-content:flex-end; margin:16px 0; }
+.dashboard-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+.dashboard-card { display:flex; flex-direction:column; min-width:0; padding:25px; border:1px solid var(--line,#d7dce1); border-radius:18px; background:var(--surface,#fff); color:inherit; text-decoration:none; transition:border-color .15s,box-shadow .15s; }
+.dashboard-card:hover { border-color:var(--accent,#536de7); box-shadow:0 6px 20px #273a590a; }
+.dashboard-card:focus-visible { outline:3px solid #536de7; outline-offset:4px; }
+.dashboard-card h2 { display:flex; justify-content:space-between; gap:12px; font-size:20px; margin:0 0 16px; }
+.dashboard-card h2 span { font-size:18px; color:var(--muted,#66726a); }
+.dashboard-card-content { flex:1; overflow-wrap:anywhere; }
+.dashboard-card-content p { margin:0 0 10px; line-height:1.65; }
+.dashboard-card-content p:first-child { font-weight:600; }
+.dashboard-card-content p:not(:first-child) { color:var(--muted,#66726a); font-size:14px; }
+.dashboard-card-action { margin-top:20px; font-size:13px; font-weight:600; color:#536de7; }
+.dashboard-error { color:#9e392f; }
+.next-task { padding:26px; margin:0 0 28px; border:1px solid #d5dff7; background:#f5f7ff; border-radius:16px; text-align:left; }
+.next-task h2 { margin:8px 0 18px; }
+.next-task h3 { font-size:21px; }
+.next-task dl { display:grid; gap:16px; margin:22px 0; }
+.next-task dt { font-size:13px; color:#5c6e95; font-weight:600; }
+.next-task dd { margin:5px 0 0; line-height:1.7; overflow-wrap:anywhere; }
+.confirmation-questions { margin:24px 0; padding:22px; border:1px solid #e2eaf4; border-radius:12px; text-align:left; }
+.confirmation-questions li { margin:16px 0; }
+.recommendation-reason { background:#f5f7ff; border-radius:10px; padding:14px 18px; margin:16px 0; overflow-wrap:anywhere; }
+.recommendation-reason h4 { margin:0 0 8px; }
+.activity-shortcut { margin:24px 0; padding:20px; border:1px solid #e2eaf4; border-radius:12px; }
+.activity-shortcut p { margin-top:0; }
+@media(max-width:700px) { .dashboard-grid { grid-template-columns:1fr; gap:14px; } .dashboard-card,.next-task { padding:20px; } .activity-shortcut .button,.activity-shortcut button { white-space:normal; } }
+
+/* Page examples use a native modal: the form behind it stays mounted and inert. */
+.page-title-row { display:flex; align-items:center; gap:10px; min-width:0; }
+.page-title-row .page-title { min-width:0; }
+.page-help-button { display:inline-grid; place-items:center; flex:0 0 34px; width:34px; height:34px; padding:0; border-radius:50%; background:#fff; color:#536de7; font-weight:700; font-size:18px; }
+.help-dialog { width:min(1180px,calc(100vw - 32px)); max-width:calc(100vw - 32px); max-height:calc(100dvh - 32px); padding:0; border:1px solid #dce5ef; border-radius:16px; color:#172333; background:#fff; overflow:hidden; }
+.help-dialog::backdrop { background:#17233399; }
+.help-dialog-content { display:flex; flex-direction:column; max-height:calc(100dvh - 36px); padding:22px; box-sizing:border-box; }
+.help-dialog-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.help-dialog-heading h2 { margin:0; font-size:22px; }
+.help-dialog-heading button { flex-shrink:0; }
+.help-dialog-content>p { margin:10px 0 0; line-height:1.6; }
+.help-tools { display:flex; align-items:center; gap:12px; margin:14px 0; }
+.help-tools button { flex-shrink:0; }
+.help-image-view { min-height:80px; overflow:auto; overscroll-behavior:contain; border:1px solid #dce5ef; border-radius:9px; background:#f6f8fb; }
+.help-image-view img { display:block; width:100%; height:auto; max-width:100%; }
+.help-image-view.is-enlarged img { width:1440px; max-width:none; }
+.help-image-view:focus-visible { outline:3px solid #a5bfff; outline-offset:2px; }
+@media(max-width:600px) { .help-dialog { width:calc(100vw - 16px); max-width:calc(100vw - 16px); max-height:calc(100dvh - 16px); } .help-dialog-content { padding:14px; max-height:calc(100dvh - 20px); } .help-dialog-heading h2 { font-size:18px; } .help-dialog-content>p,.help-tools .field-help { font-size:12px; } .help-tools { gap:8px; } }

@@ -55,15 +55,15 @@ try {
  };
  await send('Page.navigate',{url:origin+'/'});
  await wait("[...document.querySelectorAll('button')].some(b=>b.textContent==='작성하기'&&!b.disabled)");
- assert.equal(await run("[...document.querySelectorAll('a')].some(a=>a.textContent==='저장 결과·분석 단계로 이동')"),false);
+ assert.equal(await run("[...document.querySelectorAll('a')].some(a=>a.textContent==='현재 계획·저장 결과 보기')"),false);
  await click('작성하기');
  await wait("document.querySelector('textarea[name=career_goal]')");
  await set('textarea[name=career_goal]','데이터 분석 업무를 준비하는 격리 검수');
  await set('select[name=university_id]','10000000-0000-4000-8000-000000000001');
  await wait("!document.querySelector('select[name=department_id]').disabled");
  await set('select[name=department_id]','20000000-0000-4000-8000-000000000001');
- await wait("!document.querySelector('select[name=catalog_id]').disabled");
- await set('select[name=catalog_id]','30000000-0000-4000-8000-000000000001');
+ await wait("document.body.innerText.includes('학과 과목 목록이 자동으로 연결되었습니다.')");
+ assert.equal(await run("document.querySelector('select[name=catalog_id]').value"),'30000000-0000-4000-8000-000000000001');
  await click('저장 후 다음: 프로젝트 문서');
  await wait("location.pathname==='/input/documents'");
  const rid=await run("sessionStorage.getItem('roadmap_request_id')");
@@ -86,12 +86,10 @@ try {
  await wait("document.querySelectorAll('tbody tr').length===10");
  await set('input[aria-label="과목명·코드 검색"]','AUDIT');
  await wait("document.body.innerText.includes('검색 결과 30개')");
- await click('이수 선택 확인 완료');
- await wait("document.body.innerText.includes('현재 목록 전체의 확인 상태가 저장되었습니다')");
+ await click('이수 선택 확인');
+ await wait("location.pathname==='/input/review' && document.body.innerText.includes('1개 과목')");
  await send('Page.reload');
- await wait("document.body.innerText.includes('이수 선택 확인 완료') && document.body.innerText.includes('전체 선택 1개')");
- await click('다음: 분석 내용 확인');
- await wait("location.pathname==='/input/review'");
+ await wait("document.body.innerText.includes('1개 과목')");
  await send('Page.navigate',{url:origin+'/result'});
  await wait("[...document.querySelectorAll('button')].some(b=>b.textContent==='제한 안내 로드맵 생성'&&!b.disabled)");
  await click('제한 안내 로드맵 생성');
@@ -99,12 +97,12 @@ try {
  await run("document.querySelector('input[type=checkbox]').click()");
  await wait("document.body.innerText.includes('작업 완료 1 / 3개')");
  await send('Page.reload');
- await wait("document.body.innerText.includes('생성 처리 완료 시각') && document.querySelectorAll('[role=tab]').length===5");
+ await wait("document.body.innerText.includes('작업 완료 1 / 3개') && document.querySelectorAll('[role=tab]').length===5");
  await tab(2); await wait("document.body.innerText.includes('작업 완료 1 / 3개')");
  await tab(1); await wait("document.querySelector('.job-skills').getAttribute('aria-busy')==='false'");
  assert.equal(await run("auditRequests.filter(r=>r.method==='POST'&&/job-skill-analysis|project-experience-analysis/.test(r.url)).length"),0);
  await tab(3); await wait("document.body.innerText.includes('추가 탐색 후보') && document.body.innerText.includes('공식 근거와 출처 쪽수')");
- await tab(4); await wait("document.querySelector('.activity-recommendations')?.getAttribute('aria-busy')==='false' && document.body.innerText.includes('공급자 연결이 아직 설정되지 않았습니다.')");
+ await tab(4); await wait("document.querySelector('.activity-recommendations')?.getAttribute('aria-busy')==='false' && document.body.innerText.includes('현재 이 출처의 추천 활동을 조회할 수 없습니다.')");
  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
  assert.ok(await run('document.documentElement.scrollWidth<=window.innerWidth'));
  const screenshot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});
@@ -112,7 +110,7 @@ try {
  await send('Page.navigate',{url:origin+'/'});
  await wait("[...document.querySelectorAll('button')].some(b=>b.textContent==='이어서 작성'&&!b.disabled)");
  await click('이어서 작성');
- await wait("document.querySelector('textarea[name=career_goal]')?.value==='데이터 분석 업무를 준비하는 격리 검수'");
+ await wait("location.pathname==='/result' && new URLSearchParams(location.search).get('tab')==='roadmap' && document.body.innerText.includes('작업 완료 1 / 3개')");
  console.log('PASS: real local API plan/create/resume, basic restore, document upload/extract, 20/10 page size, search/reset/selection/review restore, limited roadmap persistence/checks, 5 tabs, no automatic AI, mobile');
 } finally {
  ws?.close(); child.kill(); await delay(500); rmSync(tmp,{recursive:true,force:true});

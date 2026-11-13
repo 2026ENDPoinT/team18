@@ -19,7 +19,7 @@ const item = storedResponse?.activities[0] || { id: 'fixture', kind: 'competitio
   { source: 'daker', source_label: '데이커', url: 'https://daker.ai/public/hackathons/fixture', last_success_at: '2026-11-12T09:10:00+09:00', stale: false }
  ] };
 await context.addInitScript(({ id, userId }) => {
- localStorage.setItem('sb-team18-test-auth-token', JSON.stringify({ access_token: 'fixture-token', refresh_token: 'fixture-refresh',
+ localStorage.setItem('sb-job-skills-test-auth-token', JSON.stringify({ access_token: 'fixture-token', refresh_token: 'fixture-refresh',
   expires_at: Math.floor(Date.now()/1000) + 3600, token_type: 'bearer', user: { id: userId } }));
  sessionStorage.setItem('roadmap_request_id', id); sessionStorage.setItem('roadmap_request_owner', userId);
 }, { id, userId });
@@ -55,7 +55,7 @@ try {
  assert.equal(await page.getByRole('tab', { name: '공모전·대외활동' }).getAttribute('aria-selected'), 'true');
  assert.ok(await page.getByText(item.reasons[0]).isVisible());
  assert.match(await page.locator('.result-summary').innerText(), /데이터 분석가/);
- assert.match(await page.locator('.result-summary').innerText(), /입력 버전 1/);
+ assert.doesNotMatch(await page.locator('.result-summary').innerText(), /입력 버전|스냅샷/);
  assert.ok(await page.getByText(item.deadline_label, { exact: true }).isVisible());
  if (storedResponse) {
   assert.match(item.deadline_label, /10:00 마감/);
@@ -95,7 +95,7 @@ try {
  await page.screenshot({ path: '/tmp/team18-activities-upcoming.png', fullPage: true });
  mode = 'partial';
  await page.getByRole('button', { name: '활동 추천 다시 확인' }).click();
- await page.getByText('데이콘·데이커: 공급자에서 공고를 가져오지 못했습니다.').waitFor();
+ await page.getByText('데이콘·데이커: 공고를 불러오지 못했습니다.').waitFor();
  assert.ok(await page.getByText('접수 중', { exact: true }).isVisible());
  assert.ok(await page.getByRole('heading', { name: item.title }).isVisible());
  await page.setViewportSize({ width: 390, height: 844 });
@@ -107,7 +107,7 @@ try {
  assert.equal(await page.getByRole('heading', { name: item.title }).count(), 0);
  mode = 'error';
  await page.getByRole('button', { name: '활동 추천 다시 확인' }).click();
- await page.getByRole('alert').filter({ hasText: '공모전·대외활동 공급자 조회에 실패' }).waitFor();
+ await page.getByRole('alert').filter({ hasText: '추천 활동을 불러오지 못했습니다' }).waitFor();
  assert.equal(await page.getByText(/현재 추천 조건에 맞는 공고가 없습니다/).count(), 0);
  mode = 'network';
  await page.getByRole('button', { name: '활동 추천 다시 확인' }).click();

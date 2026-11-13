@@ -95,4 +95,9 @@ test('roadmap API failures retain safe diagnostic metadata for the result screen
   assert.equal(error.fieldPath, '$.recommended_courses[0].course_evidence');
   return true;
  });
+ const configured = new module.namespace.ApiError('Gemini API 키가 설정되지 않았습니다.', 503, 'gemini_not_configured');
+ assert.match(configured.message, /분석 서비스를 이용할 수 없습니다/);
+ assert.doesNotMatch(configured.message, /API|키|설정/);
+ assert.equal(configured.code, 'gemini_not_configured');
+ assert.equal(module.namespace.studentMessage('ocr_credentials_invalid', '서버 인증 설정 오류'), '현재 이미지 글자를 읽을 수 없습니다. 잠시 후 다시 시도하거나 텍스트 문서를 등록해 주세요.');
 });

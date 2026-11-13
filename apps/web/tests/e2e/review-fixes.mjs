@@ -32,7 +32,7 @@ const waitText = (page, text) => page.waitForFunction(t => document.body.innerTe
 const json = async response => { assert.equal(response.status(), 200, await response.text()); return response.json(); };
 async function guest(context) {
  const page = await context.newPage();
- await page.goto(origin); await button(page, '로그인 없이 시작하기').click(); await button(page, '작성하기').click();
+ await page.goto(origin); await button(page, '로그인 없이 시작하기').click();
  await page.waitForURL('**/input/basic');
  await page.locator('[name=career_goal]').fill('공공데이터 분석을 하고 싶습니다.');
  await page.locator('[name=target_role]').fill('Data Analyst');
@@ -50,21 +50,20 @@ try {
  await scenario('new guest skips documents, selects courses, saves limited guidance', async context => {
   const { page, base } = await guest(context);
   const before = await json(await page.request.get(base));
-  await button(page, '문서 없이 계속: 이수 과목').click(); await page.waitForURL('**/input/courses');
+  await button(page, '문서 없이 계속').click(); await page.waitForURL('**/input/courses');
   assert.equal((await json(await page.request.get(base))).input_revision, before.input_revision);
   await page.getByRole('switch', { name: /프로그래밍 기초/ }).click();
   await waitText(page, '이수 선택이 저장되었습니다.');
-  await button(page, '이수 선택 확인 완료').click(); await waitText(page, '현재 목록 전체의 확인 상태가 저장되었습니다.');
-  await button(page, '다음: 분석 내용 확인').click(); await page.waitForURL('**/input/review');
+  await button(page, '이수 선택 확인').click(); await page.waitForURL('**/input/review');
   const comparison = await json(await page.request.get(base + '/skill-comparison'));
   assert.equal(comparison.project_analysis.status, 'no_documents');
   assert.deepEqual(comparison.project_analysis.experiences, []);
   assert.ok(comparison.comparisons.every(c => c.student_status !== 'no_experience'));
-  await page.getByRole('link', { name: '다음: 결과 화면에서 직무 분석·로드맵 생성 →' }).click();
+  await page.getByRole('link', { name: '다음: 로드맵 결과' }).click();
   await button(page, '제한 안내 로드맵 생성').click(); await waitText(page, '작업 완료 0 / 3개');
   const saved = await json(await page.request.get(base + '/roadmap'));
   assert.equal(saved.generation_mode, 'limited_guidance');
-  await page.reload(); await waitText(page, '생성 처리 완료 시각');
+  await page.reload(); await waitText(page, '작업 완료 0 / 3개');
   await page.getByRole('tab', { name: '공모전·대외활동', exact: true }).click();
   await waitText(page, 'SQL 공공데이터 분석 경진대회');
   assert.equal((await json(await page.request.get(base + '/roadmap'))).run_id, saved.run_id);
@@ -76,14 +75,15 @@ try {
   await waitText(page, '읽기 실패 · 분석 제외');
   const before = await json(await page.request.get(base + '/documents'));
   const doc = before.documents[0]; assert.equal(doc.extraction_status, 'failed'); assert.ok(doc.extraction_error_code);
-  await button(page, '문서 없이 계속: 이수 과목').click(); await page.waitForURL('**/input/courses');
+  await button(page, '문서 없이 계속').click(); await page.waitForURL('**/input/courses');
   const after = await json(await page.request.get(base + '/documents'));
   assert.deepEqual(after.documents, before.documents); assert.equal(after.input_revision, before.input_revision);
   await page.goto(origin + '/input/documents'); await waitText(page, '읽기 실패 · 분석 제외');
   const retry = page.waitForResponse(r => r.url().endsWith('/retry-extraction') && r.request().method() === 'POST');
   await button(page, '다시 읽기').click(); assert.equal((await retry).status(), 202);
-  await page.waitForFunction(revision => [...document.querySelectorAll('tbody tr')].some(row =>
-   row.innerText.includes(`추출 버전 ${revision}`) && row.innerText.includes('읽기 실패 · 분석 제외')), doc.extraction_revision + 1);
+  await page.waitForFunction(async ({base, revision}) => { const data=await (await fetch(base+'/documents')).json(); return data.documents[0].extraction_revision===revision && data.documents[0].extraction_status==='failed'; }, {base,revision:doc.extraction_revision+1});
+  await waitText(page, '읽기 실패 · 분석 제외');
+  assert.ok(!(await page.locator('body').innerText()).includes('추출 버전'));
   const retried = (await json(await page.request.get(base + '/documents'))).documents[0];
   assert.equal(retried.document_id, doc.document_id); assert.equal(retried.extraction_revision, doc.extraction_revision + 1);
   assert.ok(retried.extraction_error_code);
@@ -94,7 +94,7 @@ try {
   await result.getByLabel('프로젝트 문서 선택').setInputFiles({ name: 'project.txt', mimeType: 'text/plain', buffer: Buffer.from('제가 SQL로 데이터 조회 쿼리를 작성했습니다.') });
   await waitText(result, '읽기 완료 · 분석 포함 가능');
   await result.goto(origin + '/input/review'); await button(result, '프로젝트 경험 분석 실행').click();
-  await result.locator('.skill-card h3').getByText('SQL', { exact: true }).waitFor();
+  await result.getByText('기술 스택: SQL', { exact: true }).waitFor();
   await button(result, '맞아요').click(); await waitText(result, '본인 경험으로 확인');
   const editor = await context.newPage();
   await editor.goto(origin); const session = await result.evaluate(() => Object.fromEntries(Object.entries(sessionStorage)));
@@ -151,7 +151,7 @@ try {
   assert.deepEqual(saved.preparation_summary.confirmed_skills, []);
   assert.deepEqual(saved.preparation_summary.learning_candidates, []);
   assert.ok(saved.roadmap.every(step => step.tasks.every(task => task.task_type === 'verify_experience')));
-  await page.reload(); await waitText(page, '생성 처리 완료 시각');
+  await page.reload(); await waitText(page, '작업 완료 0 / 3개');
   assert.equal((await json(await page.request.get(base + '/roadmap'))).run_id, saved.run_id);
  });
  console.log(JSON.stringify(reports, null, 2));
