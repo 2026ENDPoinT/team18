@@ -5,22 +5,6 @@ export function orderedSkills(data) {
  return [...(data.skills || [])].sort((a, b) => (order.get(a.name) ?? Infinity) - (order.get(b.name) ?? Infinity));
 }
 
-// Use the server's exact, normalized skill identities. Never substring-match:
-// Java and JavaScript remain separate candidates. Keep the full analysis intact.
-export function recommendedSkills(comparison) {
- const candidates = new Set((comparison?.comparisons || [])
-  .filter(item => !item.manual_experience && item.student_status !== 'confirmed_experience'
-   && item.job_requirement?.recommendation_eligible !== false)
-  .map(item => item.skill_name));
- return orderedSkills({ ...comparison?.job_analysis, comparison }).filter(skill => candidates.has(skill.name));
-}
-
-export function comparisonData(comparison, requestId) {
- return { keyword_details: [], collection_summary: { selected_jobs: 0 },
-  analysis_summary: { analyzed_jobs: 0, failed_jobs: 0, skipped_jobs: 0 }, skills: [], errors: [],
-  ...comparison.job_analysis, input_revision: comparison.input_revision, comparison, request_id: requestId };
-}
-
 export function recommendationScope(result, name) {
  const included = result.generation_scope?.included_skills;
  const actions = (result.roadmap || []).filter(step => (step.related_skills || step.skill_targets?.map(t => t.skill_name) || []).includes(name));

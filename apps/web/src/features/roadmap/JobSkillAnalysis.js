@@ -4,8 +4,7 @@ import Link from 'next/link';
 import CareerInfoEditor from './CareerInfoEditor';
 import { apiRequest } from '../../lib/api/client';
 import { resolvePlanId } from '../../lib/api/session';
-import { comparisonData, createJobSkillLoader, orderedSkills } from './jobSkillAnalysis.mjs';
-import SkillRecommendations from './SkillRecommendations';
+import { createJobSkillLoader, orderedSkills } from './jobSkillAnalysis.mjs';
 import ProjectEvidence, { statusLabels } from './ProjectEvidence';
 import PaginatedResultList from './PaginatedResultList';
 
@@ -48,11 +47,11 @@ export default function JobSkillAnalysis({ active, comparison, requestId, onResu
    if (ticket !== sequence.current) return;
    if (result.refresh_error || !result.snapshot_id) setLastAttempt(result);
    if (result.snapshot_id) setCareerChanged(false);
-   onResult(result, { answersChanged: nextPhase === 'saving' });
+   onResult(result);
   } catch (error) {
    if (ticket !== sequence.current) return;
    setMessage(error.message);
-   if (nextPhase !== 'saving' && [401, 403, 404, 409].includes(error.status)) reload();
+   if ([401, 403, 404, 409].includes(error.status)) reload();
   } finally {
    busy.current = false;
    if (ticket === sequence.current) setPhase('idle');
@@ -61,8 +60,8 @@ export default function JobSkillAnalysis({ active, comparison, requestId, onResu
  function answerSkill(skill, status) {
   return performAction('saving', async () => {
    if (await resolvePlanId() !== requestId) throw new Error('계획이 변경되었습니다. 최신 내용을 불러와 주세요.');
-   const saved = await apiRequest(`/roadmap-inputs/${encodeURIComponent(requestId)}/skill-comparison/answers`, { method: 'POST', body: JSON.stringify({ expected_input_revision: data.input_revision, snapshot_id: data.snapshot_id, skill_name: skill.name, status }) });
-   return comparisonData(saved, requestId);
+   await apiRequest(`/roadmap-inputs/${encodeURIComponent(requestId)}/skill-comparison/answers`, { method: 'POST', body: JSON.stringify({ expected_input_revision: data.input_revision, snapshot_id: data.snapshot_id, skill_name: skill.name, status }) });
+   return loader.current();
   });
  }
  return <div hidden={!active} className="job-skills" aria-busy={loading}>
@@ -87,7 +86,6 @@ export default function JobSkillAnalysis({ active, comparison, requestId, onResu
    {data.status === 'no_jobs' && <p role="status">현재 검색어로 분석할 수 있는 관련 공고가 없습니다.</p>}
    {data.status === 'needs_clarification' && <p role="status">{data.clarification_message} 기존 입력 수정 화면에서 목표나 희망 직무를 구체화해 주세요.</p>}
    {['success', 'partial'].includes(data.status) && !data.skills.length && <p role="status">분석한 공고에서 원문으로 확인할 수 있는 기술을 찾지 못했습니다.</p>}
-   {data.comparison?.job_analysis?.snapshot_id && <SkillRecommendations comparison={data.comparison}/>}
    <PaginatedResultList key={`${data.request_id}:${data.snapshot_id || ''}`} items={orderedSkills(data)} label="직무 역량">{skill => <li key={skill.name} className="skill-card">
     <div className="skill-title"><h3>{skill.name}</h3><span className="badge">{categoryLabels[skill.category] || skill.category}</span></div>
     <p><b>{skill.mentioned_job_count} / {summary.analyzed_jobs}개 공고</b>에서 언급 · {(skill.mention_frequency * 100).toFixed(0)}%</p>
@@ -96,12 +94,10 @@ export default function JobSkillAnalysis({ active, comparison, requestId, onResu
     {skill.single_job_notice && <p className="notice">{skill.single_job_notice} 아래 원문 근거에서 출처를 확인할 수 있습니다.</p>}
     <p className="field-help">직접 관련 {skill.direct_job_count} · 연관 직무 {skill.related_job_count} · {Object.entries(skill.seniority_distribution).map(([level, count]) => `${levelLabels[level]} ${count}`).join(' · ')}</p>
     {data.comparison?.comparisons?.filter(c => c.skill_name === skill.name).map(c => <div className="project-comparison" key={c.skill_name}>
-     <label className="experience-check"><input type="checkbox" aria-label={`${skill.name} 이 기술 경험 있음`} checked={Boolean(c.manual_experience)} disabled={loading || !requestId} onChange={event => answerSkill(skill, event.target.checked ? 'has_experience' : 'clear_experience')}/> 이 기술 경험 있음</label>
-     {c.manual_experience && <p className="field-help">사용자가 직접 표시한 경험입니다. 문서에서 검증된 경험과는 별도로 저장됩니다.</p>}
-     <p>{c.manual_experience && '문서·기존 답변 기준: '}<span className="badge">{statusLabels[c.student_status]}</span></p><p>{c.reason}</p>
-     <p className="field-help">{c.manual_experience ? '보완할 역량 추천에서 제외했습니다. 체크를 해제하면 기존 기준으로 다시 판단합니다.' : c.preparation_candidate === 'consider_learning' ? '추가 학습을 검토할 후보입니다. 공고 빈도는 개인의 학습 우선순위를 의미하지 않습니다.' : c.preparation_candidate === 'experience_confirmed' ? '사용자가 확인한 프로젝트 경험을 근거와 함께 표시합니다.' : '추가 준비를 결정하기 전에 경험 여부를 먼저 확인해 주세요.'}</p>
+     <p><span className="badge">{statusLabels[c.student_status]}</span></p><p>{c.reason}</p>
+     <p className="field-help">{c.preparation_candidate === 'consider_learning' ? '추가 학습을 검토할 후보입니다. 공고 빈도는 개인의 학습 우선순위를 의미하지 않습니다.' : c.preparation_candidate === 'experience_confirmed' ? '사용자가 확인한 프로젝트 경험을 근거와 함께 표시합니다.' : '추가 준비를 결정하기 전에 경험 여부를 먼저 확인해 주세요.'}</p>
      {c.project_evidence.map(item => <ProjectEvidence key={item.experience_id} item={item} requestId={data.request_id}/>)}
-     {c.student_status !== 'confirmed_experience' && <div className="doc-actions experience-actions"><button disabled={loading || !requestId || Boolean(c.manual_experience)} onClick={() => answerSkill(skill, 'no_experience')}>이 기술 경험 없어요</button><button disabled={loading || !requestId || Boolean(c.manual_experience)} onClick={() => answerSkill(skill, 'unknown')}>잘 모르겠어요</button><Link href="/input/review" className="button">본인 경험 확인·수정</Link></div>}
+     {c.student_status !== 'confirmed_experience' && <div className="doc-actions experience-actions"><button disabled={loading || !requestId} onClick={() => answerSkill(skill, 'no_experience')}>이 기술 경험 없어요</button><button disabled={loading || !requestId} onClick={() => answerSkill(skill, 'unknown')}>잘 모르겠어요</button><Link href="/input/review" className="button">본인 경험 확인·수정</Link></div>}
     </div>)}
     <details><summary>{skill.name} 원문 근거 {skill.evidence.length}건</summary>
      <ul className="skill-evidence">{skill.evidence.map((e, i) => <li key={`${e.job_id}-${i}`}>

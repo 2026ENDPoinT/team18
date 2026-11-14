@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createJobSkillLoader, orderedSkills, recommendationScope, recommendedSkills } from '../../src/features/roadmap/jobSkillAnalysis.mjs';
+import { createJobSkillLoader, orderedSkills, recommendationScope } from '../../src/features/roadmap/jobSkillAnalysis.mjs';
 
 function setup() {
  let revision = 1, id = 'plan-a', posts = 0, wait = null, error = null, saved = null;
@@ -88,25 +88,4 @@ test('new comparison order reflects server evidence/experience; legacy saved nam
  assert.deepEqual(orderedSkills({ skills, comparison: { comparisons } }), skills);
  assert.deepEqual(orderedSkills({ analysis_version: 'job-skills-v2', skills, comparison: { comparisons } }).map(s => s.name), ['SQL', 'Power BI', 'PowerBI']);
  assert.deepEqual(skills.map(s => s.name), ['PowerBI', 'Power BI', 'SQL']);
-});
-test('manual experience filters recommendations only, restoring baseline on clear', () => {
- const names = ['Java', 'JavaScript', 'SQL'];
- const comparison = {
-  job_analysis: { skills: names.map(name => ({name})) },
-  comparisons: names.map(skill_name => ({skill_name, student_status:'not_verified', job_requirement:{}})),
- };
- const recommended = () => recommendedSkills(comparison).map(s => s.name);
- assert.deepEqual(recommended(), names);
- comparison.comparisons[0].manual_experience = {source:'user'};
- assert.deepEqual(recommended(), ['JavaScript','SQL']);
- assert.deepEqual(comparison.job_analysis.skills.map(s => s.name), names);
- assert.deepEqual(recommendedSkills(JSON.parse(JSON.stringify(comparison))).map(s=>s.name), ['JavaScript','SQL']);
- delete comparison.comparisons[0].manual_experience;
- assert.deepEqual(recommended(), names);
- comparison.comparisons.forEach(c=>{c.manual_experience={source:'user'};});
- assert.deepEqual(recommended(), []);
- comparison.comparisons.forEach(c=>{delete c.manual_experience;});
- comparison.comparisons[0].student_status='confirmed_experience';
- comparison.comparisons[2].job_requirement.recommendation_eligible=false;
- assert.deepEqual(recommended(), ['JavaScript']);
 });

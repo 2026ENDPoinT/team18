@@ -7,9 +7,7 @@ import tempfile
 import pytest
 
 
-CASES = ['manual_experience_preserves_original_answers_and_exact_skill_identity',
-         'manual_experience_does_not_clear_confirmed_document_experience',
-         'sources_confirm_correction_and_job_snapshot_reuse', 'corrected_skill_matches_user_statement_not_original_quote',
+CASES = ['sources_confirm_correction_and_job_snapshot_reuse', 'corrected_skill_matches_user_statement_not_original_quote',
          'eligibility_no_documents_and_partial_confirmation', 'delete_reextract_invalidates_answers_and_older_evidence',
          'owner_scope_and_revision_race', 'invalid_model_document_and_cross_document_quote',
          'partial_failure_rate_limit_and_retry_only_missing_document',

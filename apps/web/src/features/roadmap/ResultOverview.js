@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import ActivityRecommendations from './ActivityRecommendations';
 import SkillStackPreview from './SkillStackPreview';
-import SkillRecommendations from './SkillRecommendations';
 import { analyzedSkills, resultHref } from './resultPresentation.mjs';
 import { recommendedCourseCards } from './coursePresentation.mjs';
 
@@ -51,7 +50,6 @@ export default function ResultOverview({ resources, reload, activities }) {
    {comparison?.phase === 'ready' && <>
     {skills.length ? <SkillStackPreview skills={skills}/> : <p role={comparison.data?.job_analysis?.status === 'error' ? 'alert' : 'status'}>{comparison.data?.job_analysis?.status === 'error' ? '기술 스택 분석을 완료하지 못했어요.' : comparison.data?.job_analysis?.status === 'not_started' ? '아직 기술 스택 분석이 없어요.' : '분석에서 확인된 기술 스택이 없어요.'}</p>}
     <Link className="summary-link" href={resultHref('skills')}>{skills.length ? `전체 ${skills.length}개 기술·분석 근거 보기 →` : '기술 스택 분석하러 가기 →'}</Link>
-    {comparison.data?.job_analysis?.snapshot_id && <SkillRecommendations comparison={comparison.data}/>}
    </>}
   </section>
   <section className="result-card result-activity-summary" aria-labelledby="result-activity-title">

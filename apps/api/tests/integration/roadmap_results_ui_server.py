@@ -39,14 +39,6 @@ with closing(connect()) as db:
     db.execute('UPDATE catalog_courses SET description_text=?,recommendation_reason=? WHERE catalog_id=? AND course_id=?', (sentence, '본 강좌에서는 데이터베이스의 구성과 운영 방법을 학습한다.', C, DB_COURSE))
     db.execute('INSERT INTO catalog_course_keywords(catalog_id,course_id,keyword,keyword_role,evidence_text) VALUES(?,?,?,?,?)', (C, DB_COURSE, 'SQL', 'learning', sentence))
 case.jobs()
-if os.environ.get('ROADMAP_SKILL_EXPERIENCE_FIXTURE') == '1':
-    from project_experience_scenario import manual_job_result
-    from repositories.experience_analysis import AnalysisRepository
-    from services.project_experience import job_basis
-    with closing(connect()) as db:
-        row = db.execute('SELECT * FROM roadmap_inputs WHERE request_id=?', (case.rid,)).fetchone()
-        AnalysisRepository(db).save_job(case.rid, job_basis(row), row['input_revision'], manual_job_result())
-        db.commit()
 with closing(connect()) as db:
     basis = capture_basis(db, db.execute('SELECT * FROM roadmap_inputs WHERE request_id=?', (case.rid,)).fetchone())
     store = RoadmapRepository(db)
@@ -54,9 +46,6 @@ with closing(connect()) as db:
     store.finish(case.rid, legacy['run_id'], validate_result(fake_roadmap(model_input(basis)), basis))
     store.update_progress(legacy['run_id'], 'task-1', True, 0)
     db.commit()
-
-if os.environ.get('ROADMAP_SKILL_EXPERIENCE_FIXTURE') == '1':
-    case.generated()  # Also exercise a saved bundle containing an older comparison.
 
 spies = {}
 for module, function in ((gemini_roadmap, 'generate_roadmap'),

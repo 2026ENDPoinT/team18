@@ -250,13 +250,6 @@ button.academic-change{flex:none;border-color:#cdd9fb;background:#fff;color:#466
 .result-skill-summary{grid-area:skills}
 /* Measure complete rows without letting a long preview enlarge the shared card. */
 .result-skill-preview{position:relative;flex:1;min-height:0}
-.result-skill-summary:has(.skill-recommendations) .result-skill-preview{min-height:150px}
-.skill-recommendations{margin:20px 0;padding:18px 0;border-top:1px solid var(--line)}
-.skill-recommendations h3{margin:0 0 12px;font-size:16px;color:#273c5b}
-.skill-recommendations .result-brief-list{display:flex;flex-wrap:wrap;gap:8px}
-.skill-recommendations .result-brief-list li{margin:0;padding:6px 10px;border:0;border-radius:8px;background:#f0f3ff;color:#3854ba;font-size:13px}
-.experience-check{display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer}
-.experience-check input{width:18px;height:18px;flex:none}
 .result-skill-measure{position:absolute;inset:0 0 auto;height:0;overflow:hidden;visibility:hidden;pointer-events:none}
 @media(min-width:701px){.result-skill-preview{contain:size}}
 .result-activity-summary{grid-area:activity}
