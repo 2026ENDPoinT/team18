@@ -74,6 +74,17 @@ class AnalysisRepository:
         return {r['skill_key']: dict(r) for r in self.db.execute(
             'SELECT * FROM skill_experience_answers WHERE snapshot_id=? AND document_basis=?', (snapshot_id, document_basis))}
 
+    def manual_experiences(self, snapshot_id):
+        return {r['skill_key']: dict(r) for r in self.db.execute(
+            'SELECT * FROM manual_skill_experiences WHERE snapshot_id=?', (snapshot_id,))}
+
+    def set_manual_experience(self, snapshot_id, key, experienced, revision):
+        if experienced:
+            self.db.execute('''INSERT INTO manual_skill_experiences VALUES(?,?,?,?)
+                ON CONFLICT(snapshot_id,skill_key) DO NOTHING''', (snapshot_id, key, revision, now()))
+        else:
+            self.db.execute('DELETE FROM manual_skill_experiences WHERE snapshot_id=? AND skill_key=?', (snapshot_id, key))
+
     def save_skill_answer(self, snapshot_id, basis, key, status, revision):
         self.db.execute('''INSERT INTO skill_experience_answers VALUES(?,?,?,?,?,?)
             ON CONFLICT(snapshot_id,document_basis,skill_key) DO UPDATE SET status=excluded.status,

@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'fixtures'))
 from fastapi.testclient import TestClient
 from app.main import app
-from api.domain import now
+from api.domain import Problem, now
 from config import DB_BACKEND
 from repositories.documents import DocumentRepository
 from repositories.experience_analysis import AnalysisRepository, decode
@@ -51,6 +51,16 @@ def job_result():
                      'match_type': relation, 'seniority_group': level, 'verified_skills': skills})
     return {'status': 'success', 'analysis_version': ANALYSIS_VERSION, 'skills': aggregate_skills(jobs), 'job_analyses': jobs,
             'analysis_summary': {'analyzed_jobs': 2, 'failed_jobs': 0, 'skipped_jobs': 0}, 'errors': []}
+
+
+def manual_job_result():
+    result = job_result()
+    text = 'Java is required. JavaScript is required. SQL is required.'
+    skills, _ = verify_skills({'description_text': text}, [ExtractedSkill(
+        name=name, category='other', requirement_type='required', evidence_text=f'{name} is required.')
+        for name in ('Java', 'JavaScript', 'SQL')])
+    jobs = [{**job, 'verified_skills': skills} for job in result['job_analyses']]
+    return {**result, 'job_analyses': jobs, 'skills': aggregate_skills(jobs)}
 
 
 class ProjectExperienceAPI(unittest.TestCase):
@@ -114,6 +124,67 @@ class ProjectExperienceAPI(unittest.TestCase):
         response = self.client.get(self.base + '/skill-comparison')
         self.assertEqual(response.status_code, 200, response.text)
         return response.json()
+
+    def test_manual_experience_preserves_original_answers_and_exact_skill_identity(self):
+        with patch('api.routes.job_skill_analysis.analyze_job_skills', return_value=manual_job_result()):
+            snapshot = self.client.post(self.base + '/job-skill-analysis', json={}).json()['snapshot_id']
+
+        def answer(name, status, revision=None):
+            return self.client.post(self.base + '/skill-comparison/answers', json={
+                'expected_input_revision': self.revision() if revision is None else revision,
+                'snapshot_id': snapshot, 'skill_name': name, 'status': status})
+
+        def by_name():
+            return {c['skill_name']: c for c in self.comparison()['comparisons']}
+
+        with patch('services.gemini_jobs._generate', side_effect=AssertionError('AI is forbidden')):
+            baseline = by_name()
+            self.assertEqual(set(baseline), {'Java', 'JavaScript', 'SQL'})
+            self.assertEqual(answer('Java', 'no_experience').status_code, 200)
+            original = by_name()['Java']
+            old_revision = self.revision()
+            checked = answer(' java ', 'has_experience')
+            self.assertEqual(checked.status_code, 200, checked.text)
+            current = by_name()
+            self.assertEqual(current['Java']['manual_experience']['source'], 'user')
+            self.assertIsNone(current['JavaScript']['manual_experience'])
+            self.assertEqual(current['Java']['student_status'], original['student_status'])
+            self.assertEqual(current['Java']['skill_answer'], original['skill_answer'])
+            self.assertEqual(current['Java']['project_evidence'], original['project_evidence'])
+            revision = self.revision()
+            self.assertEqual(answer('Java', 'has_experience').status_code, 200)
+            self.assertEqual(self.revision(), revision)  # Idempotent checkbox save.
+            self.assertEqual(answer('Java', 'clear_experience', old_revision).status_code, 409)
+            self.assertEqual(by_name(), current)  # A failed save changes nothing.
+            with patch('api.routes.project_experiences.current_comparison', side_effect=Problem(503, 'test_failure', 'Synthetic save failure')):
+                self.assertEqual(answer('Java', 'clear_experience').status_code, 503)
+            self.assertEqual(by_name(), current)  # Deletion is rolled back if the transaction fails.
+            self.assertEqual(self.revision(), revision)
+            self.assertEqual(answer('Java', 'clear_experience').status_code, 200)
+            self.assertEqual(by_name()['Java'], original)  # Restores original no-experience answer.
+            for name in baseline:
+                self.assertEqual(answer(name, 'has_experience').status_code, 200)
+            self.assertTrue(all(c['manual_experience'] for c in by_name().values()))
+            self.assertEqual(answer('invented', 'has_experience').status_code, 422)
+            # Manual statements do not depend on document extraction versions.
+            self.doc()
+            self.assertTrue(all(c['manual_experience'] for c in by_name().values()))
+
+    def test_manual_experience_does_not_clear_confirmed_document_experience(self):
+        self.doc()
+        with patch('services.project_experience.extract_project_experiences', side_effect=fake_extraction):
+            project = self.analyze()
+        self.answer(project['experiences'][0], 'confirmed')
+        jobs, _ = self.jobs()
+        original = next(c for c in self.comparison()['comparisons'] if c['skill_name'] == 'Python')
+        for status in ('has_experience', 'clear_experience'):
+            response = self.client.post(self.base + '/skill-comparison/answers', json={
+                'expected_input_revision': self.revision(), 'snapshot_id': jobs['snapshot_id'], 'skill_name': 'Python', 'status': status})
+            self.assertEqual(response.status_code, 200, response.text)
+            current = next(c for c in response.json()['comparisons'] if c['skill_name'] == 'Python')
+            self.assertEqual(current['student_status'], 'confirmed_experience')
+            self.assertEqual(current['project_evidence'], original['project_evidence'])
+        self.assertEqual(current, original)
 
     def test_clause_regressions_remain_unconfirmed_in_comparison_and_roadmap(self):
         from services.roadmap_generation import capture_basis, model_input

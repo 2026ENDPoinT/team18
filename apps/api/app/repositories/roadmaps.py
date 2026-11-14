@@ -121,6 +121,11 @@ def run_payload(store, run, current, *, include_unverified=False):
     result = grouped_roadmap(decode(run['result_json']), run['catalog_id'])
     from services.course_reasons import present_course_reasons
     result = present_course_reasons(store.db, run['catalog_id'], result)
+    # Historical generation evidence stays intact; current answers are read-only
+    # overlays even for old runs. This never invokes analysis or rewrites a run.
+    from services.project_experience import current_comparison
+    row = store.db.execute('SELECT * FROM roadmap_inputs WHERE request_id=?', (run['request_id'],)).fetchone()
+    result['current_skill_comparison'] = current_comparison(store.db, row)
     progress = store.progress(run['run_id'])
     for step in result['roadmap']:
         for task in step['tasks']:

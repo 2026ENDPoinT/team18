@@ -119,11 +119,18 @@ def answer_skill(rid: str, ctx=Depends(owned_context), body=Depends(parse_body))
     if matched is None:
         raise Problem(422, 'validation_error', '분석된 직무 기술에 대한 답변만 저장할 수 있습니다.')
     key = snapshot_skill_key(jobs, matched['name'])
-    basis = documents_for_analysis(db, rid)[2]
-    previous = store.skill_answers(snapshot['snapshot_id'], basis).get(key)
-    if not previous or previous['status'] != answer.status:
-        store.save_skill_answer(snapshot['snapshot_id'], basis, key, answer.status, row['input_revision'] + 1)
-        DocumentRepository(db).bump_input(rid, now())
+    if answer.status in ('has_experience', 'clear_experience'):
+        previous = key in store.manual_experiences(snapshot['snapshot_id'])
+        experienced = answer.status == 'has_experience'
+        if previous != experienced:
+            store.set_manual_experience(snapshot['snapshot_id'], key, experienced, row['input_revision'] + 1)
+            DocumentRepository(db).bump_input(rid, now())
+    else:
+        basis = documents_for_analysis(db, rid)[2]
+        previous = store.skill_answers(snapshot['snapshot_id'], basis).get(key)
+        if not previous or previous['status'] != answer.status:
+            store.save_skill_answer(snapshot['snapshot_id'], basis, key, answer.status, row['input_revision'] + 1)
+            DocumentRepository(db).bump_input(rid, now())
     result = current_comparison(db, repo.plan(rid, owner['owner_id']))
     db.commit()
     return respond(200, result)

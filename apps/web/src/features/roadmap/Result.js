@@ -154,9 +154,12 @@ export default function Result() {
   setResources(previous => ({ ...previous, plan: { phase: 'ready', data: input } }));
   load();
  }, [load]);
- const onSkillResult = useCallback(data => {
-  setResources(previous => ({ ...previous, comparison: { phase: 'ready', data: data.comparison, requestId: data.request_id } }));
-  load();
+ const onSkillResult = useCallback((data, { answersChanged = false } = {}) => {
+  if (answersChanged) epoch.current++; // Older in-flight reads cannot undo a committed answer.
+  setResources(previous => ({ ...previous, comparison: { phase: 'ready', data: data.comparison, requestId: data.request_id },
+   ...(answersChanged && previous.plan?.data ? { plan: { ...previous.plan, data: { ...previous.plan.data, input_revision: data.input_revision } } } : {}),
+  }));
+  if (!answersChanged) load();
  }, [load]);
  function changeTab(index, fromFooter = false) {
   tabNavigation.current = fromFooter;
@@ -186,8 +189,9 @@ export default function Result() {
   ? { phase: 'ready', data: result.activity_recommendations, message: '' }
   : resources.activities || { phase: 'loading', data: null };
  const live = resources.comparison;
- const useSaved = live?.phase === 'error' && live.transient && result?.skill_comparison && !result.is_stale && !result.details_restricted;
- const comparison = useSaved ? { phase: 'ready', data: result.skill_comparison, requestId: result.request_id } : live;
+ const savedComparison = result?.current_skill_comparison || (!result?.is_stale ? result?.skill_comparison : null);
+ const useSaved = live?.phase === 'error' && live.transient && savedComparison && !result.details_restricted;
+ const comparison = useSaved ? { phase: 'ready', data: savedComparison, requestId: result.request_id } : live;
  const requestId = comparison?.requestId || plan?.request_id || result?.request_id;
  return <div className="result-page">
   <div className="result-generation-heading"><PageTitle title="로드맵 결과" helpId={`result-${selectedTab}`}/>
@@ -201,7 +205,7 @@ export default function Result() {
    <JobSkillAnalysis key={requestId} active={selectedTab === 'skills'} comparison={comparison} requestId={requestId} onResult={onSkillResult} plan={plan} onPlanChange={onPlanChange} reload={load}/>
    {selectedTab === 'activities' && <ActivityRecommendations active resource={activities}/>}
    {overview && <ResultOverview resources={{ ...resources, comparison }} reload={load} activities={activities}/>}
-   {overview && result?.is_stale && <p className="notice">이전 입력 기준으로 저장된 결과입니다. 재분석으로 최신 결과를 만들 수 있어요.</p>}
+   {overview && result?.is_stale && <p className="notice">수강 후보와 활동은 이전 입력 기준으로 저장된 결과입니다. 보완할 역량 추천에는 현재 경험 체크를 반영합니다.</p>}
    {selectedTab === 'courses' && <>
     {resources.roadmap?.phase === 'loading' && <p role="status">저장된 결과를 불러오고 있습니다…</p>}
     {resources.roadmap?.phase === 'error' && <p role="alert">{resources.roadmap.message}</p>}

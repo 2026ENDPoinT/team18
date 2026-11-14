@@ -219,6 +219,7 @@ def current_comparison(db, row):
     snapshot = current_job_snapshot(repo, row)
     jobs = job_snapshot_payload(snapshot, row['input_revision']) if snapshot else {'status': 'not_started', 'skills': []}
     answers = repo.skill_answers(snapshot['snapshot_id'], project['document_basis']) if snapshot else {}
+    manual = repo.manual_experiences(snapshot['snapshot_id']) if snapshot else {}
     comparisons = []
     for skill in jobs['skills']:
         key = skill_key(skill['name'])
@@ -230,8 +231,11 @@ def current_comparison(db, row):
                 evidence.append({**item, 'effective_skill_name': normalize_skill(effective, item['category'])[0],
                                  'match_source': 'user_correction' if user and user['status'] == 'corrected' else 'document_ai'})
         answer = answers.get(snapshot_skill_key(jobs, skill['name']))
+        claim = manual.get(snapshot_skill_key(jobs, skill['name']))
         status, reason = compare_skill(evidence, answer)
         comparisons.append({'skill_name': skill['name'], 'category': skill['category'], 'student_status': status,
+                            'skill_key': snapshot_skill_key(jobs, skill['name']),
+                            'manual_experience': ({'source': 'user', 'status': 'has_experience', 'updated_at': claim['updated_at']} if claim else None),
                             'reason': reason, 'preparation_candidate': 'consider_learning' if status == 'no_experience'
                             else 'experience_confirmed' if status == 'confirmed_experience' else 'verify_experience_first',
                             'job_requirement': {k: v for k, v in skill.items() if k not in ('name', 'category', 'evidence')},

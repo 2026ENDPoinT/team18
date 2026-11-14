@@ -57,7 +57,7 @@ class SkillAnswer(StrictModel):
     expected_input_revision: int = Field(ge=0)
     snapshot_id: str = Field(min_length=1, max_length=100)
     skill_name: str = Field(min_length=1, max_length=150)
-    status: Literal['unknown', 'no_experience']
+    status: Literal['unknown', 'no_experience', 'has_experience', 'clear_experience']
 
 
 class JobAnalysisRequest(StrictModel):
